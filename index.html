@@ -1,958 +1,1846 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Decision Brief</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-/* ===== RESET & BASE ===== */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f8fafc;
-  color: #1e293b;
-  line-height: 1.5;
-  padding: 10px;
-  min-height: 100vh;
-}
-
-/* ===== TOOLBAR ===== */
-.toolbar {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  padding: 12px 0;
-  margin-bottom: 15px;
-}
-
-.btn {
-  padding: 8px 16px;
-  border: 1px solid #cbd5e1;
-  background: white;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 600;
-  color: #475569;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn:hover {
-  background: #f1f5f9;
-  border-color: #94a3b8;
-}
-
-.btn-primary {
-  background: #1e293b;
-  color: white;
-  border-color: #1e293b;
-}
-
-.btn-primary:hover {
-  background: #0f172a;
-  border-color: #0f172a;
-}
-
-/* ===== PAGE CONTAINER ===== */
-.page {
-  max-width: 1100px;
-  margin: 0 auto;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-  padding: 25px;
-}
-
-/* ===== PAGE TITLE ===== */
-.page-title {
-  text-align: center;
-  font-size: 28px;
-  font-weight: 800;
-  color: #1e293b;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #1e293b;
-  letter-spacing: -0.5px;
-}
-
-/* ===== METADATA SECTION ===== */
-.metadata {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f8fafc;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.meta-item {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.meta-label {
-  font-size: 10px;
-  font-weight: 600;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.meta-input {
-  padding: 6px 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 12px;
-  background: white;
-  transition: all 0.2s ease;
-  height: 32px;
-}
-
-.meta-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-/* ===== SECTIONS ===== */
-.section {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  background: #f8fafc;
-}
-
-.section-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 12px;
-  padding-bottom: 6px;
-  border-bottom: 2px solid #1e293b;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.section-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  background: #1e293b;
-  color: white;
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 11px;
-}
-
-/* ===== SECTIONS 1 & 2 (COMPACT) ===== */
-.section-1-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  min-height: 100px; /* Reduced to give more space to Options */
-}
-
-.section-1-2 > div {
-  display: flex;
-  flex-direction: column;
-}
-
-.text-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.text-section textarea {
-  flex: 1;
-  min-height: 70px; /* Reduced height */
-  padding: 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 12px;
-  line-height: 1.4;
-  resize: vertical;
-  background: white;
-  transition: all 0.2s ease;
-}
-
-.text-section textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-/* ===== SECTION 3: OPTIONS (MORE SPACE) ===== */
-.options-section {
-  margin-bottom: 20px;
-}
-
-.options-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 10px;
-}
-
-.option-card {
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 12px;
-  background: white;
-  display: flex;
-  flex-direction: column;
-  min-height: 240px; /* Increased height for better fit */
-  height: auto;
-}
-
-.option-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  flex-shrink: 0;
-}
-
-.option-name {
-  font-size: 13px;
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.score-display {
-  background: #1e293b;
-  color: white;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 700;
-  min-width: 60px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.option-input {
-  margin-bottom: 8px;
-  flex-shrink: 0;
-}
-
-.option-input input {
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 12px;
-  background: white;
-  transition: all 0.2s ease;
-  height: 30px;
-}
-
-.option-input input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-.criteria-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 8px;
-  font-size: 11px;
-  flex: 1;
-  min-height: 120px; /* Ensures table has enough space */
-}
-
-.criteria-table tr:not(:last-child) {
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.criteria-table td {
-  padding: 6px 6px; /* Slightly more padding */
-  vertical-align: middle;
-  height: 30px; /* Better row height */
-}
-
-.criteria-label {
-  font-weight: 600;
-  color: #475569;
-  width: 55%;
-}
-
-.criteria-score select {
-  width: 100%;
-  padding: 5px 6px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 11px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  height: 30px;
-}
-
-.criteria-score select:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.1);
-}
-
-/* ===== SECTIONS 4 & 5 (COMPACT) ===== */
-.section-4-5 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  min-height: 100px; /* Same compact size as sections 1 & 2 */
-}
-
-.section-4-5 > div {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Supporting Documents */
-.supporting-docs {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.documents-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex: 1;
-}
-
-.document-item {
-  display: grid;
-  grid-template-columns: 20px 1fr;
-  gap: 8px;
-  align-items: center;
-  height: 32px;
-}
-
-.document-number {
-  width: 20px;
-  height: 20px;
-  background: #64748b;
-  color: white;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 10px;
-  font-weight: 600;
-  flex-shrink: 0;
-}
-
-/* Recommendation */
-.recommendation-box {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-.recommendation-box textarea {
-  flex: 1;
-  min-height: 70px; /* Same as sections 1 & 2 */
-}
-
-/* ===== SECTION 6: NEXT STEPS (COMPACT) ===== */
-.steps-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-  margin-top: 8px;
-}
-
-.steps-table thead {
-  background: #f1f5f9;
-}
-
-.steps-table th {
-  padding: 8px 10px;
-  text-align: left;
-  font-weight: 600;
-  color: #475569;
-  border-bottom: 2px solid #e2e8f0;
-  font-size: 11px;
-}
-
-.steps-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid #e2e8f0;
-  height: 36px;
-}
-
-.steps-table input {
-  width: 100%;
-  padding: 6px 8px;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 12px;
-  background: white;
-  transition: all 0.2s ease;
-  height: 30px;
-}
-
-.steps-table input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
-}
-
-/* ===== SECTION 7: DECISION (COMPACT) ===== */
-.decision-options {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
-
-.decision-option {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-}
-
-.decision-option input[type="radio"] {
-  width: 14px;
-  height: 14px;
-  cursor: pointer;
-}
-
-.decision-option label {
-  font-size: 12px;
-  font-weight: 500;
-  color: #475569;
-  cursor: pointer;
-}
-
-.decision-option input[type="radio"]:checked + label {
-  color: #1e293b;
-  font-weight: 600;
-}
-
-.decision-notes {
-  min-height: 70px; /* Compact height */
-}
-
-.decision-notes textarea {
-  height: 100%;
-  min-height: 50px;
-}
-
-/* ===== FOOTER ===== */
-.footer {
-  margin-top: 20px;
-  padding-top: 12px;
-  border-top: 1px solid #e2e8f0;
-  font-size: 11px;
-  color: #64748b;
-  text-align: center;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 1024px) {
-  .metadata {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .options-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .section-1-2,
-  .section-4-5 {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-  
-  .option-card {
-    min-height: 230px;
-  }
-}
-
-@media (max-width: 768px) {
-  body {
-    padding: 5px;
-  }
-  
-  .page {
-    padding: 15px;
-  }
-  
-  .options-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .decision-options {
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .metadata {
-    grid-template-columns: 1fr;
-  }
-  
-  .option-card {
-    min-height: 240px;
-  }
-}
-
-/* ===== PRINT STYLES ===== */
-@media print {
-  body {
-    background: white;
-    padding: 0;
-  }
-  
-  .toolbar {
-    display: none;
-  }
-  
-  .page {
-    box-shadow: none;
-    border-radius: 0;
-    padding: 15px;
-    max-width: 100%;
-  }
-  
-  .option-card {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    min-height: 220px;
-  }
-  
-  .btn {
-    display: none;
-  }
-  
-  .meta-input,
-  .option-input input,
-  .steps-table input,
-  textarea,
-  select {
-    border: 1px solid #ccc !important;
-    background: white !important;
-  }
-}
-
-/* Fix textarea auto-resize */
-textarea {
-  resize: vertical;
-  overflow: auto;
-  min-height: 40px;
-}
-
-/* Ensure proper spacing */
-body {
-  display: flex;
-  flex-direction: column;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decision Brief</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        /* All CSS styles remain exactly the same as before */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; padding: 20px; }
+        .toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 0; margin-bottom: 20px; }
+        .toolbar-left, .toolbar-right { display: flex; gap: 12px; }
+        .btn { padding: 10px 20px; border: 1px solid #cbd5e1; background: white; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s ease; }
+        .btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+        .btn-primary { background: #1e293b; color: white; border-color: #1e293b; }
+        .btn-primary:hover { background: #0f172a; border-color: #0f172a; }
+        .btn-success { background: #10b981; color: white; border-color: #10b981; }
+        .btn-success:hover { background: #059669; border-color: #059669; }
+        .btn-info { background: #3b82f6; color: white; border-color: #3b82f6; }
+        .btn-info:hover { background: #2563eb; border-color: #2563eb; }
+        .btn-warning { background: #f59e0b; color: white; border-color: #f59e0b; }
+        .btn-warning:hover { background: #d97706; border-color: #d97706; }
+        .btn-email { background: #8b5cf6; color: white; border-color: #8b5cf6; }
+        .btn-email:hover { background: #7c3aed; border-color: #7c3aed; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-title { font-size: 20px; font-weight: 700; color: #1e293b; }
+        .close-btn { background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 6px; }
+        .close-btn:hover { background: #f1f5f9; color: #1e293b; }
+        .modal-body { margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        .form-label { display: block; font-size: 14px; font-weight: 600; color: #475569; margin-bottom: 6px; }
+        .form-input { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 14px; background: white; transition: all 0.2s ease; }
+        .form-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+        .form-textarea { min-height: 100px; resize: vertical; }
+        .share-link-container, .pdf-link-container { display: flex; gap: 8px; margin-top: 12px; }
+        .share-link-input, .pdf-link-input { flex: 1; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 14px; background: #f8fafc; color: #475569; font-size: 12px; }
+        .copy-btn { padding: 10px 16px; background: #1e293b; color: white; border: none; border-radius: 6px; font-family: inherit; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .copy-btn:hover { background: #0f172a; }
+        .copy-btn.copied { background: #10b981; }
+        .instructions { margin-top: 16px; padding: 12px; background: #f0f9ff; border-radius: 6px; border-left: 4px solid #3b82f6; font-size: 13px; color: #475569; }
+        .instructions p { margin-bottom: 8px; }
+        .instructions ul { padding-left: 20px; margin-bottom: 8px; }
+        .email-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .email-template { margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .template-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .template-title { font-size: 14px; font-weight: 600; color: #475569; }
+        .template-body { font-size: 12px; color: #64748b; line-height: 1.5; white-space: pre-wrap; }
+        .email-options { display: flex; gap: 10px; margin-bottom: 15px; }
+        .email-option-btn { flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; text-align: center; transition: all 0.2s ease; }
+        .email-option-btn:hover { background: #f1f5f9; }
+        .email-option-btn.active { border-color: #3b82f6; background: #eff6ff; }
+        .email-option-btn .title { font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+        .email-option-btn .desc { font-size: 12px; color: #64748b; }
+        .decision-mandatory .section-title::after { content: " *"; color: #ef4444; font-size: 18px; }
+        .decision-mandatory textarea { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        .decision-mandatory textarea:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(239,68,68,0.1) !important; }
+        .decision-required-warning { display: none; color: #ef4444; font-size: 12px; margin-top: 4px; font-weight: 500; }
+        .decision-mandatory .decision-required-warning { display: block; }
+        .mandatory-field .section-title::after { content: " *"; color: #ef4444; font-size: 18px; }
+        .mandatory-field input, .mandatory-field textarea, .mandatory-field select { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        .mandatory-field input:focus, .mandatory-field textarea:focus, .mandatory-field select:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(239,68,68,0.1) !important; }
+        .mandatory-warning { display: none; color: #ef4444; font-size: 12px; margin-top: 4px; font-weight: 500; }
+        .mandatory-field .mandatory-warning { display: block; }
+        
+        /* Next Steps mandatory styles */
+        .next-steps-mandatory .section-title::after { content: " *"; color: #ef4444; font-size: 18px; }
+        .next-steps-mandatory .steps-table input { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        .next-steps-mandatory .steps-table input:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(239,68,68,0.1) !important; }
+        .next-steps-warning { display: none; color: #ef4444; font-size: 12px; margin-top: 10px; font-weight: 500; }
+        .next-steps-mandatory .next-steps-warning { display: block; }
+        
+        .page { max-width: 1100px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 30px; }
+        .page-title { text-align: center; font-size: 32px; font-weight: 800; color: #1e293b; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #1e293b; letter-spacing: -0.5px; }
+        .metadata { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .meta-item { display: flex; flex-direction: column; gap: 6px; }
+        .meta-label { font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+        .meta-input { padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 13px; background: white; transition: all 0.2s ease; height: 36px; }
+        .meta-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+        .section { margin-bottom: 25px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; }
+        .section-title { font-size: 16px; font-weight: 700; color: #1e293b; margin-bottom: 15px; padding-bottom: 8px; border-bottom: 2px solid #1e293b; display: flex; align-items: center; gap: 8px; }
+        .section-number { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; background: #1e293b; color: white; border-radius: 6px; font-weight: 700; font-size: 12px; }
+        .section-1-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; min-height: 150px; }
+        .section-1-2 > div { display: flex; flex-direction: column; }
+        .text-section { flex: 1; display: flex; flex-direction: column; }
+        .text-section textarea { flex: 1; min-height: 120px; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 13px; line-height: 1.5; resize: vertical; background: white; transition: all 0.2s ease; }
+        .text-section textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+        .options-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 15px; }
+        .option-card { border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; background: white; display: flex; flex-direction: column; min-height: 240px; }
+        .option-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-shrink: 0; }
+        .option-name { font-size: 14px; font-weight: 700; color: #1e293b; }
+        .score-display { background: #1e293b; color: white; padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 700; min-width: 70px; text-align: center; flex-shrink: 0; }
+        .option-input { margin-bottom: 8px; flex-shrink: 0; }
+        .option-input input { width: 100%; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 13px; background: white; transition: all 0.2s ease; height: 34px; }
+        .option-input input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+        .criteria-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; flex: 1; min-height: 120px; }
+        .criteria-table tr:not(:last-child) { border-bottom: 1px solid #e2e8f0; }
+        .criteria-table td { padding: 6px 8px; vertical-align: middle; height: 30px; }
+        .criteria-label { font-weight: 600; color: #475569; width: 55%; }
+        .criteria-score select { width: 100%; padding: 6px 8px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 12px; background: white; cursor: pointer; transition: all 0.2s ease; height: 30px; }
+        .criteria-score select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 1px rgba(59,130,246,0.1); }
+        .section-4-5 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; min-height: 150px; }
+        .section-4-5 > div { display: flex; flex-direction: column; }
+        .supporting-docs { flex: 1; display: flex; flex-direction: column; }
+        .documents-list { display: flex; flex-direction: column; gap: 10px; flex: 1; }
+        .document-item { display: grid; grid-template-columns: 24px 1fr; gap: 10px; align-items: center; height: 36px; }
+        .document-number { width: 22px; height: 22px; background: #64748b; color: white; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
+        .recommendation-box { flex: 1; display: flex; flex-direction: column; }
+        .recommendation-box textarea { flex: 1; min-height: 120px; }
+        .steps-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+        .steps-table thead { background: #f1f5f9; }
+        .steps-table th { padding: 10px 12px; text-align: left; font-weight: 600; color: #475569; border-bottom: 2px solid #e2e8f0; font-size: 12px; }
+        .steps-table td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; height: 40px; }
+        .steps-table input { width: 100%; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 13px; background: white; transition: all 0.2s ease; height: 34px; }
+        .steps-table input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+        .decision-section { margin-bottom: 25px; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background: #f8fafc; }
+        .decision-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px; }
+        .decision-title { font-size: 16px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 8px; }
+        .decision-date-container { display: flex; align-items: center; gap: 8px; }
+        .decision-date-label { font-size: 13px; font-weight: 600; color: #475569; }
+        .decision-date-input { padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 13px; background: white; transition: all 0.2s ease; height: 36px; min-width: 150px; }
+        .decision-date-input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+        .decision-options { display: flex; gap: 20px; margin-bottom: 15px; flex-wrap: wrap; }
+        .decision-option { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .decision-option input[type="radio"] { width: 16px; height: 16px; cursor: pointer; }
+        .decision-option label { font-size: 13px; font-weight: 500; color: #475569; cursor: pointer; }
+        .decision-option input[type="radio"]:checked + label { color: #1e293b; font-weight: 600; }
+        .decision-notes { min-height: 100px; }
+        .decision-notes textarea { height: 100%; min-height: 80px; width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 13px; line-height: 1.5; resize: vertical; background: white; transition: all 0.2s ease; }
+        .decision-notes textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
+        .footer { margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center; }
+        .status-indicator { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; margin-left: 10px; background: #e2e8f0; color: #475569; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-conditional { background: #dbeafe; color: #1e40af; }
+        .status-promoted { background: #ddd6fe; color: #5b21b6; }
+        
+        @media (max-width: 1024px) {
+            .metadata { grid-template-columns: repeat(2, 1fr); }
+            .options-grid { grid-template-columns: repeat(2, 1fr); }
+            .section-1-2, .section-4-5 { grid-template-columns: 1fr; gap: 15px; }
+            .decision-header { flex-direction: column; align-items: flex-start; }
+        }
+        
+        @media (max-width: 768px) {
+            .page { padding: 20px; }
+            .toolbar { flex-direction: column; }
+            .toolbar-left, .toolbar-right { width: 100%; justify-content: space-between; }
+            .options-grid { grid-template-columns: 1fr; }
+            .decision-options { flex-direction: column; gap: 12px; }
+            .metadata { grid-template-columns: 1fr; }
+            .email-actions { flex-direction: column; }
+            .email-options { flex-direction: column; }
+        }
+        
+        @media print {
+            body { background: white; padding: 0; }
+            .toolbar { display: none; }
+            .modal { display: none !important; }
+            .page { box-shadow: none; border-radius: 0; padding: 20px; max-width: 100%; }
+            .option-card { break-inside: avoid; page-break-inside: avoid; }
+            .meta-input, .option-input input, .steps-table input, textarea, select { border: 1px solid #ccc !important; background: white !important; }
+            .decision-mandatory textarea, .mandatory-field input, .mandatory-field textarea { border: 1px solid #ccc !important; background: white !important; }
+        }
+    </style>
 </head>
 <body>
 
+<!-- Share Modal -->
+<div id="shareModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">Share Decision Brief</div>
+            <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Share this Decision Brief via email:</p>
+            
+            <div class="email-options">
+                <div class="email-option-btn active" id="toManagerOption" onclick="selectEmailOption('toManager')">
+                    <div class="title">To Manager</div>
+                    <div class="desc">Share for review and decision</div>
+                </div>
+                <div class="email-option-btn" id="toRequesterOption" onclick="selectEmailOption('toRequester')">
+                    <div class="title">Back to Requester</div>
+                    <div class="desc">Send decision back to requester</div>
+                </div>
+            </div>
+            
+            <div class="share-link-container">
+                <input type="text" class="share-link-input" id="shareLinkInput" readonly>
+                <button class="copy-btn" id="copyLinkBtn">Copy Link</button>
+            </div>
+            
+            <div class="email-actions">
+                <button class="btn btn-email" onclick="openEmailModal()">📧 Create Email</button>
+                <button class="btn btn-info" onclick="testShareLink()">Test Link</button>
+                <button class="btn btn-success" onclick="createEmailFile()">📧 Download Email File</button>
+            </div>
+            
+            <div class="instructions">
+                <p><strong>Important: For clickable links in email:</strong></p>
+                <ul>
+                    <li><strong>Method 1:</strong> Use "Create Email" then copy HTML and paste into email client</li>
+                    <li><strong>Method 2:</strong> Use "Download Email File" to get .eml file for Outlook</li>
+                    <li><strong>Method 3:</strong> Use mailto: link (plain text only)</li>
+                    <li><strong>Note:</strong> file:/// links are often blocked in emails for security</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Email Modal (for both To Manager and Back to Requester) -->
+<div id="emailModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title" id="emailModalTitle">Create Email for Decision Brief</div>
+            <button class="close-btn" id="closeEmailModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label class="form-label" id="toLabel">To (Recipient Email)</label>
+                <input type="email" class="form-input" id="toEmail" placeholder="email@company.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Your Email (Optional)</label>
+                <input type="email" class="form-input" id="fromEmail" placeholder="your.email@company.com">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Subject</label>
+                <input type="text" class="form-input" id="emailSubject" placeholder="Decision Brief">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Additional Message (Optional)</label>
+                <textarea class="form-input form-textarea" id="additionalMessage" rows="3" placeholder="Add any additional comments or instructions..."></textarea>
+            </div>
+            
+            <div class="email-template">
+                <div class="template-header">
+                    <div class="template-title" id="templateTitle">HTML Email Template:</div>
+                    <button class="btn btn-sm" onclick="useTemplate()">Refresh Template</button>
+                </div>
+                <div class="template-body" id="emailTemplatePreview" style="max-height: 300px; overflow-y: auto; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></div>
+            </div>
+            
+            <div class="email-actions">
+                <button class="btn btn-success" onclick="copyHTMLToClipboard()">📋 Copy HTML Email</button>
+                <button class="btn btn-info" onclick="copyPlainTextToClipboard()">📋 Copy Plain Text</button>
+                <button class="btn btn-warning" onclick="createEmailFile()">📧 Download Email File</button>
+                <button class="btn btn-primary" onclick="openEmailClient()">📧 Open Email Client</button>
+            </div>
+            
+            <div class="instructions">
+                <p><strong>How to send with clickable link:</strong></p>
+                <ul id="emailInstructions">
+                    <li><strong>For Outlook:</strong> Use "Download Email File" then double-click .eml file</li>
+                    <li><strong>For Gmail/Webmail:</strong> Use "Copy HTML Email", paste into compose window</li>
+                    <li><strong>For any email client:</strong> Use "Open Email Client" to open default mail app</li>
+                    <li><strong>Note:</strong> Some email clients block file:/// links for security</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PDF Modal -->
+<div id="pdfModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <div class="modal-title">PDF Generated Successfully</div>
+            <button class="close-btn" id="closePdfModal">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Your Decision Brief has been converted to PDF.</p>
+            
+            <div class="share-link-container">
+                <input type="text" class="share-link-input" id="pdfLinkInput" readonly>
+                <button class="copy-btn" id="copyPdfLinkBtn">Copy PDF Link</button>
+            </div>
+            
+            <div class="email-actions">
+                <button class="btn btn-success" id="downloadPdfBtn">Download PDF</button>
+                <button class="btn btn-primary" onclick="window.print()">Print</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Toolbar -->
 <div class="toolbar">
-  <button class="btn" onclick="resetForm()">Reset Form</button>
-  <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
+    <div class="toolbar-left">
+        <button class="btn" onclick="resetForm()">Reset Form</button>
+        <button class="btn btn-info" onclick="loadFromLocalStorage()">Load Saved Data</button>
+    </div>
+    <div class="toolbar-right">
+        <button class="btn btn-warning" onclick="generateShareLink()">Share via Email</button>
+        <button class="btn btn-success" onclick="generatePDF()" id="generatePdfBtn">Generate PDF</button>
+        <button class="btn btn-primary" onclick="window.print()">Print</button>
+    </div>
 </div>
 
 <!-- Main Page -->
-<div class="page">
+<div class="page" id="contentToPrint">
+    <h1 class="page-title">Decision Brief <span id="statusBadge" class="status-indicator">Draft</span></h1>
 
-  <!-- PAGE TITLE -->
-  <h1 class="page-title">Decision Brief</h1>
-
-  <!-- Metadata Section -->
-  <div class="metadata">
-    <div class="meta-item">
-      <div class="meta-label">Topic</div>
-      <input type="text" class="meta-input" placeholder="Enter decision topic">
-    </div>
-    <div class="meta-item">
-      <div class="meta-label">Requested by</div>
-      <input type="text" class="meta-input" placeholder="Name of requester">
-    </div>
-    <div class="meta-item">
-      <div class="meta-label">Decision Owner</div>
-      <input type="text" class="meta-input" placeholder="Name of decision maker">
-    </div>
-    <div class="meta-item">
-      <div class="meta-label">Decision Date</div>
-      <input type="date" class="meta-input" id="decisionDate">
-    </div>
-  </div>
-
-  <!-- SECTION 1 & 2 (COMPACT) -->
-  <div class="section section-1-2">
-    <div>
-      <div class="section-title">
-        <span class="section-number">1</span>
-        Background & Requirement
-      </div>
-      <div class="text-section">
-        <textarea placeholder="Describe the context, problem statement, and business need..."></textarea>
-      </div>
-    </div>
-    
-    <div>
-      <div class="section-title">
-        <span class="section-number">2</span>
-        Decision Required
-      </div>
-      <div class="text-section">
-        <textarea placeholder="Clearly state the specific decision that needs to be made..."></textarea>
-      </div>
-    </div>
-  </div>
-
-  <!-- SECTION 3: OPTIONS (WITH MORE SPACE) -->
-  <div class="section options-section">
-    <div class="section-title">
-      <span class="section-number">3</span>
-      Options Considered
-    </div>
-    <div class="options-grid" id="optionsGrid">
-      <!-- Options will be inserted here by JavaScript -->
-    </div>
-  </div>
-
-  <!-- SECTION 4 & 5 (COMPACT) -->
-  <div class="section section-4-5">
-    <div>
-      <div class="section-title">
-        <span class="section-number">4</span>
-        Supporting Documents
-      </div>
-      <div class="supporting-docs">
-        <div class="documents-list">
-          <div class="document-item">
-            <div class="document-number">1</div>
-            <input type="text" class="meta-input" placeholder="Document name or link">
-          </div>
-          <div class="document-item">
-            <div class="document-number">2</div>
-            <input type="text" class="meta-input" placeholder="Document name or link">
-          </div>
-          <div class="document-item">
-            <div class="document-number">3</div>
-            <input type="text" class="meta-input" placeholder="Document name or link">
-          </div>
+    <!-- Metadata Section -->
+    <div class="metadata">
+        <div class="meta-item mandatory-field" id="topicField">
+            <div class="meta-label">Topic</div>
+            <input type="text" class="meta-input" id="topic" placeholder="Enter decision topic">
+            <div class="mandatory-warning">* This field is required</div>
         </div>
-      </div>
+        <div class="meta-item mandatory-field" id="requesterField">
+            <div class="meta-label">Requested by</div>
+            <input type="text" class="meta-input" id="requestedBy" placeholder="Name of requester">
+            <div class="mandatory-warning">* This field is required</div>
+        </div>
+        <div class="meta-item mandatory-field" id="ownerField">
+            <div class="meta-label">Decision Owner</div>
+            <input type="text" class="meta-input" id="decisionOwner" placeholder="Name of decision maker">
+            <div class="mandatory-warning">* This field is required</div>
+        </div>
+        <div class="meta-item">
+            <div class="meta-label">Request Date</div>
+            <input type="date" class="meta-input" id="requestDate">
+        </div>
     </div>
-    
-    <div>
-      <div class="section-title">
-        <span class="section-number">5</span>
-        Recommendation
-      </div>
-      <div class="text-section recommendation-box">
-        <textarea placeholder="Provide a clear recommendation with supporting rationale..."></textarea>
-      </div>
-    </div>
-  </div>
 
-  <!-- SECTION 6 (COMPACT) -->
-  <div class="section">
-    <div class="section-title">
-      <span class="section-number">6</span>
-      Next Steps (if approved)
+    <!-- SECTION 1 & 2 -->
+    <div class="section section-1-2">
+        <div class="mandatory-field" id="backgroundField">
+            <div class="section-title">
+                <span class="section-number">1</span>
+                Background & Requirement
+            </div>
+            <div class="text-section">
+                <textarea id="background" placeholder="Describe the context, problem statement, and business need..."></textarea>
+                <div class="mandatory-warning">* This field is required</div>
+            </div>
+        </div>
+        
+        <div class="mandatory-field" id="decisionRequiredField">
+            <div class="section-title">
+                <span class="section-number">2</span>
+                Decision Required
+            </div>
+            <div class="text-section">
+                <textarea id="decisionRequired" placeholder="Clearly state the specific decision that needs to be made..."></textarea>
+                <div class="mandatory-warning">* This field is required</div>
+            </div>
+        </div>
     </div>
-    <table class="steps-table">
-      <thead>
-        <tr>
-          <th style="width: 40%">Action</th>
-          <th style="width: 30%">Responsible</th>
-          <th style="width: 30%">Timeline</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><input type="text" placeholder="Describe specific action"></td>
-          <td><input type="text" placeholder="Name or role"></td>
-          <td><input type="text" placeholder="Date or timeframe"></td>
-        </tr>
-        <tr>
-          <td><input type="text" placeholder="Describe specific action"></td>
-          <td><input type="text" placeholder="Name or role"></td>
-          <td><input type="text" placeholder="Date or timeframe"></td>
-        </tr>
-        <tr>
-          <td><input type="text" placeholder="Describe specific action"></td>
-          <td><input type="text" placeholder="Name or role"></td>
-          <td><input type="text" placeholder="Date or timeframe"></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
 
-  <!-- SECTION 7 (COMPACT) -->
-  <div class="section">
-    <div class="section-title">
-      <span class="section-number">7</span>
-      Decision
+    <!-- SECTION 3 -->
+    <div class="section">
+        <div class="section-title">
+            <span class="section-number">3</span>
+            Options Considered
+        </div>
+        <div class="options-grid" id="optionsGrid">
+            <!-- Options will be inserted here by JavaScript -->
+        </div>
     </div>
-    <div class="decision-options">
-      <div class="decision-option">
-        <input type="radio" id="approved" name="decision" value="approved">
-        <label for="approved">Approved</label>
-      </div>
-      <div class="decision-option">
-        <input type="radio" id="approved-conditions" name="decision" value="approved-conditions">
-        <label for="approved-conditions">Approved with conditions</label>
-      </div>
-      <div class="decision-option">
-        <input type="radio" id="not-approved" name="decision" value="not-approved">
-        <label for="not-approved">Not approved</label>
-      </div>
-    </div>
-    <div class="text-section decision-notes">
-      <textarea placeholder="Decision notes, conditions, or rationale..."></textarea>
-    </div>
-  </div>
 
-  <!-- Footer -->
-  <div class="footer">
-    Document ID: DB-<span id="docId">001</span> | Generated on <span id="generatedDate"></span>
-  </div>
+    <!-- SECTION 4 & 5 -->
+    <div class="section section-4-5">
+        <div>
+            <div class="section-title">
+                <span class="section-number">4</span>
+                Supporting Documents
+            </div>
+            <div class="supporting-docs">
+                <div class="documents-list" id="documentsList">
+                    <div class="document-item">
+                        <div class="document-number">1</div>
+                        <input type="text" class="meta-input document-input" placeholder="Document name or link">
+                    </div>
+                    <div class="document-item">
+                        <div class="document-number">2</div>
+                        <input type="text" class="meta-input document-input" placeholder="Document name or link">
+                    </div>
+                    <div class="document-item">
+                        <div class="document-number">3</div>
+                        <input type="text" class="meta-input document-input" placeholder="Document name or link">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mandatory-field" id="recommendationField">
+            <div class="section-title">
+                <span class="section-number">5</span>
+                Recommendation
+            </div>
+            <div class="text-section recommendation-box">
+                <textarea id="recommendation" placeholder="Provide a clear recommendation with supporting rationale..."></textarea>
+                <div class="mandatory-warning">* This field is required</div>
+            </div>
+        </div>
+    </div>
 
+    <!-- SECTION 6: Next Steps (MANDATORY - at least one step) -->
+    <div class="section" id="nextStepsSection">
+        <div class="section-title">
+            <span class="section-number">6</span>
+            Next Steps (if approved)
+        </div>
+        <table class="steps-table">
+            <thead>
+                <tr>
+                    <th style="width: 40%">Action</th>
+                    <th style="width: 30%">Responsible</th>
+                    <th style="width: 30%">Timeline</th>
+                </tr>
+            </thead>
+            <tbody id="stepsTableBody">
+                <tr>
+                    <td><input type="text" class="step-action" placeholder="Describe specific action"></td>
+                    <td><input type="text" class="step-responsible" placeholder="Name or role"></td>
+                    <td><input type="text" class="step-timeline" placeholder="Date or timeframe"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="step-action" placeholder="Describe specific action"></td>
+                    <td><input type="text" class="step-responsible" placeholder="Name or role"></td>
+                    <td><input type="text" class="step-timeline" placeholder="Date or timeframe"></td>
+                </tr>
+                <tr>
+                    <td><input type="text" class="step-action" placeholder="Describe specific action"></td>
+                    <td><input type="text" class="step-responsible" placeholder="Name or role"></td>
+                    <td><input type="text" class="step-timeline" placeholder="Date or timeframe"></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="next-steps-warning">* At least one next step is required (fill at least one field in any row)</div>
+    </div>
+
+    <!-- SECTION 7: DECISION (MANDATORY FOR MANAGER) -->
+    <div class="decision-section" id="decisionSection">
+        <div class="decision-header">
+            <div class="decision-title">
+                <span class="section-number">7</span>
+                Decision
+            </div>
+            <div class="decision-date-container">
+                <div class="decision-date-label">Decision Date:</div>
+                <input type="date" class="decision-date-input" id="decisionDate">
+            </div>
+        </div>
+        
+        <div class="decision-options">
+            <div class="decision-option">
+                <input type="radio" id="approved" name="decision" value="approved">
+                <label for="approved">Approved</label>
+            </div>
+            <div class="decision-option">
+                <input type="radio" id="approved-conditions" name="decision" value="approved-conditions">
+                <label for="approved-conditions">Approved with conditions</label>
+            </div>
+            <div class="decision-option">
+                <input type="radio" id="not-approved" name="decision" value="not-approved">
+                <label for="not-approved">Not approved</label>
+            </div>
+            <div class="decision-option">
+                <input type="radio" id="requester-promoted" name="decision" value="requester-promoted">
+                <label for="requester-promoted">Requester Promoted to decide</label>
+            </div>
+        </div>
+        <div class="decision-notes">
+            <textarea id="decisionNotes" placeholder="Decision notes, conditions, or rationale... (Mandatory for manager approval)"></textarea>
+            <div class="decision-required-warning">* Manager must provide decision and notes</div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        Document ID: DB-<span id="docId">001</span> | Generated on <span id="generatedDate"></span>
+    </div>
 </div>
 
 <script>
-// Initialize document
-document.getElementById('generatedDate').textContent = new Date().toLocaleDateString('en-US', {
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric'
-});
+    // Global variables
+    let currentDocumentId = '';
+    let isManagerView = false;
+    let currentShareUrl = '';
+    let selectedEmailOption = 'toManager';
+    let htmlEmailTemplate = '';
+    let plainTextTemplate = '';
 
-// Set today's date
-const dateInput = document.getElementById('decisionDate');
-dateInput.valueAsDate = new Date();
-
-// Generate document ID
-document.getElementById('docId').textContent = String(Math.floor(Math.random() * 9000) + 1000);
-
-// Create options with scoring
-const optionsGrid = document.getElementById('optionsGrid');
-const criteria = [
-  { name: "Cost", desc: "Financial impact and budget" },
-  { name: "Time", desc: "Implementation timeline" },
-  { name: "Risk", desc: "Potential risks and mitigation" },
-  { name: "People", desc: "Team and organizational impact" },
-  { name: "Compliance", desc: "Legal and regulatory requirements" }
-];
-
-const optionTemplates = [
-  { name: "Option A", desc: "Baseline / Maintain status quo" },
-  { name: "Option B", desc: "Recommended approach" },
-  { name: "Option C", desc: "Alternative solution" }
-];
-
-optionTemplates.forEach((option, index) => {
-  const optionCard = document.createElement('div');
-  optionCard.className = 'option-card';
-  
-  let criteriaHTML = '';
-  criteria.forEach(criterion => {
-    criteriaHTML += `
-      <tr>
-        <td class="criteria-label">${criterion.name}</td>
-        <td class="criteria-score">
-          <select class="score-select">
-            <option value="0">-</option>
-            <option value="1">1 (Low)</option>
-            <option value="2">2</option>
-            <option value="3">3 (Medium)</option>
-            <option value="4">4</option>
-            <option value="5">5 (High)</option>
-          </select>
-        </td>
-      </tr>
-    `;
-  });
-  
-  optionCard.innerHTML = `
-    <div class="option-header">
-      <div class="option-name">${option.name}</div>
-      <div class="score-display">Score: <span class="score-value">0</span></div>
-    </div>
-    
-    <div class="option-input">
-      <input type="text" class="option-title" value="${option.name}" placeholder="Option name">
-    </div>
-    
-    <div class="option-input">
-      <input type="text" class="option-description" value="${option.desc}" placeholder="Brief description">
-    </div>
-    
-    <table class="criteria-table">
-      <tbody>
-        ${criteriaHTML}
-      </tbody>
-    </table>
-  `;
-  
-  optionsGrid.appendChild(optionCard);
-});
-
-// Score calculation
-function calculateScore(optionCard) {
-  const scoreSelects = optionCard.querySelectorAll('.score-select');
-  let totalScore = 0;
-  
-  scoreSelects.forEach(select => {
-    totalScore += parseInt(select.value) || 0;
-  });
-  
-  const scoreDisplay = optionCard.querySelector('.score-display');
-  const scoreValue = optionCard.querySelector('.score-value');
-  
-  scoreValue.textContent = totalScore;
-  
-  // Color code based on score
-  if (totalScore >= 20) {
-    scoreDisplay.style.background = '#10b981'; // Green
-  } else if (totalScore >= 10) {
-    scoreDisplay.style.background = '#f59e0b'; // Orange
-  } else if (totalScore > 0) {
-    scoreDisplay.style.background = '#ef4444'; // Red
-  } else {
-    scoreDisplay.style.background = '#1e293b'; // Default
-  }
-  
-  return totalScore;
-}
-
-// Initialize scores
-document.querySelectorAll('.option-card').forEach(card => {
-  calculateScore(card);
-  
-  // Add event listeners to score selects
-  card.querySelectorAll('.score-select').forEach(select => {
-    select.addEventListener('change', () => {
-      calculateScore(card);
-      updateRecommendation();
+    // Initialize document
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeDocument();
     });
-  });
-});
 
-// Update recommendation based on scores
-function updateRecommendation() {
-  const scores = [];
-  document.querySelectorAll('.option-card').forEach((card, index) => {
-    const score = calculateScore(card);
-    const name = card.querySelector('.option-title').value || `Option ${String.fromCharCode(65 + index)}`;
-    scores.push({ name, score, index });
-  });
-  
-  // Sort by score (highest first)
-  scores.sort((a, b) => b.score - a.score);
-  
-  // Only update if we have meaningful scores
-  if (scores[0].score > 0) {
-    const recommendationTextarea = document.querySelectorAll('.text-section textarea')[2];
-    const currentText = recommendationTextarea.value;
-    
-    // Only update if textarea is empty or contains placeholder
-    if (!currentText || currentText.includes('Provide a clear recommendation')) {
-      const recommendation = `Based on the scoring analysis, ${scores[0].name} is recommended with a score of ${scores[0].score}/25.`;
-      recommendationTextarea.value = recommendation;
-      
-      // Trigger auto-resize
-      recommendationTextarea.dispatchEvent(new Event('input'));
+    function initializeDocument() {
+        // Set generated date
+        document.getElementById('generatedDate').textContent = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+        // Set request date (default to today)
+        const requestDateInput = document.getElementById('requestDate');
+        requestDateInput.valueAsDate = new Date();
+
+        // Set decision date (default to today)
+        const decisionDateInput = document.getElementById('decisionDate');
+        decisionDateInput.valueAsDate = new Date();
+
+        // Generate or get document ID from URL
+        currentDocumentId = getDocumentIdFromURL();
+        document.getElementById('docId').textContent = currentDocumentId;
+
+        // Create options with scoring
+        createOptionsGrid();
+
+        // Initialize scores
+        initializeScores();
+
+        // Set up event listeners
+        setupEventListeners();
+
+        // Check if we should load saved data
+        loadDataOnStartup();
     }
-  }
-}
 
-// Reset form function
-function resetForm() {
-  if (confirm('Reset all form data?')) {
-    // Reset all inputs
-    document.querySelectorAll('input[type="text"], textarea').forEach(input => {
-      input.value = '';
-    });
-    
-    // Reset option names and descriptions
-    document.querySelectorAll('.option-title').forEach((input, index) => {
-      input.value = optionTemplates[index].name;
-    });
-    
-    document.querySelectorAll('.option-description').forEach((input, index) => {
-      input.value = optionTemplates[index].desc;
-    });
-    
-    // Reset scores
-    document.querySelectorAll('.score-select').forEach(select => {
-      select.value = '0';
-    });
-    
-    // Reset decision radio
-    document.querySelectorAll('input[type="radio"]').forEach(radio => {
-      radio.checked = false;
-    });
-    
-    // Reset date to today
-    dateInput.valueAsDate = new Date();
-    
-    // Generate new document ID
-    document.getElementById('docId').textContent = String(Math.floor(Math.random() * 9000) + 1000);
-    
-    // Update scores display
-    document.querySelectorAll('.option-card').forEach(card => {
-      calculateScore(card);
-    });
-    
-    // Reset textarea heights
-    document.querySelectorAll('textarea').forEach(ta => {
-      ta.style.height = 'auto';
-    });
-  }
-}
+    function getDocumentIdFromURL() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const docIdFromUrl = urlParams.get('doc');
+        
+        if (docIdFromUrl) {
+            return docIdFromUrl;
+        }
+        
+        return String(Math.floor(Math.random() * 9000) + 1000);
+    }
 
-// Set radio button behavior
-document.querySelectorAll('input[name="decision"]').forEach(radio => {
-  radio.addEventListener('change', function() {
-    document.querySelectorAll('input[name="decision"]').forEach(r => {
-      r.nextElementSibling.style.fontWeight = r === this ? '600' : '500';
-      r.nextElementSibling.style.color = r === this ? '#1e293b' : '#475569';
-    });
-  });
-});
+    function createOptionsGrid() {
+        const optionsGrid = document.getElementById('optionsGrid');
+        const criteria = [
+            { name: "Cost", desc: "Financial impact and budget" },
+            { name: "Time", desc: "Implementation timeline" },
+            { name: "Risk", desc: "Potential risks and mitigation" },
+            { name: "People", desc: "Team and organizational impact" },
+            { name: "Compliance", desc: "Legal and regulatory requirements" }
+        ];
 
-// Fix textarea heights on load
-window.addEventListener('load', () => {
-  document.querySelectorAll('.text-section textarea').forEach(textarea => {
-    textarea.style.height = 'auto';
-    textarea.style.height = Math.max(textarea.scrollHeight, 70) + 'px';
-  });
-});
+        const optionTemplates = [
+            { name: "Option A", desc: "Baseline / Maintain status quo" },
+            { name: "Option B", desc: "Recommended approach" },
+            { name: "Option C", desc: "Alternative solution" }
+        ];
+
+        optionTemplates.forEach((option, index) => {
+            const optionCard = document.createElement('div');
+            optionCard.className = 'option-card';
+            optionCard.dataset.optionIndex = index;
+            
+            let criteriaHTML = '';
+            criteria.forEach((criterion, critIndex) => {
+                criteriaHTML += `
+                    <tr>
+                        <td class="criteria-label">${criterion.name}</td>
+                        <td class="criteria-score">
+                            <select class="score-select" data-criterion="${critIndex}">
+                                <option value="0">-</option>
+                                <option value="1">1 (Best)</option>
+                                <option value="2">2</option>
+                                <option value="3">3 (Average)</option>
+                                <option value="4">4</option>
+                                <option value="5">5 (Worst)</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            optionCard.innerHTML = `
+                <div class="option-header">
+                    <div class="option-name">${option.name}</div>
+                    <div class="score-display">Score: <span class="score-value">0</span></div>
+                </div>
+                
+                <div class="option-input">
+                    <input type="text" class="option-title" data-field="title" value="${option.name}" placeholder="Option name">
+                </div>
+                
+                <div class="option-input">
+                    <input type="text" class="option-description" data-field="description" value="${option.desc}" placeholder="Brief description">
+                </div>
+                
+                <table class="criteria-table">
+                    <tbody>
+                        ${criteriaHTML}
+                    </tbody>
+                </table>
+            `;
+            
+            optionsGrid.appendChild(optionCard);
+        });
+    }
+
+    function calculateScore(optionCard) {
+        const scoreSelects = optionCard.querySelectorAll('.score-select');
+        let totalScore = 0;
+        
+        scoreSelects.forEach(select => {
+            totalScore += parseInt(select.value) || 0;
+        });
+        
+        const scoreDisplay = optionCard.querySelector('.score-display');
+        const scoreValue = optionCard.querySelector('.score-value');
+        
+        scoreValue.textContent = totalScore;
+        
+        if (totalScore <= 10) {
+            scoreDisplay.style.background = '#10b981';
+        } else if (totalScore <= 15) {
+            scoreDisplay.style.background = '#f59e0b';
+        } else if (totalScore > 15) {
+            scoreDisplay.style.background = '#ef4444';
+        } else {
+            scoreDisplay.style.background = '#1e293b';
+        }
+        
+        return totalScore;
+    }
+
+    function initializeScores() {
+        document.querySelectorAll('.option-card').forEach(card => {
+            calculateScore(card);
+            
+            card.querySelectorAll('.score-select').forEach(select => {
+                select.addEventListener('change', () => {
+                    calculateScore(card);
+                });
+            });
+        });
+    }
+
+    function setupEventListeners() {
+        // Decision radio buttons
+        document.querySelectorAll('input[name="decision"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                updateStatusBadge();
+                checkDecisionMade();
+            });
+        });
+
+        // Decision notes input
+        document.getElementById('decisionNotes').addEventListener('input', checkDecisionMade);
+
+        // Decision date input
+        document.getElementById('decisionDate').addEventListener('change', function() {
+            updateStatusBadge();
+        });
+
+        // Mandatory field validation
+        const mandatoryFields = ['topic', 'requestedBy', 'decisionOwner', 'background', 'decisionRequired', 'recommendation'];
+        mandatoryFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.addEventListener('input', function() {
+                    validateMandatoryField(fieldId);
+                });
+                field.addEventListener('blur', function() {
+                    validateMandatoryField(fieldId);
+                });
+            }
+        });
+
+        // Next Steps validation
+        document.querySelectorAll('.step-action, .step-responsible, .step-timeline').forEach(input => {
+            input.addEventListener('input', validateNextSteps);
+            input.addEventListener('blur', validateNextSteps);
+        });
+
+        // Save data on input changes
+        document.querySelectorAll('input, textarea, select').forEach(element => {
+            element.addEventListener('input', autoSaveData);
+            element.addEventListener('change', autoSaveData);
+        });
+
+        // Share Modal
+        const shareModal = document.getElementById('shareModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const shareLinkInput = document.getElementById('shareLinkInput');
+        const copyLinkBtn = document.getElementById('copyLinkBtn');
+
+        closeModalBtn.addEventListener('click', () => {
+            shareModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === shareModal) {
+                shareModal.style.display = 'none';
+            }
+        });
+
+        copyLinkBtn.addEventListener('click', () => {
+            shareLinkInput.select();
+            shareLinkInput.setSelectionRange(0, 99999);
+            
+            navigator.clipboard.writeText(shareLinkInput.value).then(() => {
+                copyLinkBtn.textContent = 'Copied!';
+                copyLinkBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyLinkBtn.textContent = 'Copy Link';
+                    copyLinkBtn.classList.remove('copied');
+                }, 2000);
+            });
+        });
+
+        // Email Modal - Fix for template size issue
+        const emailModal = document.getElementById('emailModal');
+        const closeEmailModalBtn = document.getElementById('closeEmailModal');
+
+        closeEmailModalBtn.addEventListener('click', () => {
+            emailModal.style.display = 'none';
+            // Reset template preview when closing modal
+            document.getElementById('emailTemplatePreview').innerHTML = '';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === emailModal) {
+                emailModal.style.display = 'none';
+                // Reset template preview when closing modal
+                document.getElementById('emailTemplatePreview').innerHTML = '';
+            }
+        });
+
+        // PDF Modal
+        const pdfModal = document.getElementById('pdfModal');
+        const closePdfModalBtn = document.getElementById('closePdfModal');
+        const pdfLinkInput = document.getElementById('pdfLinkInput');
+        const copyPdfLinkBtn = document.getElementById('copyPdfLinkBtn');
+        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+
+        closePdfModalBtn.addEventListener('click', () => {
+            pdfModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === pdfModal) {
+                pdfModal.style.display = 'none';
+            }
+        });
+
+        copyPdfLinkBtn.addEventListener('click', () => {
+            pdfLinkInput.select();
+            pdfLinkInput.setSelectionRange(0, 99999);
+            
+            navigator.clipboard.writeText(pdfLinkInput.value).then(() => {
+                copyPdfLinkBtn.textContent = 'Copied!';
+                copyPdfLinkBtn.classList.add('copied');
+                
+                setTimeout(() => {
+                    copyPdfLinkBtn.textContent = 'Copy PDF Link';
+                    copyPdfLinkBtn.classList.remove('copied');
+                }, 2000);
+            });
+        });
+    }
+
+    function selectEmailOption(option) {
+        selectedEmailOption = option;
+        
+        document.getElementById('toManagerOption').classList.remove('active');
+        document.getElementById('toRequesterOption').classList.remove('active');
+        document.getElementById(option + 'Option').classList.add('active');
+    }
+
+    function validateMandatoryField(fieldId) {
+        const field = document.getElementById(fieldId);
+        const fieldContainer = document.getElementById(fieldId + 'Field');
+        
+        if (!field || !fieldContainer) return;
+        
+        if (!field.value.trim()) {
+            fieldContainer.classList.add('mandatory-field');
+        } else {
+            fieldContainer.classList.remove('mandatory-field');
+        }
+    }
+
+    // Validate Next Steps - at least one field filled in any row
+    function validateNextSteps() {
+        const stepActions = document.querySelectorAll('.step-action');
+        const stepResponsibles = document.querySelectorAll('.step-responsible');
+        const stepTimelines = document.querySelectorAll('.step-timeline');
+        const nextStepsSection = document.getElementById('nextStepsSection');
+        
+        let hasAtLeastOneStep = false;
+        
+        for (let i = 0; i < stepActions.length; i++) {
+            if (stepActions[i].value.trim() || stepResponsibles[i].value.trim() || stepTimelines[i].value.trim()) {
+                hasAtLeastOneStep = true;
+                break;
+            }
+        }
+        
+        if (!hasAtLeastOneStep) {
+            nextStepsSection.classList.add('next-steps-mandatory');
+        } else {
+            nextStepsSection.classList.remove('next-steps-mandatory');
+        }
+        
+        return hasAtLeastOneStep;
+    }
+
+    function validateAllMandatoryFields() {
+        const mandatoryFields = ['topic', 'requestedBy', 'decisionOwner', 'background', 'decisionRequired', 'recommendation'];
+        let isValid = true;
+        
+        // Validate basic mandatory fields
+        mandatoryFields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            const fieldContainer = document.getElementById(fieldId + 'Field');
+            
+            if (field && fieldContainer) {
+                if (!field.value.trim()) {
+                    fieldContainer.classList.add('mandatory-field');
+                    isValid = false;
+                } else {
+                    fieldContainer.classList.remove('mandatory-field');
+                }
+            }
+        });
+        
+        // Validate next steps
+        if (!validateNextSteps()) {
+            isValid = false;
+        }
+        
+        // Validate decision if in manager view
+        if (isManagerView) {
+            const decisionSelected = document.querySelector('input[name="decision"]:checked');
+            const decisionNotes = document.getElementById('decisionNotes').value.trim();
+            
+            if (!decisionSelected || !decisionNotes) {
+                document.getElementById('decisionSection').classList.add('decision-mandatory');
+                isValid = false;
+            } else {
+                document.getElementById('decisionSection').classList.remove('decision-mandatory');
+            }
+        }
+        
+        return isValid;
+    }
+
+    function loadDataOnStartup() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const docId = urlParams.get('doc');
+        
+        if (docId) {
+            loadSharedDocument(docId);
+        } else {
+            const autoSaved = localStorage.getItem('decisionBrief_autoSave');
+            if (autoSaved) {
+                try {
+                    const data = JSON.parse(autoSaved);
+                    populateForm(data);
+                } catch (e) {
+                    console.error('Error loading auto-saved data:', e);
+                }
+            }
+        }
+    }
+
+    function loadSharedDocument(docId) {
+        const savedData = localStorage.getItem(`decisionBrief_${docId}`);
+        
+        if (savedData) {
+            try {
+                const data = JSON.parse(savedData);
+                populateForm(data);
+                setManagerView(true);
+            } catch (e) {
+                console.error('Error loading shared document:', e);
+                setManagerView(false);
+            }
+        } else {
+            setManagerView(true);
+        }
+    }
+
+    function setManagerView(isManager) {
+        isManagerView = isManager;
+        const decisionSection = document.getElementById('decisionSection');
+        const shareBtn = document.querySelector('.btn-warning');
+        
+        if (isManager) {
+            decisionSection.classList.add('decision-mandatory');
+            shareBtn.textContent = 'Share Updated Brief';
+            shareBtn.title = 'Share the updated brief with decision';
+            checkDecisionMade();
+        } else {
+            decisionSection.classList.remove('decision-mandatory');
+            shareBtn.textContent = 'Share via Email';
+            shareBtn.title = 'Generate link to share via email';
+        }
+        
+        updateStatusBadge();
+    }
+
+    function checkDecisionMade() {
+        const decisionSelected = document.querySelector('input[name="decision"]:checked');
+        const decisionNotes = document.getElementById('decisionNotes').value.trim();
+        const decisionMade = decisionSelected && decisionNotes.length > 0;
+        
+        const pdfBtn = document.getElementById('generatePdfBtn');
+        pdfBtn.disabled = !decisionMade;
+        pdfBtn.title = decisionMade ? 
+            "Generate PDF document" : "Please make a decision and add notes first";
+        
+        return decisionMade;
+    }
+
+    function updateStatusBadge() {
+        const statusBadge = document.getElementById('statusBadge');
+        const decisionSelected = document.querySelector('input[name="decision"]:checked');
+        
+        if (!decisionSelected) {
+            statusBadge.textContent = isManagerView ? 'Pending Decision' : 'Draft';
+            statusBadge.className = isManagerView ? 'status-indicator status-pending' : 'status-indicator';
+            return;
+        }
+        
+        const decisionValue = decisionSelected.value;
+        
+        switch(decisionValue) {
+            case 'approved':
+                statusBadge.textContent = 'Approved';
+                statusBadge.className = 'status-indicator status-approved';
+                break;
+            case 'approved-conditions':
+                statusBadge.textContent = 'Approved with Conditions';
+                statusBadge.className = 'status-indicator status-conditional';
+                break;
+            case 'not-approved':
+                statusBadge.textContent = 'Not Approved';
+                statusBadge.className = 'status-indicator status-rejected';
+                break;
+            case 'requester-promoted':
+                statusBadge.textContent = 'Requester Promoted to Decide';
+                statusBadge.className = 'status-indicator status-promoted';
+                break;
+            default:
+                statusBadge.textContent = 'Pending Decision';
+                statusBadge.className = 'status-indicator status-pending';
+        }
+    }
+
+    function autoSaveData() {
+        const formData = collectFormData();
+        localStorage.setItem('decisionBrief_autoSave', JSON.stringify(formData));
+    }
+
+    function resetForm() {
+        if (confirm('Reset all form data?')) {
+            document.querySelectorAll('input[type="text"], textarea').forEach(input => {
+                input.value = '';
+            });
+            
+            const optionTemplates = [
+                { name: "Option A", desc: "Baseline / Maintain status quo" },
+                { name: "Option B", desc: "Recommended approach" },
+                { name: "Option C", desc: "Alternative solution" }
+            ];
+            
+            document.querySelectorAll('.option-title').forEach((input, index) => {
+                if (optionTemplates[index]) {
+                    input.value = optionTemplates[index].name;
+                }
+            });
+            
+            document.querySelectorAll('.option-description').forEach((input, index) => {
+                if (optionTemplates[index]) {
+                    input.value = optionTemplates[index].desc;
+                }
+            });
+            
+            document.querySelectorAll('.score-select').forEach(select => {
+                select.value = '0';
+            });
+            
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            const requestDateInput = document.getElementById('requestDate');
+            const decisionDateInput = document.getElementById('decisionDate');
+            requestDateInput.valueAsDate = new Date();
+            decisionDateInput.valueAsDate = new Date();
+            
+            currentDocumentId = String(Math.floor(Math.random() * 9000) + 1000);
+            document.getElementById('docId').textContent = currentDocumentId;
+            
+            document.querySelectorAll('.option-card').forEach(card => {
+                calculateScore(card);
+            });
+            
+            history.replaceState(null, '', window.location.pathname);
+            localStorage.removeItem('decisionBrief_autoSave');
+            setManagerView(false);
+            
+            // Reset mandatory field indicators
+            const mandatoryFields = ['topic', 'requestedBy', 'decisionOwner', 'background', 'decisionRequired', 'recommendation'];
+            mandatoryFields.forEach(fieldId => {
+                const fieldContainer = document.getElementById(fieldId + 'Field');
+                if (fieldContainer) {
+                    fieldContainer.classList.remove('mandatory-field');
+                }
+            });
+            
+            // Reset next steps mandatory indicator
+            document.getElementById('nextStepsSection').classList.remove('next-steps-mandatory');
+            
+            // Reset decision mandatory indicator
+            document.getElementById('decisionSection').classList.remove('decision-mandatory');
+        }
+    }
+
+    function generateShareLink() {
+        if (!validateAllMandatoryFields()) {
+            alert('Please fill all mandatory fields before sharing (marked with *).\n\n- All fields with * are required\n- At least one Next Step must be filled\n- If you are the manager, decision and notes are required');
+            return null;
+        }
+        
+        const formData = collectFormData();
+        const shareDocId = String(Math.floor(Math.random() * 9000) + 1000);
+        localStorage.setItem(`decisionBrief_${shareDocId}`, JSON.stringify(formData));
+        
+        const currentPath = window.location.href;
+        let basePath = currentPath.split('?')[0];
+        currentShareUrl = `${basePath}?doc=${shareDocId}`;
+        
+        const shareLinkInput = document.getElementById('shareLinkInput');
+        shareLinkInput.value = currentShareUrl;
+        
+        const shareModal = document.getElementById('shareModal');
+        shareModal.style.display = 'flex';
+        
+        localStorage.setItem('decisionBrief_autoSave', JSON.stringify(formData));
+        
+        console.log('Share link generated:', currentShareUrl);
+        return currentShareUrl;
+    }
+
+    function testShareLink() {
+        if (!currentShareUrl) {
+            alert('Please generate a share link first.');
+            return;
+        }
+        
+        try {
+            window.open(currentShareUrl, '_blank');
+            alert('Link opened in new tab. If it doesn\'t work, copy and paste the link into your browser.');
+        } catch (e) {
+            alert('Could not open link automatically. Please copy and paste this link into your browser:\n\n' + currentShareUrl);
+        }
+    }
+
+    function openEmailModal() {
+        if (!currentShareUrl) {
+            currentShareUrl = generateShareLink();
+            if (!currentShareUrl) return;
+        }
+        
+        if (selectedEmailOption === 'toManager') {
+            setupToManagerEmail();
+        } else {
+            setupToRequesterEmail();
+        }
+        
+        const emailModal = document.getElementById('emailModal');
+        emailModal.style.display = 'flex';
+        
+        // Fix for template size issue - force reflow
+        setTimeout(() => {
+            const preview = document.getElementById('emailTemplatePreview');
+            if (preview) {
+                preview.style.display = 'none';
+                setTimeout(() => {
+                    preview.style.display = 'block';
+                }, 10);
+            }
+        }, 50);
+    }
+
+    function setupToManagerEmail() {
+        const topic = document.getElementById('topic').value || 'Decision Brief';
+        const requester = document.getElementById('requestedBy').value || 'Requester';
+        const docId = document.getElementById('docId').textContent;
+        const decisionOwner = document.getElementById('decisionOwner').value || 'Manager';
+        const additionalMessage = document.getElementById('additionalMessage').value || '';
+        
+        const today = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Create subject
+        const subject = `Decision Brief: ${topic} - DB${docId}`;
+        document.getElementById('emailSubject').value = subject;
+        
+        // Plain text version
+        plainTextTemplate = `Dear ${decisionOwner},
+
+I have prepared a Decision Brief that requires your review and decision.
+
+Topic: ${topic}
+Requested by: ${requester}
+Document ID: DB${docId}
+
+${additionalMessage ? additionalMessage + '\n\n' : ''}You can access the full Decision Brief here:
+${currentShareUrl}
+
+Please review the document and provide your decision in Section 7.
+
+Note: If the link doesn't work, please copy and paste it into your browser.
+
+Best regards,
+${requester}
+
+---
+Generated on: ${today}`;
+        
+        // HTML version with clickable link
+        htmlEmailTemplate = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 15px; border-left: 4px solid #3b82f6; margin-bottom: 20px; }
+        .details { background: #f8fafc; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #e2e8f0; }
+        .link-container { background: #eff6ff; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center; border: 1px solid #3b82f6; }
+        .link { color: #3b82f6; text-decoration: underline; font-weight: bold; font-size: 14px; word-break: break-all; }
+        .note { background: #fff3cd; padding: 10px; border-radius: 5px; font-size: 14px; margin-top: 20px; border: 1px solid #ffc107; }
+        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2 style="margin: 0; color: #1e293b;">Decision Brief - Review Required</h2>
+    </div>
+    
+    <p>Dear ${decisionOwner},</p>
+    
+    <p>I have prepared a Decision Brief that requires your review and decision.</p>
+    
+    <div class="details">
+        <p><strong>Topic:</strong> ${topic}</p>
+        <p><strong>Requested by:</strong> ${requester}</p>
+        <p><strong>Document ID:</strong> DB${docId}</p>
+    </div>
+    
+    ${additionalMessage ? `<p>${additionalMessage.replace(/\n/g, '<br>')}</p>` : ''}
+    
+    <p>You can access the full Decision Brief by clicking the link below:</p>
+    
+    <div class="link-container">
+        <p style="margin: 0;">
+            <a href="${currentShareUrl}" class="link" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: bold;">
+                Open Decision Brief - DB${docId}
+            </a>
+        </p>
+        <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+            ${currentShareUrl}
+        </p>
+    </div>
+    
+    <p>Please review the document and provide your decision in Section 7.</p>
+    
+    <div class="note">
+        <p><strong>Note:</strong> If the link doesn't work in your email client, please copy and paste the URL above into your browser.</p>
+    </div>
+    
+    <p>Best regards,<br>
+    <strong>${requester}</strong></p>
+    
+    <div class="footer">
+        Generated on: ${today}
+    </div>
+</body>
+</html>`;
+        
+        // Update modal UI
+        document.getElementById('emailModalTitle').textContent = 'Create Email to Manager';
+        document.getElementById('toLabel').textContent = 'To (Manager Email)';
+        document.getElementById('templateTitle').textContent = 'HTML Email Template:';
+        
+        // Update template preview - FIXED: Clear and set fresh content
+        const preview = document.getElementById('emailTemplatePreview');
+        preview.innerHTML = '';
+        preview.innerHTML = htmlEmailTemplate;
+        
+        // Auto-fill emails
+        const decisionOwnerName = document.getElementById('decisionOwner').value;
+        if (decisionOwnerName) {
+            const email = decisionOwnerName.toLowerCase().replace(/\s+/g, '.') + '@company.com';
+            document.getElementById('toEmail').value = email;
+        }
+        
+        const requesterName = document.getElementById('requestedBy').value;
+        if (requesterName) {
+            const requesterEmail = requesterName.toLowerCase().replace(/\s+/g, '.') + '@company.com';
+            document.getElementById('fromEmail').value = requesterEmail;
+        }
+        
+        document.getElementById('emailInstructions').innerHTML = `
+            <li><strong>For Outlook:</strong> Use "Download Email File" then double-click .eml file</li>
+            <li><strong>For Gmail/Webmail:</strong> Use "Copy HTML Email", paste into compose window</li>
+            <li><strong>For any email client:</strong> Use "Open Email Client" to open default mail app</li>
+            <li><strong>Note:</strong> Some email clients block file:/// links for security</li>
+        `;
+    }
+
+    function setupToRequesterEmail() {
+        const topic = document.getElementById('topic').value || 'Decision Brief';
+        const requester = document.getElementById('requestedBy').value || 'Requester';
+        const docId = document.getElementById('docId').textContent;
+        const decisionOwner = document.getElementById('decisionOwner').value || 'Manager';
+        const decision = document.querySelector('input[name="decision"]:checked');
+        const decisionDate = document.getElementById('decisionDate').value;
+        const additionalMessage = document.getElementById('additionalMessage').value || '';
+        
+        let decisionText = 'Decision Made';
+        let decisionClass = 'default';
+        if (decision) {
+            switch(decision.value) {
+                case 'approved':
+                    decisionText = 'Approved';
+                    decisionClass = 'approved';
+                    break;
+                case 'approved-conditions':
+                    decisionText = 'Approved with Conditions';
+                    decisionClass = 'conditional';
+                    break;
+                case 'not-approved':
+                    decisionText = 'Not Approved';
+                    decisionClass = 'rejected';
+                    break;
+                case 'requester-promoted':
+                    decisionText = 'Requester Promoted to Decide';
+                    decisionClass = 'promoted';
+                    break;
+            }
+        }
+        
+        let formattedDate = 'Not specified';
+        if (decisionDate) {
+            const dateObj = new Date(decisionDate);
+            formattedDate = dateObj.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+        
+        const today = new Date().toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        // Create subject
+        const subject = `Decision Brief Decision - ${decisionText} - DB${docId}`;
+        document.getElementById('emailSubject').value = subject;
+        
+        // Plain text version
+        plainTextTemplate = `Dear ${requester},
+
+The Decision Brief has been reviewed and a decision has been made.
+
+Topic: ${topic}
+Document ID: DB${docId}
+Decision: ${decisionText}
+Decision Date: ${formattedDate}
+Decision Owner: ${decisionOwner}
+
+${additionalMessage ? additionalMessage + '\n\n' : ''}You can access the finalized Decision Brief here:
+${currentShareUrl}
+
+Please review the decision and notes in Section 7.
+
+Note: If the link doesn't work, please copy and paste it into your browser.
+
+Best regards,
+${decisionOwner}
+
+---
+Generated on: ${today}`;
+        
+        // HTML version with clickable link
+        const decisionColor = decisionClass === 'approved' ? '#10b981' : 
+                             decisionClass === 'rejected' ? '#ef4444' : 
+                             decisionClass === 'conditional' ? '#3b82f6' : 
+                             decisionClass === 'promoted' ? '#8b5cf6' : '#64748b';
+        
+        htmlEmailTemplate = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background: #f8f9fa; padding: 15px; border-left: 4px solid ${decisionColor}; margin-bottom: 20px; }
+        .decision-badge { 
+            display: inline-block; 
+            padding: 8px 20px; 
+            border-radius: 20px; 
+            font-weight: bold; 
+            color: white;
+            background: ${decisionColor};
+            margin: 10px 0; 
+        }
+        .details { background: #f8fafc; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #e2e8f0; }
+        .link-container { background: #eff6ff; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center; border: 1px solid #3b82f6; }
+        .link { color: #3b82f6; text-decoration: underline; font-weight: bold; font-size: 14px; word-break: break-all; }
+        .note { background: #fff3cd; padding: 10px; border-radius: 5px; font-size: 14px; margin-top: 20px; border: 1px solid #ffc107; }
+        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #666; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2 style="margin: 0; color: #1e293b;">Decision Brief - Decision Made</h2>
+    </div>
+    
+    <p>Dear ${requester},</p>
+    
+    <p>The Decision Brief has been reviewed and a decision has been made.</p>
+    
+    <div class="details">
+        <p><strong>Topic:</strong> ${topic}</p>
+        <p><strong>Document ID:</strong> DB${docId}</p>
+        <p><strong>Decision:</strong> <span class="decision-badge">${decisionText}</span></p>
+        <p><strong>Decision Date:</strong> ${formattedDate}</p>
+        <p><strong>Decision Owner:</strong> ${decisionOwner}</p>
+    </div>
+    
+    ${additionalMessage ? `<p>${additionalMessage.replace(/\n/g, '<br>')}</p>` : ''}
+    
+    <p>You can access the finalized Decision Brief by clicking the link below:</p>
+    
+    <div class="link-container">
+        <p style="margin: 0;">
+            <a href="${currentShareUrl}" class="link" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: bold;">
+                Open Decision Brief - DB${docId}
+            </a>
+        </p>
+        <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
+            ${currentShareUrl}
+        </p>
+    </div>
+    
+    <p>Please review the decision and notes in Section 7.</p>
+    
+    <div class="note">
+        <p><strong>Note:</strong> If the link doesn't work in your email client, please copy and paste the URL above into your browser.</p>
+    </div>
+    
+    <p>Best regards,<br>
+    <strong>${decisionOwner}</strong></p>
+    
+    <div class="footer">
+        Generated on: ${today}
+    </div>
+</body>
+</html>`;
+        
+        // Update modal UI
+        document.getElementById('emailModalTitle').textContent = 'Create Email to Requester';
+        document.getElementById('toLabel').textContent = 'To (Requester Email)';
+        document.getElementById('templateTitle').textContent = 'HTML Email Template:';
+        
+        // Update template preview - FIXED: Clear and set fresh content
+        const preview = document.getElementById('emailTemplatePreview');
+        preview.innerHTML = '';
+        preview.innerHTML = htmlEmailTemplate;
+        
+        // Auto-fill emails
+        const requesterName = document.getElementById('requestedBy').value;
+        if (requesterName) {
+            const requesterEmail = requesterName.toLowerCase().replace(/\s+/g, '.') + '@company.com';
+            document.getElementById('toEmail').value = requesterEmail;
+        }
+        
+        const decisionOwnerName = document.getElementById('decisionOwner').value;
+        if (decisionOwnerName) {
+            const ownerEmail = decisionOwnerName.toLowerCase().replace(/\s+/g, '.') + '@company.com';
+            document.getElementById('fromEmail').value = ownerEmail;
+        }
+        
+        document.getElementById('emailInstructions').innerHTML = `
+            <li><strong>For Outlook:</strong> Use "Download Email File" then double-click .eml file</li>
+            <li><strong>For Gmail/Webmail:</strong> Use "Copy HTML Email", paste into compose window</li>
+            <li><strong>For any email client:</strong> Use "Open Email Client" to open default mail app</li>
+            <li><strong>Note:</strong> HTML version shows decision status with color coding</li>
+        `;
+    }
+
+    function useTemplate() {
+        if (selectedEmailOption === 'toManager') {
+            setupToManagerEmail();
+        } else {
+            setupToRequesterEmail();
+        }
+    }
+
+    function copyHTMLToClipboard() {
+        const toEmail = document.getElementById('toEmail').value || 'recipient@company.com';
+        const fromEmail = document.getElementById('fromEmail').value || 'sender@company.com';
+        const subject = document.getElementById('emailSubject').value;
+        
+        // Create email HTML with proper headers
+        const emailHTML = `Subject: ${subject}
+To: ${toEmail}
+From: ${fromEmail}
+Content-Type: text/html; charset=UTF-8
+MIME-Version: 1.0
+
+${htmlEmailTemplate}`;
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(emailHTML).then(() => {
+            alert('HTML email copied to clipboard!\n\nPaste into your email client:\n1. Open new email\n2. Click "Insert" or "Format"\n3. Choose "Insert HTML" or similar\n4. Paste the content');
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+            // Fallback method
+            const textArea = document.createElement('textarea');
+            textArea.value = emailHTML;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                alert('HTML email copied to clipboard!\n\nPaste into your email client.');
+            } catch (err) {
+                alert('Please copy the HTML manually from the preview above.');
+            }
+            document.body.removeChild(textArea);
+        });
+    }
+
+    function copyPlainTextToClipboard() {
+        const toEmail = document.getElementById('toEmail').value || 'recipient@company.com';
+        const fromEmail = document.getElementById('fromEmail').value || 'sender@company.com';
+        const subject = document.getElementById('emailSubject').value;
+        
+        const emailText = `Subject: ${subject}
+To: ${toEmail}
+From: ${fromEmail}
+
+${plainTextTemplate}`;
+        
+        navigator.clipboard.writeText(emailText).then(() => {
+            alert('Plain text email copied to clipboard! Paste into your email client.');
+        });
+    }
+
+    function createEmailFile() {
+        const toEmail = document.getElementById('toEmail').value || 'recipient@company.com';
+        const fromEmail = document.getElementById('fromEmail').value || 'sender@company.com';
+        const subject = document.getElementById('emailSubject').value;
+        
+        // Create .eml file content
+        const emlContent = `From: ${fromEmail}
+To: ${toEmail}
+Subject: ${subject}
+Date: ${new Date().toUTCString()}
+MIME-Version: 1.0
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+${htmlEmailTemplate}`;
+        
+        // Create and download .eml file
+        const blob = new Blob([emlContent], { type: 'message/rfc822' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Decision_Brief_${subject.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50)}.eml`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert('Email file (.eml) downloaded!\n\nTo send:\n1. Double-click the .eml file\n2. It will open in Outlook\n3. Click "Send"\n\nFor other email clients:\n1. Open the .eml file in a text editor\n2. Copy the HTML part\n3. Paste into your email client');
+    }
+
+    // NEW FUNCTION: Open Email Client with mailto: link
+    function openEmailClient() {
+        const toEmail = document.getElementById('toEmail').value;
+        const fromEmail = document.getElementById('fromEmail').value || '';
+        const subject = document.getElementById('emailSubject').value;
+        
+        if (!toEmail) {
+            alert('Please enter recipient email address.');
+            return;
+        }
+        
+        // Create mailto link
+        let mailtoLink = `mailto:${toEmail}`;
+        
+        // Add CC if from email is provided
+        if (fromEmail) {
+            mailtoLink += `?cc=${fromEmail}`;
+        }
+        
+        // Add subject and body
+        mailtoLink += `${fromEmail ? '&' : '?'}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainTextTemplate)}`;
+        
+        // Open email client
+        window.open(mailtoLink, '_blank');
+        
+        // Show instructions
+        alert('Email client opened!\n\nNote: This method creates a plain text email.\nFor HTML email with clickable links, use "Copy HTML Email" or "Download Email File".');
+    }
+
+    // Rest of the functions remain the same...
+    function collectFormData() {
+        const data = {};
+        
+        // Collect metadata
+        data.topic = document.getElementById('topic').value;
+        data.requestedBy = document.getElementById('requestedBy').value;
+        data.decisionOwner = document.getElementById('decisionOwner').value;
+        data.requestDate = document.getElementById('requestDate').value;
+        data.decisionDate = document.getElementById('decisionDate').value;
+        
+        // Collect sections 1 & 2
+        data.background = document.getElementById('background').value;
+        data.decisionRequired = document.getElementById('decisionRequired').value;
+        
+        // Collect options
+        data.options = [];
+        document.querySelectorAll('.option-card').forEach((card, index) => {
+            const option = {
+                title: card.querySelector('.option-title').value,
+                description: card.querySelector('.option-description').value,
+                scores: []
+            };
+            
+            // Collect scores
+            card.querySelectorAll('.score-select').forEach((select, critIndex) => {
+                const criteria = ["Cost", "Time", "Risk", "People", "Compliance"];
+                option.scores.push({
+                    criterion: criteria[critIndex],
+                    score: parseInt(select.value) || 0
+                });
+            });
+            
+            data.options.push(option);
+        });
+        
+        // Collect documents
+        data.documents = [];
+        document.querySelectorAll('.document-input').forEach((input, index) => {
+            if (input.value.trim()) {
+                data.documents.push(input.value);
+            }
+        });
+        
+        // Collect recommendation
+        data.recommendation = document.getElementById('recommendation').value;
+        
+        // Collect next steps
+        data.nextSteps = [];
+        const stepActions = document.querySelectorAll('.step-action');
+        const stepResponsibles = document.querySelectorAll('.step-responsible');
+        const stepTimelines = document.querySelectorAll('.step-timeline');
+        
+        for (let i = 0; i < stepActions.length; i++) {
+            if (stepActions[i].value.trim() || stepResponsibles[i].value.trim() || stepTimelines[i].value.trim()) {
+                data.nextSteps.push({
+                    action: stepActions[i].value,
+                    responsible: stepResponsibles[i].value,
+                    timeline: stepTimelines[i].value
+                });
+            }
+        }
+        
+        // Collect decision
+        const selectedDecision = document.querySelector('input[name="decision"]:checked');
+        data.decision = selectedDecision ? selectedDecision.value : '';
+        data.decisionNotes = document.getElementById('decisionNotes').value;
+        
+        // Add document ID and timestamp
+        data.docId = document.getElementById('docId').textContent;
+        data.generatedDate = document.getElementById('generatedDate').textContent;
+        data.timestamp = new Date().toISOString();
+        data.isManagerView = isManagerView;
+        
+        return data;
+    }
+
+    function loadFromLocalStorage() {
+        const savedData = localStorage.getItem('decisionBrief_autoSave');
+        
+        if (savedData) {
+            try {
+                const data = JSON.parse(savedData);
+                populateForm(data);
+                alert('Saved data loaded successfully!');
+            } catch (e) {
+                console.error('Error loading saved data:', e);
+                alert('Error loading saved data.');
+            }
+        } else {
+            alert('No saved data found.');
+        }
+    }
+
+    function populateForm(data) {
+        // Metadata
+        if (data.topic) document.getElementById('topic').value = data.topic;
+        if (data.requestedBy) document.getElementById('requestedBy').value = data.requestedBy;
+        if (data.decisionOwner) document.getElementById('decisionOwner').value = data.decisionOwner;
+        if (data.requestDate) document.getElementById('requestDate').value = data.requestDate;
+        if (data.decisionDate) document.getElementById('decisionDate').value = data.decisionDate;
+        
+        // Sections 1 & 2
+        if (data.background) document.getElementById('background').value = data.background;
+        if (data.decisionRequired) document.getElementById('decisionRequired').value = data.decisionRequired;
+        
+        // Options
+        if (data.options && data.options.length > 0) {
+            const optionCards = document.querySelectorAll('.option-card');
+            data.options.forEach((option, index) => {
+                if (optionCards[index]) {
+                    if (option.title) optionCards[index].querySelector('.option-title').value = option.title;
+                    if (option.description) optionCards[index].querySelector('.option-description').value = option.description;
+                    
+                    // Scores
+                    if (option.scores && option.scores.length > 0) {
+                        const scoreSelects = optionCards[index].querySelectorAll('.score-select');
+                        option.scores.forEach((score, scoreIndex) => {
+                            if (scoreSelects[scoreIndex]) {
+                                scoreSelects[scoreIndex].value = score.score;
+                            }
+                        });
+                    }
+                    
+                    // Recalculate score display
+                    calculateScore(optionCards[index]);
+                }
+            });
+        }
+        
+        // Documents
+        if (data.documents && data.documents.length > 0) {
+            const docInputs = document.querySelectorAll('.document-input');
+            data.documents.forEach((doc, index) => {
+                if (docInputs[index]) {
+                    docInputs[index].value = doc;
+                }
+            });
+        }
+        
+        // Recommendation
+        if (data.recommendation) document.getElementById('recommendation').value = data.recommendation;
+        
+        // Next steps
+        if (data.nextSteps && data.nextSteps.length > 0) {
+            const stepActions = document.querySelectorAll('.step-action');
+            const stepResponsibles = document.querySelectorAll('.step-responsible');
+            const stepTimelines = document.querySelectorAll('.step-timeline');
+            
+            data.nextSteps.forEach((step, index) => {
+                if (stepActions[index]) stepActions[index].value = step.action || '';
+                if (stepResponsibles[index]) stepResponsibles[index].value = step.responsible || '';
+                if (stepTimelines[index]) stepTimelines[index].value = step.timeline || '';
+            });
+        }
+        
+        // Decision
+        if (data.decision) {
+            const decisionRadio = document.querySelector(`input[name="decision"][value="${data.decision}"]`);
+            if (decisionRadio) {
+                decisionRadio.checked = true;
+                decisionRadio.dispatchEvent(new Event('change'));
+            }
+        }
+        
+        if (data.decisionNotes) document.getElementById('decisionNotes').value = data.decisionNotes;
+        
+        // Document ID
+        if (data.docId) {
+            currentDocumentId = data.docId;
+            document.getElementById('docId').textContent = currentDocumentId;
+        }
+        
+        // Update status
+        updateStatusBadge();
+        checkDecisionMade();
+        
+        // Set manager view if data indicates it
+        if (data.isManagerView) {
+            setManagerView(true);
+        }
+        
+        // Validate mandatory fields
+        validateAllMandatoryFields();
+    }
+
+    // UPDATED PDF GENERATION - Fit to one page
+    async function generatePDF() {
+        if (!checkDecisionMade()) {
+            alert('Please make a decision and provide notes before generating PDF.');
+            document.getElementById('decisionSection').scrollIntoView({ behavior: 'smooth' });
+            return;
+        }
+        
+        const pdfBtn = document.getElementById('generatePdfBtn');
+        const originalText = pdfBtn.textContent;
+        pdfBtn.textContent = 'Generating PDF...';
+        pdfBtn.disabled = true;
+        
+        try {
+            const element = document.getElementById('contentToPrint');
+            
+            // Adjust styles for PDF
+            const originalStyles = {
+                boxShadow: element.style.boxShadow,
+                borderRadius: element.style.borderRadius,
+                padding: element.style.padding
+            };
+            
+            // Remove shadows and rounded corners for cleaner PDF
+            element.style.boxShadow = 'none';
+            element.style.borderRadius = '0';
+            element.style.padding = '20px 15px';
+            
+            // Adjust font sizes for better fit
+            const originalFontSizes = {};
+            document.querySelectorAll('#contentToPrint *').forEach(el => {
+                const style = window.getComputedStyle(el);
+                originalFontSizes[el] = style.fontSize;
+                if (parseFloat(style.fontSize) > 12) {
+                    el.style.fontSize = (parseFloat(style.fontSize) * 0.9) + 'px';
+                }
+            });
+            
+            // Create canvas with optimized settings
+            const canvas = await html2canvas(element, {
+                scale: 1.5, // Reduced scale to fit in one page
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                width: 794, // A4 width in pixels at 96 DPI
+                height: 1123, // A4 height in pixels at 96 DPI
+                windowWidth: 794,
+                windowHeight: 1123
+            });
+            
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
+            
+            // Get A4 dimensions in points
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            
+            // Calculate dimensions to fit the image to page
+            const imgWidth = pdfWidth - 40; // 20pt margins on each side
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            // Check if it fits in one page
+            if (imgHeight > pdfHeight - 40) {
+                // Scale down to fit
+                const scale = (pdfHeight - 40) / imgHeight;
+                const scaledWidth = imgWidth * scale;
+                const scaledHeight = imgHeight * scale;
+                
+                // Center horizontally
+                const xPos = (pdfWidth - scaledWidth) / 2;
+                
+                pdf.addImage(imgData, 'PNG', xPos, 20, scaledWidth, scaledHeight);
+            } else {
+                // Center vertically
+                const yPos = (pdfHeight - imgHeight) / 2;
+                pdf.addImage(imgData, 'PNG', 20, yPos, imgWidth, imgHeight);
+            }
+            
+            // Restore original styles
+            element.style.boxShadow = originalStyles.boxShadow;
+            element.style.borderRadius = originalStyles.borderRadius;
+            element.style.padding = originalStyles.padding;
+            
+            // Restore font sizes
+            Object.keys(originalFontSizes).forEach(el => {
+                if (el.style) {
+                    el.style.fontSize = originalFontSizes[el];
+                }
+            });
+            
+            // Generate PDF filename
+            const docId = document.getElementById('docId').textContent;
+            const topic = document.getElementById('topic').value || 'Decision_Brief';
+            const cleanTopic = topic.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
+            const filename = `Decision_Brief_${cleanTopic}_DB${docId}.pdf`;
+            
+            // Create download link
+            const pdfBlob = pdf.output('blob');
+            const pdfUrl = URL.createObjectURL(pdfBlob);
+            
+            // Set up download button
+            document.getElementById('downloadPdfBtn').onclick = function() {
+                const link = document.createElement('a');
+                link.href = pdfUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+            
+            // Create PDF data URL
+            const pdfDataUrl = pdf.output('datauristring');
+            document.getElementById('pdfLinkInput').value = pdfDataUrl;
+            
+            // Show PDF modal
+            document.getElementById('pdfModal').style.display = 'flex';
+            
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Error generating PDF. Please try printing instead.');
+        } finally {
+            pdfBtn.textContent = originalText;
+            pdfBtn.disabled = false;
+        }
+    }
 </script>
 </body>
 </html>
