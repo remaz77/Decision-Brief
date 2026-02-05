@@ -1641,7 +1641,7 @@ Now create your email:
     }
 
     // ================================
-    // GITHUB FUNCTIONS
+    // GITHUB FUNCTIONS - FIXED FOR SINGLE GIST MULTIPLE DOCUMENTS
     // ================================
     function loadGithubConfig() {
         try {
@@ -1749,17 +1749,70 @@ Now create your email:
                 generateDocumentId();
             }
             
+            // Create current document object
+            const currentDoc = {
+                id: documentUniqueId,
+                data: data,
+                timestamp: new Date().toISOString(),
+                title: data.Topic || 'Untitled Decision Brief',
+                requester: data.RequestedBy || 'Unknown',
+                decisionOwner: data.DecisionOwner || 'Unknown',
+                status: data.DecisionStatusText || 'Draft'
+            };
+            
+            // Try to load existing Gist data first
+            let existingDocuments = [];
+            let existingGistId = githubConfig.gistId;
+            
+            if (existingGistId && existingGistId.trim() !== '') {
+                try {
+                    const response = await fetch(`https://api.github.com/gists/${existingGistId}`, {
+                        headers: {
+                            'Authorization': `Bearer ${githubConfig.token}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const existingGist = await response.json();
+                        const fileContent = existingGist.files['decision-brief-data.json'].content;
+                        const existingData = JSON.parse(fileContent);
+                        
+                        // Check if it's the new multi-document format
+                        if (existingData.documents && Array.isArray(existingData.documents)) {
+                            existingDocuments = existingData.documents;
+                        } else if (existingData.data) {
+                            // Convert old single document format to new array format
+                            existingDocuments = [{
+                                id: existingData.documentUniqueId || existingData.data.DocId,
+                                data: existingData.data,
+                                timestamp: existingData.exportedAt || new Date().toISOString(),
+                                title: existingData.data.Topic || 'Untitled'
+                            }];
+                        }
+                    }
+                } catch (e) {
+                    console.log('No existing Gist or error loading, will create new:', e.message);
+                }
+            }
+            
+            // Remove existing document with same ID (if any)
+            existingDocuments = existingDocuments.filter(doc => doc.id !== documentUniqueId);
+            
+            // Add current document
+            existingDocuments.push(currentDoc);
+            
+            // Prepare the new data structure for the Gist
             const allData = {
                 app: "Decision Brief",
-                version: "1.0",
+                version: "1.1",
                 exportedAt: new Date().toISOString(),
-                data: data,
-                documentUniqueId: documentUniqueId,
-                generatedDate: document.getElementById("generatedDate").textContent
+                documents: existingDocuments,
+                gistFormat: "multi-document"
             };
             
             const gistData = {
-                description: `Decision Brief - ${data.Topic || 'Untitled'} - ${documentUniqueId}`,
+                description: `Decision Brief - ${currentDoc.title} - Updated ${new Date().toLocaleDateString()}`,
                 public: false,
                 files: {
                     "decision-brief-data.json": {
@@ -1771,8 +1824,8 @@ Now create your email:
             let response;
             let isNewGist = false;
             
-            if (githubConfig.gistId && githubConfig.gistId.trim() !== '') {
-                response = await fetch(`https://api.github.com/gists/${githubConfig.gistId}`, {
+            if (existingGistId && existingGistId.trim() !== '') {
+                response = await fetch(`https://api.github.com/gists/${existingGistId}`, {
                     method: 'PATCH',
                     headers: {
                         'Authorization': `Bearer ${githubConfig.token}`,
@@ -1852,24 +1905,40 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
         }
     }
     
+    // ================================
+    // 🆕 UPDATED LOAD FROM GITHUB FUNCTION - LOADS SPECIFIC DOCUMENT BY ID
+    // ================================
     async function loadFromGithub() {
         if (!githubConfig.token) {
             showAlert('Please setup GitHub token first! Click the GitHub config button.', 'error');
             showGithubConfigModal();
             return;
         }
+
+        // Get document ID to load
+        const docIdToLoad = getDocIdFromURL() || documentUniqueId || document.getElementById("docId").textContent;
         
         if (!githubConfig.gistId || githubConfig.gistId.trim() === '') {
             showAlert('No Gist ID configured. Save to GitHub first to create a Gist.', 'error');
             return;
         }
-        
+
+        await loadFromGist(githubConfig.gistId, docIdToLoad);
+    }
+    
+    async function loadFromGist(gistId, specificDocId = null) {
+        if (!githubConfig.token) {
+            showAlert('Please setup GitHub token first! Click the GitHub config button.', 'error');
+            showGithubConfigModal();
+            return;
+        }
+
         try {
-            console.log('Loading from GitHub Gist:', githubConfig.gistId);
+            console.log('Loading from GitHub Gist:', gistId);
             
             showAlert('🔄 Loading from GitHub Cloud...', 'info');
             
-            const response = await fetch(`https://api.github.com/gists/${githubConfig.gistId}`, {
+            const response = await fetch(`https://api.github.com/gists/${gistId}`, {
                 headers: {
                     'Authorization': `Bearer ${githubConfig.token}`,
                     'Accept': 'application/vnd.github.v3+json'
@@ -1890,45 +1959,67 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
             const fileContent = gist.files['decision-brief-data.json'].content;
             const importedData = JSON.parse(fileContent);
             
-            if (importedData.data) {
-                populateForm(importedData.data);
-                currentFormData = importedData.data;
+            let documentToLoad = null;
+            const docIdToLoad = specificDocId || getDocIdFromURL() || documentUniqueId || document.getElementById("docId").textContent;
+            
+            // Check the format of the Gist data
+            if (importedData.gistFormat === "multi-document" && importedData.documents) {
+                // NEW FORMAT: Array of documents
+                documentToLoad = importedData.documents.find(doc => doc.id === docIdToLoad);
                 
-                if (importedData.documentUniqueId) {
-                    documentUniqueId = importedData.documentUniqueId;
-                    document.getElementById("docId").textContent = documentUniqueId;
+                if (!documentToLoad) {
+                    // If not found, show available documents
+                    const availableDocs = importedData.documents.map(d => `${d.title} (${d.id})`).join('\n• ');
+                    throw new Error(`Document with ID "${docIdToLoad}" not found in Gist.\n\nAvailable documents:\n• ${availableDocs || 'None'}`);
+                }
+            } else if (importedData.data) {
+                // OLD FORMAT: Single document (for backward compatibility)
+                const oldDocId = importedData.documentUniqueId || importedData.data.DocId;
+                if (oldDocId === docIdToLoad || docIdToLoad === 'Draft') {
+                    documentToLoad = {
+                        id: oldDocId,
+                        data: importedData.data
+                    };
+                } else {
+                    throw new Error(`Document ID mismatch. Requested: "${docIdToLoad}", Found: "${oldDocId}"`);
                 }
             } else {
-                populateForm(importedData);
-                currentFormData = importedData;
+                throw new Error('Invalid data format in Gist');
             }
             
-            githubConfig.lastSync = new Date().toISOString();
-            localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
-            
-            const data = importedData.data || importedData;
-            const syncTime = importedData.exportedAt ? 
-                new Date(importedData.exportedAt).toLocaleString() : 'Unknown';
-            
-            showAlert(`✅ DATA LOADED SUCCESSFULLY!
+            if (documentToLoad) {
+                populateForm(documentToLoad.data);
+                currentFormData = documentToLoad.data;
+                documentUniqueId = documentToLoad.id;
+                document.getElementById("docId").textContent = documentToLoad.id;
+                
+                // Update gistId in config if different
+                if (githubConfig.gistId !== gistId) {
+                    githubConfig.gistId = gistId;
+                    localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
+                }
+                
+                githubConfig.lastSync = new Date().toISOString();
+                localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
+                
+                showAlert(`✅ DATA LOADED SUCCESSFULLY!
 
 📊 Loaded Decision Brief:
-• Topic: ${data.Topic || 'Untitled'}
-• Requested by: ${data.RequestedBy || 'Unknown'}
-• Decision Owner: ${data.DecisionOwner || 'Unknown'}
-• Document ID: ${documentUniqueId || 'N/A'}
+• Topic: ${documentToLoad.data.Topic || 'Untitled'}
+• Document ID: ${documentToLoad.id}
 
-⏰ Last Saved: ${syncTime}
+⏰ Last Saved: ${new Date(importedData.exportedAt).toLocaleString() || 'Unknown'}
 
 ✅ Form data restored!`, 'success');
-            
-            updateStatusBadge();
-            validateAllMandatoryFields();
-            
-            // Update email button visibility after loading
-            documentSaved = true;
-            section7Filled = checkSection7Complete();
-            updateEmailButtonVisibility();
+                
+                updateStatusBadge();
+                validateAllMandatoryFields();
+                
+                // Update document state
+                documentSaved = true;
+                section7Filled = checkSection7Complete();
+                updateEmailButtonVisibility();
+            }
             
         } catch (error) {
             console.error('GitHub load error:', error);
@@ -1945,6 +2036,15 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
             
             showAlert(errorMsg, 'error');
         }
+    }
+    
+    // Helper function to get DocId from URL
+    function getDocIdFromURL() {
+        const hash = window.location.hash;
+        if (hash.startsWith('#doc=')) {
+            return hash.split('=')[1];
+        }
+        return null;
     }
     
     function showGithubConfigModal() {
@@ -2016,7 +2116,8 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
             requester: data.RequestedBy || 'Unknown',
             decisionOwner: data.DecisionOwner || 'Unknown',
             status: data.DecisionStatusText || 'Draft',
-            lastModified: timestamp
+            lastModified: timestamp,
+            gistId: githubConfig.gistId || null
         });
         
         // Sort by timestamp (newest first)
@@ -2388,6 +2489,13 @@ Generated by Decision Brief System on ${today}`;
             documentUniqueId = docId;
             document.getElementById("docId").textContent = docId;
             
+            // If document has gistId, update config
+            if (doc.gistId && doc.gistId !== githubConfig.gistId) {
+                githubConfig.gistId = doc.gistId;
+                localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
+                updateGithubStatus();
+            }
+            
             document.querySelectorAll('.modal').forEach(modal => modal.remove());
             
             // Update document state
@@ -2630,49 +2738,17 @@ Best regards`;
     }
 
     // ================================
-    // 📄 URL LOADING FUNCTION
+    // 📄 UPDATED URL LOADING FUNCTION
     // ================================
     function loadDocumentFromURL() {
         const hash = window.location.hash;
         if (hash.startsWith('#doc=')) {
             const docId = hash.split('=')[1];
-            const doc = documentsDatabase.find(d => d.id === docId);
+            documentUniqueId = docId;
+            document.getElementById("docId").textContent = docId;
             
-            if (doc) {
-                populateForm(doc.data);
-                documentUniqueId = docId;
-                document.getElementById("docId").textContent = docId;
-                
-                // Update document state
-                documentSaved = true;
-                section7Filled = checkSection7Complete();
-                updateEmailButtonVisibility();
-                
-                showAlert(`✅ Document loaded from URL: ${doc.title || 'Untitled'}`, 'success');
-            } else {
-                const urlParams = new URLSearchParams(window.location.hash.substring(1));
-                const encodedData = urlParams.get('data');
-                
-                if (encodedData) {
-                    try {
-                        const formData = JSON.parse(atob(encodedData));
-                        populateForm(formData);
-                        if (docId) {
-                            document.getElementById("docId").textContent = docId;
-                            documentUniqueId = docId;
-                        }
-                        
-                        // Update document state
-                        documentSaved = true;
-                        section7Filled = checkSection7Complete();
-                        updateEmailButtonVisibility();
-                        
-                        showAlert('✅ Document loaded from shared link!', 'success');
-                    } catch (error) {
-                        console.error("Error loading from URL data:", error);
-                    }
-                }
-            }
+            // Show message about loading
+            showAlert(`📋 Document ID detected: ${docId}\n\nClick "Load from Cloud" to load this specific document.`, 'info');
         }
     }
 
@@ -2812,7 +2888,7 @@ Best regards`;
     }
 
     // ================================
-    // EXISTING FORM FUNCTIONS (UPDATED)
+    // EXISTING FORM FUNCTIONS
     // ================================
     function createOptionsGrid() {
         const optionsGrid = document.getElementById("optionsGrid");
