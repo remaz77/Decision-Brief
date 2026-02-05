@@ -249,6 +249,65 @@
             font-size: 13px;
         }
 
+        /* New merged button style */
+        .btn-cloud-save {
+            background: linear-gradient(135deg, #10b981 0%, #3b82f6 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-cloud-save:hover {
+            background: linear-gradient(135deg, #059669 0%, #2563eb 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-cloud-save:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* Outlook specific button */
+        .btn-outlook {
+            background: #0072C6;
+            color: white;
+            border-color: #0072C6;
+        }
+        
+        .btn-outlook:hover {
+            background: #005A9E;
+            border-color: #005A9E;
+        }
+        
+        /* Step indicators */
+        .step-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .step-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+
         @media (max-width: 1024px) {
             .metadata { grid-template-columns: repeat(2, 1fr); }
             .options-grid { grid-template-columns: repeat(2, 1fr); }
@@ -331,7 +390,7 @@
             <div id="configStatus" style="margin-top: 15px; padding: 10px; border-radius: 6px; display: none;"></div>
             
             <div class="instructions">
-                <h4><i class="fas fa-question-circle"></i> Setup Instructions:</h4>
+                <h4><i class="fas fa-question-circle"></i> Simple 3-Step Setup:</h4>
                 <ol style="margin-left: 20px; color: #555;">
                     <li>Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub Tokens</a></li>
                     <li>Click "Generate new token" → "Generate new token (classic)"</li>
@@ -386,20 +445,14 @@
                 <div class="template-body" id="emailTemplatePreview" style="max-height: 300px; overflow-y: auto; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></div>
             </div>
 
-            <div class="email-actions">
-                <button class="btn btn-success" onclick="copyHTMLToClipboard()">📋 Copy HTML Email</button>
-                <button class="btn btn-info" onclick="copyPlainTextToClipboard()">📋 Copy Plain Text</button>
-                <button class="btn btn-primary" onclick="openEmailClient()">📧 Open Email Client</button>
-                <button class="btn btn-email" onclick="createEmailWithPDF()">📎 Create Email with PDF</button>
+            <div class="email-actions" id="emailModalActions">
+                <!-- Buttons will be inserted here based on email type -->
             </div>
 
             <div class="instructions">
                 <p><strong>How to send:</strong></p>
                 <ul id="emailInstructions">
-                    <li><strong>Copy HTML Email</strong> - Best for Outlook/Gmail with full formatting</li>
-                    <li><strong>Copy Plain Text</strong> - For simple email clients</li>
-                    <li><strong>Open Email Client</strong> - Opens your default email app</li>
-                    <li><strong>Create Email with PDF</strong> - Downloads PDF and creates email</li>
+                    <!-- Instructions will be inserted here -->
                 </ul>
             </div>
         </div>
@@ -446,22 +499,23 @@
         <button class="btn btn-github config" onclick="showGithubConfigModal()" title="GitHub Cloud Settings">
             <i class="fab fa-github"></i> <i class="fas fa-cog"></i>
         </button>
-        <button class="btn btn-github save" onclick="saveToGithub()" id="saveToGithubBtn" title="Save to GitHub Cloud (Free)" disabled>
-            <i class="fab fa-github"></i> Save to Cloud
-        </button>
-        <button class="btn btn-github load" onclick="loadFromGithub()" id="loadFromGithubBtn" title="Load from GitHub Cloud" disabled>
-            <i class="fab fa-github"></i> Load from Cloud
-        </button>
     </div>
     <div class="toolbar-right">
-        <button class="btn btn-info" onclick="createDocumentLink()">
-            <i class="fas fa-link"></i> Share & Save
+        <!-- Single merged Save & Share button -->
+        <button class="btn btn-cloud-save" onclick="saveAndShareToCloud()" id="saveAndShareBtn" title="Save to cloud and get shareable link">
+            <i class="fas fa-cloud-upload-alt"></i> Save & Share to Cloud
         </button>
-        <!-- Email buttons - initially hidden -->
+        
+        <!-- Load from Cloud button -->
+        <button class="btn btn-github load" onclick="loadFromGithub()" id="loadFromGithubBtn" title="Load from GitHub Cloud">
+            <i class="fab fa-github"></i> Load from Cloud
+        </button>
+        
+        <!-- Email buttons -->
         <button class="btn btn-warning email-btn-hidden" id="emailToManagerBtn" onclick="openEmailModal('manager')" title="Send email to manager with document link">📧 Email to Manager</button>
         <button class="btn btn-email email-btn-hidden" id="emailToRequesterBtn" onclick="openEmailModal('requester')" title="Send email to requester with decision and document link">📧 Email to Requester</button>
-        <button class="btn btn-success" onclick="generatePDF()" id="generatePdfBtn" title="Please make a decision and add notes first" disabled>Generate PDF</button>
-        <button class="btn btn-primary" onclick="window.print()">Print</button>
+        <button class="btn btn-primary" onclick="generatePDF()" id="generatePdfBtn" title="Please make a decision and add notes first" disabled>Generate PDF</button>
+        <button class="btn" onclick="window.print()">Print</button>
     </div>
 </div>
 
@@ -471,7 +525,7 @@
         Decision Brief 
         <span id="statusBadge" class="status-indicator">Draft</span>
         <span id="githubStatus" class="github-status status-disconnected" style="display: none;">
-            <i class="fab fa-github"></i> GitHub: Not Connected
+            <i class="fas fa-cloud"></i> Cloud: Not Setup
         </span>
     </h1>
 
@@ -658,6 +712,73 @@
     </div>
 </div>
 
+<!-- First Time Help Modal -->
+<div id="firstTimeHelpModal" class="modal">
+    <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-header">
+            <div class="modal-title" style="color: #3b82f6;">
+                <i class="fas fa-rocket"></i> Welcome to Decision Brief!
+            </div>
+            <button class="close-btn" onclick="closeFirstTimeHelp()">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 48px; color: #3b82f6; margin-bottom: 10px;">
+                    📋
+                </div>
+                <h3 style="color: #1e293b; margin-bottom: 10px;">Professional Decision Documentation Made Easy</h3>
+                <p style="color: #64748b;">Follow these simple steps to get started</p>
+            </div>
+            
+            <div style="margin: 20px 0;">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px;">
+                    <div style="text-align: center; padding: 15px; background: #f0f9ff; border-radius: 8px;">
+                        <div style="font-size: 24px; color: #3b82f6; margin-bottom: 10px;">1️⃣</div>
+                        <h4 style="margin: 0 0 5px 0; color: #0369a1;">Fill Form</h4>
+                        <p style="font-size: 12px; color: #475569; margin: 0;">Complete the decision brief</p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 15px; background: #fef3c7; border-radius: 8px;">
+                        <div style="font-size: 24px; color: #f59e0b; margin-bottom: 10px;">2️⃣</div>
+                        <h4 style="margin: 0 0 5px 0; color: #92400e;">Save to Cloud</h4>
+                        <p style="font-size: 12px; color: #475569; margin: 0;">Click the green "Save & Share" button</p>
+                    </div>
+                    
+                    <div style="text-align: center; padding: 15px; background: #d1fae5; border-radius: 8px;">
+                        <div style="font-size: 24px; color: #10b981; margin-bottom: 10px;">3️⃣</div>
+                        <h4 style="margin: 0 0 5px 0; color: #065f46;">Share & Collaborate</h4>
+                        <p style="font-size: 12px; color: #475569; margin: 0;">Email links or generate PDFs</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <h4 style="color: #475569; margin-bottom: 10px;"><i class="fas fa-lightbulb"></i> Quick Tips:</h4>
+                <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px;">
+                    <li>Required fields are marked with <span style="color: #ef4444;">*</span></li>
+                    <li>Click <i class="fab fa-github"></i> gear icon to setup FREE cloud storage</li>
+                    <li>Use "Dashboard" to manage all your documents</li>
+                    <li>Email buttons appear when document is saved</li>
+                </ul>
+            </div>
+            
+            <div class="email-actions" style="margin-top: 20px; text-align: center;">
+                <button class="btn btn-primary" onclick="closeFirstTimeHelp()" style="padding: 12px 30px;">
+                    <i class="fas fa-play-circle"></i> Let's Get Started!
+                </button>
+                <button class="btn" onclick="showGithubConfigModal(); closeFirstTimeHelp();" style="margin-left: 10px;">
+                    <i class="fab fa-github"></i> Setup Cloud First
+                </button>
+            </div>
+            
+            <p style="text-align: center; margin-top: 15px; color: #94a3b8; font-size: 12px;">
+                <i class="fas fa-info-circle"></i> This message won't show again
+            </p>
+        </div>
+    </div>
+</div>
+
 <script>
     // ================================
     // 🔗 GITHUB GIST CONFIGURATION
@@ -689,6 +810,7 @@
     // Track document state
     let documentSaved = false;
     let section7Filled = false;
+    let currentEmailType = 'manager'; // 'manager' or 'requester'
 
     // ================================
     // INITIALIZATION
@@ -705,6 +827,14 @@
         
         // Setup PDF modal event listeners
         setupPdfModalListeners();
+        
+        // Setup email modal event listeners
+        setupEmailModalListeners();
+        
+        // Show first-time help (only once)
+        setTimeout(() => {
+            showFirstTimeHelp();
+        }, 1000);
         
         // Load document from URL if present
         setTimeout(() => {
@@ -741,7 +871,7 @@
     }
 
     // ================================
-    // EMAIL BUTTON VISIBILITY CONTROL
+    // 📧 EMAIL BUTTON VISIBILITY CONTROL
     // ================================
     function updateEmailButtonVisibility() {
         const emailToManagerBtn = document.getElementById("emailToManagerBtn");
@@ -803,6 +933,711 @@
         const decisionNotes = document.getElementById("decisionNotes").value.trim();
         
         return decisionSelected && decisionNotes.length > 0;
+    }
+
+    // ================================
+    // ☁️ SAVE & SHARE TO CLOUD (MERGED FUNCTION)
+    // ================================
+    async function saveAndShareToCloud() {
+        // Step 1: Validate required fields
+        if (!validateAllMandatoryFields()) {
+            showAlert('❌ Please fill in all required fields (marked with *) before saving.', 'error');
+            
+            // Scroll to first missing field
+            const firstMissing = document.querySelector('.mandatory-field, .next-steps-mandatory');
+            if (firstMissing) {
+                firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+            return;
+        }
+
+        const saveBtn = document.getElementById('saveAndShareBtn');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        saveBtn.disabled = true;
+
+        try {
+            // Step 2: Check if GitHub is configured
+            if (!githubConfig.token || githubConfig.token.trim() === '') {
+                saveBtn.innerHTML = originalText;
+                saveBtn.disabled = false;
+                
+                showAlert('🔧 First-Time Setup Required!\n\n1. We\'ll set up FREE cloud storage (GitHub Gists)\n2. All data stays private to your account\n3. Get a shareable link to collaborate\n\nClick OK to continue setup.', 'info');
+                
+                setTimeout(() => {
+                    showGithubConfigModal();
+                }, 500);
+                return;
+            }
+
+            // Step 3: Save to GitHub
+            showAlert('💾 Saving to cloud storage...', 'info');
+            
+            const saved = await saveToGithub(true);
+            if (!saved) {
+                throw new Error('Failed to save to cloud');
+            }
+
+            // Step 4: Save to local database
+            const docId = saveDocumentToDatabase();
+            const shareUrl = generateDocumentUrl(docId);
+            
+            // Mark document as saved
+            documentSaved = true;
+            
+            // Update email button visibility
+            section7Filled = checkSection7Complete();
+            updateEmailButtonVisibility();
+
+            // Step 5: Show success modal with clear instructions
+            setTimeout(() => {
+                showSaveSuccessModal(docId, shareUrl);
+            }, 500);
+
+        } catch (error) {
+            console.error('Save & Share error:', error);
+            showAlert(`❌ Save Failed: ${error.message}\n\nPlease check your GitHub token or try again.`, 'error');
+        } finally {
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
+    }
+
+    // ================================
+    // 📋 SAVE SUCCESS MODAL WITH CLEAR INSTRUCTIONS
+    // ================================
+    function showSaveSuccessModal(docId, shareUrl) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <div class="modal-title" style="color: #10b981;">
+                        <i class="fas fa-check-circle"></i> Successfully Saved & Shared!
+                    </div>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <!-- Success Summary -->
+                    <div class="instructions" style="background: #d1fae5; border-left-color: #10b981; padding: 15px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <i class="fas fa-cloud" style="font-size: 24px; color: #059669;"></i>
+                            <div>
+                                <h4 style="margin: 0; color: #065f46;">✅ Document Saved to Cloud</h4>
+                                <p style="margin: 5px 0 0 0; color: #047857; font-size: 13px;">
+                                    Document ID: <code>${docId}</code>
+                                </p>
+                            </div>
+                        </div>
+                        <p style="margin: 10px 0 0 0; color: #065f46;">
+                            Your document is now safely stored in your GitHub account and accessible from any device.
+                        </p>
+                    </div>
+
+                    <!-- Step-by-Step Instructions -->
+                    <div style="margin: 25px 0;">
+                        <h4 style="color: #1e293b; margin-bottom: 15px; font-size: 16px;">
+                            <i class="fas fa-list-ol"></i> What can you do now?
+                        </h4>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                            <!-- Step 1 -->
+                            <div style="background: #f0f9ff; border: 1px solid #e0f2fe; border-radius: 8px; padding: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                    <div style="width: 24px; height: 24px; background: #0ea5e9; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">1</div>
+                                    <h5 style="margin: 0; color: #0369a1;">Share with Manager</h5>
+                                </div>
+                                <p style="font-size: 13px; color: #475569; margin-bottom: 10px;">
+                                    Send to your manager for review and decision
+                                </p>
+                                <button class="btn btn-warning" onclick="openEmailModal('manager'); this.parentElement.parentElement.parentElement.parentElement.remove()" style="width: 100%; padding: 8px;">
+                                    <i class="fas fa-envelope"></i> Email to Manager
+                                </button>
+                            </div>
+                            
+                            <!-- Step 2 -->
+                            <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 15px;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                    <div style="width: 24px; height: 24px; background: #f59e0b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">2</div>
+                                    <h5 style="margin: 0; color: #92400e;">Get PDF Version</h5>
+                                </div>
+                                <p style="font-size: 13px; color: #475569; margin-bottom: 10px;">
+                                    Generate a professional PDF document
+                                </p>
+                                <button class="btn btn-primary" onclick="generatePDF(); this.parentElement.parentElement.parentElement.parentElement.remove()" style="width: 100%; padding: 8px;">
+                                    <i class="fas fa-file-pdf"></i> Generate PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Share Link Section -->
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label" style="font-size: 14px; color: #1e293b;">
+                            <i class="fas fa-link"></i> Shareable Link (Copy & Share)
+                        </label>
+                        <div class="share-link-container">
+                            <input type="text" class="share-link-input" id="successShareLink" value="${shareUrl}" readonly style="font-size: 12px;">
+                            <button class="copy-btn" onclick="copySuccessShareLink()">Copy Link</button>
+                        </div>
+                        <small style="color: #666; display: block; margin-top: 8px;">
+                            Anyone with this link can view and edit this document (based on your GitHub permissions).
+                        </small>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                        <h5 style="color: #475569; margin-bottom: 15px; font-size: 14px;">
+                            <i class="fas fa-bolt"></i> Quick Actions
+                        </h5>
+                        <div class="email-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-info" onclick="window.open('${shareUrl}', '_blank')">
+                                <i class="fas fa-external-link-alt"></i> Open in New Tab
+                            </button>
+                            <button class="btn" onclick="shareLinkViaEmail('${shareUrl}')">
+                                <i class="fas fa-envelope"></i> Email Just the Link
+                            </button>
+                            <button class="btn btn-success" onclick="generatePDFAndShare('${shareUrl}')">
+                                <i class="fas fa-file-pdf"></i> Create PDF & Share
+                            </button>
+                            <button class="btn btn-github" onclick="openDashboard(); this.parentElement.parentElement.parentElement.parentElement.parentElement.remove()">
+                                <i class="fas fa-tachometer-alt"></i> View All Documents
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Help Section -->
+                    <div class="instructions" style="margin-top: 25px; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                        <h5 style="color: #475569; margin-bottom: 10px; font-size: 14px;">
+                            <i class="fas fa-question-circle"></i> Need Help?
+                        </h5>
+                        <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px;">
+                            <li><strong>First time?</strong> Click the <i class="fab fa-github"></i> gear icon to setup cloud storage</li>
+                            <li><strong>Sharing?</strong> Copy the link above or use the Email buttons</li>
+                            <li><strong>Need a file?</strong> Use "Generate PDF" for a printable version</li>
+                            <li><strong>Lost your work?</strong> All documents auto-save to your GitHub account</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    function copySuccessShareLink() {
+        const input = document.getElementById('successShareLink');
+        input.select();
+        document.execCommand('copy');
+        
+        const btn = input.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+        
+        showAlert('✅ Document link copied to clipboard!', 'success');
+    }
+
+    // ================================
+    // 📧 EMAIL FUNCTIONS (UPDATED WITH OUTLOOK SUPPORT)
+    // ================================
+    async function openEmailModal(recipientType) {
+        currentEmailType = recipientType;
+        
+        // Make sure document is saved first
+        if (!documentSaved) {
+            const saveFirst = confirm("Document needs to be saved first. Click OK to save to cloud.");
+            if (saveFirst) {
+                await saveAndShareToCloud();
+                return;
+            }
+        }
+        
+        if (recipientType === 'manager') {
+            setupToManagerEmail();
+        } else {
+            setupToRequesterEmail();
+        }
+
+        const emailModal = document.getElementById("emailModal");
+        emailModal.style.display = "flex";
+        
+        // Update email modal buttons based on type
+        updateEmailModalButtons(recipientType);
+        
+        setTimeout(() => {
+            const preview = document.getElementById("emailTemplatePreview");
+            if (preview) {
+                preview.style.display = "none";
+                setTimeout(() => { preview.style.display = "block"; }, 10);
+            }
+        }, 50);
+    }
+    
+    function updateEmailModalButtons(recipientType) {
+        const actionsContainer = document.getElementById("emailModalActions");
+        
+        if (recipientType === 'manager') {
+            actionsContainer.innerHTML = `
+                <button class="btn btn-success" onclick="copyHTMLToClipboard()">
+                    📋 Copy HTML for Outlook
+                </button>
+                <button class="btn btn-outlook" onclick="shareViaOutlook()">
+                    <i class="fab fa-microsoft"></i> Share via Outlook
+                </button>
+                <button class="btn btn-info" onclick="copyPlainTextToClipboard()">
+                    📋 Copy Plain Text
+                </button>
+                <button class="btn btn-email" onclick="createEmailWithPDF()">
+                    📎 Create Email with PDF
+                </button>
+            `;
+            
+            document.getElementById("emailInstructions").innerHTML = `
+                <li><strong>Copy HTML for Outlook</strong> - Best for Outlook with full formatting</li>
+                <li><strong>Share via Outlook</strong> - Opens Outlook Web App with email</li>
+                <li><strong>Copy Plain Text</strong> - For simple email clients</li>
+                <li><strong>Create Email with PDF</strong> - Downloads PDF and creates email</li>
+            `;
+        } else {
+            actionsContainer.innerHTML = `
+                <button class="btn btn-success" onclick="copyHTMLToClipboard()">
+                    📋 Copy HTML Email
+                </button>
+                <button class="btn btn-info" onclick="copyPlainTextToClipboard()">
+                    📋 Copy Plain Text
+                </button>
+                <button class="btn btn-primary" onclick="openEmailClient()">
+                    📧 Open Email Client
+                </button>
+                <button class="btn btn-email" onclick="createEmailWithPDF()">
+                    📎 Create Email with PDF
+                </button>
+            `;
+            
+            document.getElementById("emailInstructions").innerHTML = `
+                <li><strong>Copy HTML Email</strong> - Best for Outlook/Gmail with full formatting</li>
+                <li><strong>Copy Plain Text</strong> - For simple email clients</li>
+                <li><strong>Open Email Client</strong> - Opens your default email app</li>
+                <li><strong>Create Email with PDF</strong> - Downloads PDF and creates email</li>
+            `;
+        }
+    }
+    
+    function setupToManagerEmail() {
+        const topic = document.getElementById("topic").value || "Decision Brief";
+        const requester = document.getElementById("requestedBy").value || "Requester";
+        const docId = document.getElementById("docId").textContent;
+        const decisionOwner = document.getElementById("decisionOwner").value || "Manager";
+        const additionalMessage = document.getElementById("additionalMessage").value || "";
+        const requesterEmailVal = document.getElementById("requesterEmail").value || "";
+        const decisionOwnerEmailVal = document.getElementById("decisionOwnerEmail").value || "";
+        const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+        
+        // Generate document URL
+        const shareUrl = generateDocumentUrl(docId);
+        
+        const subject = `Decision Brief for Review: ${topic}`;
+        document.getElementById("emailSubject").value = subject;
+
+        // Plain text template
+        plainTextTemplate = `Dear ${decisionOwner},
+
+I have prepared a Decision Brief that requires your review and decision.
+
+Decision Brief Details:
+• Topic: ${topic}
+• Requested by: ${requester}
+• Request Date: ${today}
+
+${additionalMessage ? additionalMessage + "\n\n" : ""}How to Review:
+
+You can access and review the Decision Brief using this link:
+${shareUrl}
+
+Please click the link above to access the document. You'll be able to:
+1. Review all sections
+2. Make your decision in Section 7
+3. Add your decision notes
+4. Save the updated document
+
+Once you've completed your review, please use the "Email to Requester" button in the document to send your decision.
+
+Best regards,
+${requester}
+
+---
+Generated by Decision Brief System on ${today}`;
+
+        // HTML email template with Outlook-friendly formatting
+        htmlEmailTemplate = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
+.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+.header { margin-bottom: 20px; }
+.details { margin: 15px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #1e293b; }
+.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; }
+.link-box a { color: #1e40af; text-decoration: none; font-weight: normal; }
+.link-box a:hover { text-decoration: underline; }
+.instructions { margin: 15px 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
+.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h2 style="font-family: Calibri, Arial, sans-serif; font-size: 14pt; font-weight: normal; color: #000000; margin: 0 0 10px 0;">Decision Brief - Review Required</h2>
+</div>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">Dear ${decisionOwner},</p>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">I have prepared a Decision Brief that requires your review and decision.</p>
+
+<div class="details">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e293b; margin: 0 0 10px 0;">Document Details</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Topic:</strong> ${topic}</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Requested by:</strong> ${requester}</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Request Date:</strong> ${today}</p>
+</div>
+
+${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Additional Notes:</strong><br>${additionalMessage.replace(/\n/g,"<br>")}</p></div>` : ""}
+
+<div class="link-box">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e40af; margin: 0 0 10px 0;">Access the Decision Brief</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0;">Please use the following link to access and review the document:</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 15px 0; background-color: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">
+<a href="${shareUrl}" style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; text-decoration: none; font-weight: normal;">${shareUrl}</a>
+</p>
+</div>
+
+<div class="instructions">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #0ea5e9; margin: 0 0 10px 0;">Review Instructions</h3>
+<ol style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0; padding-left: 20px;">
+<li style="margin-bottom: 5px;">Click the link above to open the Decision Brief</li>
+<li style="margin-bottom: 5px;">Review all sections carefully</li>
+<li style="margin-bottom: 5px;">Make your decision in Section 7</li>
+<li style="margin-bottom: 5px;">Add your decision notes</li>
+<li style="margin-bottom: 5px;">Click "Save to Cloud" to save changes</li>
+<li style="margin-bottom: 5px;">Use "Email to Requester" to send your decision</li>
+</ol>
+</div>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 20px 0 0 0;">Best regards,<br><strong>${requester}</strong></p>
+
+<div class="footer">
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
+</div>
+</div>
+</body>
+</html>`;
+
+        document.getElementById("emailModalTitle").textContent = "Email to Manager";
+        document.getElementById("toLabel").textContent = "To (Manager Email)";
+        document.getElementById("templateTitle").textContent = "HTML Email Template (Outlook Friendly):";
+        const preview = document.getElementById("emailTemplatePreview");
+        preview.innerHTML = htmlEmailTemplate;
+
+        if (decisionOwnerEmailVal) document.getElementById("toEmail").value = decisionOwnerEmailVal;
+        if (requesterEmailVal) document.getElementById("fromEmail").value = requesterEmailVal;
+    }
+
+    function setupToRequesterEmail() {
+        const topic = document.getElementById("topic").value || "Decision Brief";
+        const requester = document.getElementById("requestedBy").value || "Requester";
+        const docId = document.getElementById("docId").textContent;
+        const decisionOwner = document.getElementById("decisionOwner").value || "Manager";
+        const requesterEmailVal = document.getElementById("requesterEmail").value || "";
+        const decisionOwnerEmailVal = document.getElementById("decisionOwnerEmail").value || "";
+        const decision = document.querySelector('input[name="decision"]:checked');
+        const decisionDate = document.getElementById("decisionDate").value;
+        const decisionNotes = document.getElementById("decisionNotes").value || "";
+        const additionalMessage = document.getElementById("additionalMessage").value || "";
+
+        let decisionText = "Pending";
+        let decisionColor = "#64748b";
+        let decisionIcon = "⏳";
+        if (decision) {
+            switch (decision.value) {
+                case "approved": 
+                    decisionText = "Approved"; 
+                    decisionColor = "#10b981";
+                    decisionIcon = "✅";
+                    break;
+                case "approved-conditions": 
+                    decisionText = "Approved with Conditions"; 
+                    decisionColor = "#3b82f6";
+                    decisionIcon = "✅";
+                    break;
+                case "not-approved": 
+                    decisionText = "Not Approved"; 
+                    decisionColor = "#ef4444";
+                    decisionIcon = "❌";
+                    break;
+                case "requester-promoted": 
+                    decisionText = "Requester to Decide"; 
+                    decisionColor = "#8b5cf6";
+                    decisionIcon = "👤";
+                    break;
+            }
+        }
+
+        let formattedDate = "Not specified";
+        if (decisionDate) {
+            const d = new Date(decisionDate);
+            formattedDate = d.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+        }
+        const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+        
+        // Generate document URL
+        const shareUrl = generateDocumentUrl(docId);
+        
+        const subject = `Decision Brief Decision: ${decisionText} - ${topic}`;
+        document.getElementById("emailSubject").value = subject;
+
+        // Plain text template
+        plainTextTemplate = `Dear ${requester},
+
+The Decision Brief has been reviewed and a decision has been made.
+
+Decision Brief Details:
+• Topic: ${topic}
+• Decision: ${decisionIcon} ${decisionText}
+• Decision Date: ${formattedDate}
+• Decision Owner: ${decisionOwner}
+
+${decisionNotes ? `Decision Notes:\n${decisionNotes}\n\n` : ""}${additionalMessage ? `Additional Message:\n${additionalMessage}\n\n` : ""}You can access the finalized Decision Brief using this link:
+${shareUrl}
+
+Click the link above to view the completed Decision Brief with all details.
+
+Best regards,
+${decisionOwner}
+
+---
+Generated by Decision Brief System on ${today}`;
+
+        // HTML email template
+        htmlEmailTemplate = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
+.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+.header { background-color: ${decisionColor}; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
+.header h2 { color: white; margin: 0; font-family: Calibri, Arial, sans-serif; font-size: 14pt; font-weight: normal; }
+.decision-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-family: Calibri, Arial, sans-serif; font-size: 11pt; font-weight: normal; color: white; background: ${decisionColor}; margin: 5px 0; }
+.details { margin: 15px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #1e293b; }
+.notes { margin: 15px 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
+.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; }
+.link-box a { color: #1e40af; text-decoration: none; font-weight: normal; }
+.link-box a:hover { text-decoration: underline; }
+.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h2>${decisionIcon} Decision Brief - Decision Made</h2>
+</div>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">Dear ${requester},</p>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">The Decision Brief has been reviewed and a decision has been made.</p>
+
+<div class="details">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e293b; margin: 0 0 10px 0;">Document Details</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Topic:</strong> ${topic}</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision:</strong> <span class="decision-badge">${decisionIcon} ${decisionText}</span></p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision Date:</strong> ${formattedDate}</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision Owner:</strong> ${decisionOwner}</p>
+</div>
+
+${decisionNotes ? `<div class="notes">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #0ea5e9; margin: 0 0 10px 0;">Decision Notes</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;">${decisionNotes.replace(/\n/g,"<br>")}</p>
+</div>` : ""}
+
+${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Additional Message:</strong><br>${additionalMessage.replace(/\n/g,"<br>")}</p></div>` : ""}
+
+<div class="link-box">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e40af; margin: 0 0 10px 0;">Access the Decision Brief</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0;">You can access the finalized Decision Brief using this link:</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 15px 0; background-color: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">
+<a href="${shareUrl}" style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; text-decoration: none; font-weight: normal;">${shareUrl}</a>
+</p>
+</div>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 20px 0 0 0;">Best regards,<br><strong>${decisionOwner}</strong></p>
+
+<div class="footer">
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
+</div>
+</div>
+</body>
+</html>`;
+
+        document.getElementById("emailModalTitle").textContent = "Email to Requester";
+        document.getElementById("toLabel").textContent = "To (Requester Email)";
+        document.getElementById("templateTitle").textContent = "HTML Email Template:";
+        const preview = document.getElementById("emailTemplatePreview");
+        preview.innerHTML = htmlEmailTemplate;
+
+        if (requesterEmailVal) document.getElementById("toEmail").value = requesterEmailVal;
+        if (decisionOwnerEmailVal) document.getElementById("fromEmail").value = decisionOwnerEmailVal;
+    }
+
+    function shareViaOutlook() {
+        const toEmail = document.getElementById("toEmail").value;
+        if (!toEmail) {
+            alert("Please enter recipient email address.");
+            return;
+        }
+        
+        // Create Outlook Web App link
+        const subject = document.getElementById("emailSubject").value;
+        const body = encodeURIComponent(plainTextTemplate);
+        
+        // Try to open Outlook Web App
+        const outlookWebLink = `https://outlook.office.com/mail/deeplink/compose?to=${toEmail}&subject=${encodeURIComponent(subject)}&body=${body}`;
+        
+        // Also create regular mailto link as fallback
+        const mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+        
+        // Try Outlook Web first, fall back to regular mailto
+        const newWindow = window.open(outlookWebLink, '_blank');
+        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
+            // If popup blocked, fall back to mailto
+            window.open(mailtoLink, '_blank');
+        }
+        
+        showAlert('📧 Opening Outlook Web App...\n\nIf it doesn\'t open, your browser may be blocking popups. You can also use "Copy HTML for Outlook" and paste into Outlook desktop.', 'info');
+    }
+
+    function copyHTMLToClipboard() {
+        const toEmail = document.getElementById("toEmail").value || "recipient@company.com";
+        const fromEmail = document.getElementById("fromEmail").value || "sender@company.com";
+        const subject = document.getElementById("emailSubject").value;
+        
+        let emailHTML;
+        if (currentEmailType === 'manager') {
+            emailHTML = `To: ${toEmail}
+From: ${fromEmail}
+Subject: ${subject}
+Content-Type: text/html; charset=UTF-8
+MIME-Version: 1.0
+
+${htmlEmailTemplate}`;
+            
+            navigator.clipboard.writeText(emailHTML).then(() => {
+                showAlert('✅ HTML email copied to clipboard!\n\nFor Outlook Desktop:\n1. Open new email\n2. Click "Insert" tab\n3. Click "Attach File" → "Attach as Copy"\n4. Paste the HTML content\n\nFor Outlook Web:\n1. Create new email\n2. Right-click in body\n3. Select "Inspect"\n4. Find body element\n5. Paste HTML as innerHTML', 'success');
+            });
+        } else {
+            emailHTML = `To: ${toEmail}
+From: ${fromEmail}
+Subject: ${subject}
+Content-Type: text/html; charset=UTF-8
+MIME-Version: 1.0
+
+${htmlEmailTemplate}`;
+            
+            navigator.clipboard.writeText(emailHTML).then(() => {
+                showAlert('✅ HTML email copied to clipboard!\n\nPaste into your email client (Outlook/Gmail).\n\nFor Outlook: Use "Insert" → "Attach File" → "Attach as Copy"', 'success');
+            });
+        }
+    }
+
+    function copyPlainTextToClipboard() {
+        const toEmail = document.getElementById("toEmail").value || "recipient@company.com";
+        const fromEmail = document.getElementById("fromEmail").value || "sender@company.com";
+        const subject = document.getElementById("emailSubject").value;
+        const emailText = `To: ${toEmail}
+From: ${fromEmail}
+Subject: ${subject}
+
+${plainTextTemplate}`;
+        navigator.clipboard.writeText(emailText).then(() => {
+            showAlert('✅ Plain text email copied to clipboard!', 'success');
+        });
+    }
+
+    function openEmailClient() {
+        const toEmail = document.getElementById("toEmail").value;
+        const fromEmail = document.getElementById("fromEmail").value || "";
+        const subject = document.getElementById("emailSubject").value;
+        if (!toEmail) {
+            alert("Please enter recipient email address.");
+            return;
+        }
+        let mailtoLink = `mailto:${toEmail}`;
+        if (fromEmail) mailtoLink += `?cc=${fromEmail}`;
+        mailtoLink += `${fromEmail ? "&" : "?"}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainTextTemplate)}`;
+        window.open(mailtoLink, "_blank");
+    }
+
+    function createEmailWithPDF() {
+        if (!currentPdfBlob) {
+            alert("Please generate PDF first using the 'Generate PDF' button.");
+            generatePDF();
+            return;
+        }
+        
+        const docId = document.getElementById("docId").textContent;
+        const topic = document.getElementById("topic").value || "Decision_Brief";
+        const cleanTopic = topic.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30);
+        const filename = `Decision_Brief_${cleanTopic}_${docId}.pdf`;
+        
+        const link = document.createElement("a");
+        link.href = currentPdfUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showAlert(`✅ PDF downloaded: ${filename}
+
+Now create your email:
+1. Use "Copy HTML Email" or "Copy Plain Text"
+2. Paste into your email client (Outlook / Gmail)
+3. Attach the downloaded PDF file manually
+4. Send the email`, 'info');
+    }
+
+    function useTemplate() {
+        if (currentEmailType === 'manager') {
+            setupToManagerEmail();
+        } else {
+            setupToRequesterEmail();
+        }
+    }
+
+    function setupEmailModalListeners() {
+        const emailModal = document.getElementById("emailModal");
+        const closeEmailModalBtn = document.getElementById("closeEmailModal");
+        closeEmailModalBtn.addEventListener("click", () => {
+            emailModal.style.display = "none";
+        });
+        window.addEventListener("click", e => {
+            if (e.target === emailModal) {
+                emailModal.style.display = "none";
+            }
+        });
     }
 
     // ================================
@@ -869,17 +1704,15 @@
         
         if (githubConfig.token) {
             statusEl.className = 'github-status status-connected';
-            statusEl.innerHTML = `<i class="fab fa-github"></i> GitHub: Connected`;
+            statusEl.innerHTML = `<i class="fas fa-cloud"></i> Cloud: Connected`;
             statusEl.style.display = 'inline-flex';
             
-            document.getElementById('saveToGithubBtn').disabled = false;
             document.getElementById('loadFromGithubBtn').disabled = false;
         } else {
             statusEl.className = 'github-status status-disconnected';
-            statusEl.innerHTML = '<i class="fab fa-github"></i> GitHub: Not Connected';
+            statusEl.innerHTML = '<i class="fas fa-cloud-slash"></i> Cloud: Not Setup';
             statusEl.style.display = 'inline-flex';
             
-            document.getElementById('saveToGithubBtn').disabled = true;
             document.getElementById('loadFromGithubBtn').disabled = true;
         }
     }
@@ -1195,7 +2028,6 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
         }
         
         saveDocumentsDatabase();
-        showAlert('✅ Document saved to local database!', 'success');
         
         return docId;
     }
@@ -1203,98 +2035,6 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
     // ================================
     // 🔗 SHARE & LINK FUNCTIONS
     // ================================
-    function createDocumentLink() {
-        const docId = saveDocumentToDatabase();
-        const shareUrl = generateDocumentUrl(docId);
-        
-        // Mark document as saved
-        documentSaved = true;
-        
-        // Check if Section 7 is filled
-        section7Filled = checkSection7Complete();
-        
-        // Update email button visibility
-        updateEmailButtonVisibility();
-        
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.style.display = 'flex';
-        modal.innerHTML = `
-            <div class="modal-content" style="max-width: 600px;">
-                <div class="modal-header">
-                    <div class="modal-title">
-                        <i class="fas fa-link"></i> Document Link Created
-                    </div>
-                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
-                </div>
-                
-                <div class="modal-body">
-                    <div class="instructions" style="background: #e8f5e9; border-left-color: #10b981;">
-                        <p><strong>✅ Document saved!</strong> You can now share this unique link.</p>
-                    </div>
-                    
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label class="form-label">Document Link (Unique URL)</label>
-                        <div class="share-link-container">
-                            <input type="text" class="share-link-input" id="docLinkInput" value="${shareUrl}" readonly>
-                            <button class="copy-btn" onclick="copyDocumentLink()">Copy</button>
-                        </div>
-                        <small style="color: #666;">
-                            This link will load this specific document. Bookmark it or share with others.
-                        </small>
-                    </div>
-                    
-                    <div class="email-actions" style="margin-top: 20px;">
-                        <button class="btn btn-primary" onclick="shareLinkViaEmail('${shareUrl}')">
-                            <i class="fas fa-envelope"></i> Email Link
-                        </button>
-                        <button class="btn btn-success" onclick="generatePDFAndShare('${shareUrl}')">
-                            <i class="fas fa-file-pdf"></i> Create PDF & Share
-                        </button>
-                        <button class="btn btn-info" onclick="openDashboard()">
-                            <i class="fas fa-tachometer-alt"></i> Open Dashboard
-                        </button>
-                    </div>
-                    
-                    <div class="instructions" style="margin-top: 20px;">
-                        <p><strong>Email Options Now Available:</strong></p>
-                        <ul>
-                            <li><strong>Email to Manager</strong> - Send for review (button now visible in toolbar)</li>
-                            <li><strong>Email to Requester</strong> - Send decision (visible when Section 7 is completed)</li>
-                            <li><strong>Email Link</strong> - Send just the link above</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
-            }
-        });
-    }
-
-    function copyDocumentLink() {
-        const input = document.getElementById('docLinkInput');
-        input.select();
-        document.execCommand('copy');
-        
-        const btn = input.nextElementSibling;
-        const originalText = btn.textContent;
-        btn.textContent = 'Copied!';
-        btn.classList.add('copied');
-        
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.classList.remove('copied');
-        }, 2000);
-        
-        showAlert('✅ Document link copied to clipboard!', 'success');
-    }
-
     function shareLinkViaEmail(shareUrl) {
         const topic = document.getElementById("topic").value || "Decision Brief";
         const subject = `Decision Brief: ${topic}`;
@@ -1732,7 +2472,7 @@ Generated by Decision Brief System on ${today}`;
     }
 
     function shareDashboardLinkViaEmail(shareUrl) {
-        const doc = documentsDatabase.find(d => d.id === docId);
+        const doc = documentsDatabase.find(d => d.id === documentUniqueId);
         const subject = `Decision Brief: ${doc?.title || 'Document'}`;
         
         const emailBody = `Hello,
@@ -1937,6 +2677,23 @@ Best regards`;
     }
 
     // ================================
+    // 🆕 FIRST-TIME HELP MODAL
+    // ================================
+    function showFirstTimeHelp() {
+        const hasSeenHelp = localStorage.getItem('decision_brief_help_seen');
+        if (!hasSeenHelp) {
+            setTimeout(() => {
+                document.getElementById('firstTimeHelpModal').style.display = 'flex';
+                localStorage.setItem('decision_brief_help_seen', 'true');
+            }, 1000);
+        }
+    }
+
+    function closeFirstTimeHelp() {
+        document.getElementById('firstTimeHelpModal').style.display = 'none';
+    }
+
+    // ================================
     // PDF FUNCTIONS
     // ================================
     function setupPdfModalListeners() {
@@ -2052,397 +2809,6 @@ Best regards`;
             pdfBtn.textContent = originalText;
             pdfBtn.disabled = false;
         }
-    }
-
-    // ================================
-    // EMAIL FUNCTIONS (UPDATED WITH CALIBRI 11PT)
-    // ================================
-    async function openEmailModal(recipientType) {
-        const saved = await saveToGithub(true);
-        if (!saved) {
-            alert("Please configure GitHub and save the document first.");
-            return;
-        }
-        
-        if (recipientType === 'manager') {
-            setupToManagerEmail();
-        } else {
-            setupToRequesterEmail();
-        }
-
-        const emailModal = document.getElementById("emailModal");
-        emailModal.style.display = "flex";
-        setTimeout(() => {
-            const preview = document.getElementById("emailTemplatePreview");
-            if (preview) {
-                preview.style.display = "none";
-                setTimeout(() => { preview.style.display = "block"; }, 10);
-            }
-        }, 50);
-    }
-
-    function setupToManagerEmail() {
-        const topic = document.getElementById("topic").value || "Decision Brief";
-        const requester = document.getElementById("requestedBy").value || "Requester";
-        const docId = document.getElementById("docId").textContent;
-        const decisionOwner = document.getElementById("decisionOwner").value || "Manager";
-        const additionalMessage = document.getElementById("additionalMessage").value || "";
-        const requesterEmailVal = document.getElementById("requesterEmail").value || "";
-        const decisionOwnerEmailVal = document.getElementById("decisionOwnerEmail").value || "";
-        const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
-        
-        // Generate document URL
-        const shareUrl = generateDocumentUrl(docId);
-        
-        const subject = `Decision Brief for Review: ${topic}`;
-        document.getElementById("emailSubject").value = subject;
-
-        // Plain text template with Calibri formatting in mind
-        plainTextTemplate = `Dear ${decisionOwner},
-
-I have prepared a Decision Brief that requires your review and decision.
-
-Decision Brief Details:
-• Topic: ${topic}
-• Requested by: ${requester}
-• Request Date: ${today}
-
-${additionalMessage ? additionalMessage + "\n\n" : ""}How to Review:
-
-You can access and review the Decision Brief using this link:
-${shareUrl}
-
-Please click the link above to access the document. You'll be able to:
-1. Review all sections
-2. Make your decision in Section 7
-3. Add your decision notes
-4. Save the updated document
-
-Once you've completed your review, please use the "Email to Requester" button in the document to send your decision.
-
-Best regards,
-${requester}
-
----
-Generated by Decision Brief System on ${today}`;
-
-        // HTML email template with Calibri font
-        htmlEmailTemplate = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
-.container { max-width: 600px; margin: 0 auto; padding: 20px; }
-.header { margin-bottom: 20px; }
-.details { margin: 15px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #1e293b; }
-.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; }
-.link-box a { color: #1e40af; text-decoration: none; font-weight: normal; }
-.link-box a:hover { text-decoration: underline; }
-.instructions { margin: 15px 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
-.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; }
-</style>
-</head>
-<body>
-<div class="container">
-<div class="header">
-<h2 style="font-family: Calibri, Arial, sans-serif; font-size: 14pt; font-weight: normal; color: #000000; margin: 0 0 10px 0;">Decision Brief - Review Required</h2>
-</div>
-
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">Dear ${decisionOwner},</p>
-
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">I have prepared a Decision Brief that requires your review and decision.</p>
-
-<div class="details">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e293b; margin: 0 0 10px 0;">Document Details</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Topic:</strong> ${topic}</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Requested by:</strong> ${requester}</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Request Date:</strong> ${today}</p>
-</div>
-
-${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Additional Notes:</strong><br>${additionalMessage.replace(/\n/g,"<br>")}</p></div>` : ""}
-
-<div class="link-box">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e40af; margin: 0 0 10px 0;">Access the Decision Brief</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0;">Please use the following link to access and review the document:</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 15px 0; background-color: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">
-<a href="${shareUrl}" style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; text-decoration: none; font-weight: normal;">${shareUrl}</a>
-</p>
-</div>
-
-<div class="instructions">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #0ea5e9; margin: 0 0 10px 0;">Review Instructions</h3>
-<ol style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0; padding-left: 20px;">
-<li style="margin-bottom: 5px;">Click the link above to open the Decision Brief</li>
-<li style="margin-bottom: 5px;">Review all sections carefully</li>
-<li style="margin-bottom: 5px;">Make your decision in Section 7</li>
-<li style="margin-bottom: 5px;">Add your decision notes</li>
-<li style="margin-bottom: 5px;">Click "Save to Cloud" to save changes</li>
-<li style="margin-bottom: 5px;">Use "Email to Requester" to send your decision</li>
-</ol>
-</div>
-
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 20px 0 0 0;">Best regards,<br><strong>${requester}</strong></p>
-
-<div class="footer">
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
-</div>
-</div>
-</body>
-</html>`;
-
-        document.getElementById("emailModalTitle").textContent = "Email to Manager";
-        document.getElementById("toLabel").textContent = "To (Manager Email)";
-        document.getElementById("templateTitle").textContent = "HTML Email Template (Calibri 11pt):";
-        const preview = document.getElementById("emailTemplatePreview");
-        preview.innerHTML = htmlEmailTemplate;
-
-        if (decisionOwnerEmailVal) document.getElementById("toEmail").value = decisionOwnerEmailVal;
-        if (requesterEmailVal) document.getElementById("fromEmail").value = requesterEmailVal;
-
-        document.getElementById("emailInstructions").innerHTML = `
-            <li><strong>Copy HTML Email</strong> - Best for Outlook with Calibri 11pt formatting</li>
-            <li><strong>Copy Plain Text</strong> - For simple email clients</li>
-            <li><strong>Open Email Client</strong> - Opens with pre-filled email</li>
-            <li><strong>Create Email with PDF</strong> - Downloads PDF and then you attach it manually</li>
-        `;
-    }
-
-    function setupToRequesterEmail() {
-        const topic = document.getElementById("topic").value || "Decision Brief";
-        const requester = document.getElementById("requestedBy").value || "Requester";
-        const docId = document.getElementById("docId").textContent;
-        const decisionOwner = document.getElementById("decisionOwner").value || "Manager";
-        const requesterEmailVal = document.getElementById("requesterEmail").value || "";
-        const decisionOwnerEmailVal = document.getElementById("decisionOwnerEmail").value || "";
-        const decision = document.querySelector('input[name="decision"]:checked');
-        const decisionDate = document.getElementById("decisionDate").value;
-        const decisionNotes = document.getElementById("decisionNotes").value || "";
-        const additionalMessage = document.getElementById("additionalMessage").value || "";
-
-        let decisionText = "Pending";
-        let decisionColor = "#64748b";
-        let decisionIcon = "⏳";
-        if (decision) {
-            switch (decision.value) {
-                case "approved": 
-                    decisionText = "Approved"; 
-                    decisionColor = "#10b981";
-                    decisionIcon = "✅";
-                    break;
-                case "approved-conditions": 
-                    decisionText = "Approved with Conditions"; 
-                    decisionColor = "#3b82f6";
-                    decisionIcon = "✅";
-                    break;
-                case "not-approved": 
-                    decisionText = "Not Approved"; 
-                    decisionColor = "#ef4444";
-                    decisionIcon = "❌";
-                    break;
-                case "requester-promoted": 
-                    decisionText = "Requester to Decide"; 
-                    decisionColor = "#8b5cf6";
-                    decisionIcon = "👤";
-                    break;
-            }
-        }
-
-        let formattedDate = "Not specified";
-        if (decisionDate) {
-            const d = new Date(decisionDate);
-            formattedDate = d.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
-        }
-        const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
-        
-        // Generate document URL
-        const shareUrl = generateDocumentUrl(docId);
-        
-        const subject = `Decision Brief Decision: ${decisionText} - ${topic}`;
-        document.getElementById("emailSubject").value = subject;
-
-        // Plain text template with Calibri formatting in mind
-        plainTextTemplate = `Dear ${requester},
-
-The Decision Brief has been reviewed and a decision has been made.
-
-Decision Brief Details:
-• Topic: ${topic}
-• Decision: ${decisionIcon} ${decisionText}
-• Decision Date: ${formattedDate}
-• Decision Owner: ${decisionOwner}
-
-${decisionNotes ? `Decision Notes:\n${decisionNotes}\n\n` : ""}${additionalMessage ? `Additional Message:\n${additionalMessage}\n\n` : ""}You can access the finalized Decision Brief using this link:
-${shareUrl}
-
-Click the link above to view the completed Decision Brief with all details.
-
-Best regards,
-${decisionOwner}
-
----
-Generated by Decision Brief System on ${today}`;
-
-        // HTML email template with Calibri font
-        htmlEmailTemplate = `<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>
-body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
-.container { max-width: 600px; margin: 0 auto; padding: 20px; }
-.header { background-color: ${decisionColor}; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
-.header h2 { color: white; margin: 0; font-family: Calibri, Arial, sans-serif; font-size: 14pt; font-weight: normal; }
-.decision-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-family: Calibri, Arial, sans-serif; font-size: 11pt; font-weight: normal; color: white; background: ${decisionColor}; margin: 5px 0; }
-.details { margin: 15px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #1e293b; }
-.notes { margin: 15px 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
-.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; }
-.link-box a { color: #1e40af; text-decoration: none; font-weight: normal; }
-.link-box a:hover { text-decoration: underline; }
-.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; }
-</style>
-</head>
-<body>
-<div class="container">
-<div class="header">
-<h2>${decisionIcon} Decision Brief - Decision Made</h2>
-</div>
-
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">Dear ${requester},</p>
-
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">The Decision Brief has been reviewed and a decision has been made.</p>
-
-<div class="details">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e293b; margin: 0 0 10px 0;">Document Details</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Topic:</strong> ${topic}</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision:</strong> <span class="decision-badge">${decisionIcon} ${decisionText}</span></p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision Date:</strong> ${formattedDate}</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision Owner:</strong> ${decisionOwner}</p>
-</div>
-
-${decisionNotes ? `<div class="notes">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #0ea5e9; margin: 0 0 10px 0;">Decision Notes</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;">${decisionNotes.replace(/\n/g,"<br>")}</p>
-</div>` : ""}
-
-${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Additional Message:</strong><br>${additionalMessage.replace(/\n/g,"<br>")}</p></div>` : ""}
-
-<div class="link-box">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e40af; margin: 0 0 10px 0;">Access the Decision Brief</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0;">You can access the finalized Decision Brief using this link:</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 15px 0; background-color: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">
-<a href="${shareUrl}" style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; text-decoration: none; font-weight: normal;">${shareUrl}</a>
-</p>
-</div>
-
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 20px 0 0 0;">Best regards,<br><strong>${decisionOwner}</strong></p>
-
-<div class="footer">
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
-</div>
-</div>
-</body>
-</html>`;
-
-        document.getElementById("emailModalTitle").textContent = "Email to Requester";
-        document.getElementById("toLabel").textContent = "To (Requester Email)";
-        document.getElementById("templateTitle").textContent = "HTML Email Template (Calibri 11pt):";
-        const preview = document.getElementById("emailTemplatePreview");
-        preview.innerHTML = htmlEmailTemplate;
-
-        if (requesterEmailVal) document.getElementById("toEmail").value = requesterEmailVal;
-        if (decisionOwnerEmailVal) document.getElementById("fromEmail").value = decisionOwnerEmailVal;
-
-        document.getElementById("emailInstructions").innerHTML = `
-            <li><strong>Copy HTML Email</strong> - Best for Outlook with Calibri 11pt formatting</li>
-            <li><strong>Copy Plain Text</strong> - For simple email clients</li>
-            <li><strong>Open Email Client</strong> - Opens with decision details</li>
-            <li><strong>Create Email with PDF</strong> - Downloads PDF and then you attach it manually</li>
-        `;
-    }
-
-    function createEmailWithPDF() {
-        if (!currentPdfBlob) {
-            alert("Please generate PDF first using the 'Generate PDF' button.");
-            generatePDF();
-            return;
-        }
-        
-        const docId = document.getElementById("docId").textContent;
-        const topic = document.getElementById("topic").value || "Decision_Brief";
-        const cleanTopic = topic.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30);
-        const filename = `Decision_Brief_${cleanTopic}_${docId}.pdf`;
-        
-        const link = document.createElement("a");
-        link.href = currentPdfUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        alert(`✅ PDF downloaded: ${filename}
-
-Now create your email:
-1. Use "Copy HTML Email" or "Copy Plain Text"
-2. Paste into your email client (Outlook / Gmail)
-3. Attach the downloaded PDF file manually
-4. Send the email`);
-    }
-
-    function useTemplate() {
-        const emailTitle = document.getElementById("emailModalTitle").textContent;
-        if (emailTitle.includes("Manager")) {
-            setupToManagerEmail();
-        } else {
-            setupToRequesterEmail();
-        }
-    }
-
-    function copyHTMLToClipboard() {
-        const toEmail = document.getElementById("toEmail").value || "recipient@company.com";
-        const fromEmail = document.getElementById("fromEmail").value || "sender@company.com";
-        const subject = document.getElementById("emailSubject").value;
-        const emailHTML = `To: ${toEmail}
-From: ${fromEmail}
-Subject: ${subject}
-Content-Type: text/html; charset=UTF-8
-MIME-Version: 1.0
-
-${htmlEmailTemplate}`;
-        navigator.clipboard.writeText(emailHTML).then(() => {
-            alert("✅ HTML email copied to clipboard!\n\nPaste into Outlook/Gmail.\n\nThen attach the PDF file you downloaded.");
-        }).catch(err => {
-            console.error("Copy failed", err);
-            alert("❌ Failed to copy. Please try again.");
-        });
-    }
-
-    function copyPlainTextToClipboard() {
-        const toEmail = document.getElementById("toEmail").value || "recipient@company.com";
-        const fromEmail = document.getElementById("fromEmail").value || "sender@company.com";
-        const subject = document.getElementById("emailSubject").value;
-        const emailText = `To: ${toEmail}
-From: ${fromEmail}
-Subject: ${subject}
-
-${plainTextTemplate}`;
-        navigator.clipboard.writeText(emailText).then(() => {
-            alert("✅ Plain text email copied to clipboard!");
-        });
-    }
-
-    function openEmailClient() {
-        const toEmail = document.getElementById("toEmail").value;
-        const fromEmail = document.getElementById("fromEmail").value || "";
-        const subject = document.getElementById("emailSubject").value;
-        if (!toEmail) {
-            alert("Please enter recipient email address.");
-            return;
-        }
-        let mailtoLink = `mailto:${toEmail}`;
-        if (fromEmail) mailtoLink += `?cc=${fromEmail}`;
-        mailtoLink += `${fromEmail ? "&" : "?"}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainTextTemplate)}`;
-        window.open(mailtoLink, "_blank");
     }
 
     // ================================
@@ -2577,28 +2943,17 @@ ${plainTextTemplate}`;
             input.addEventListener("blur", validateNextSteps);
         });
 
-        const emailModal = document.getElementById("emailModal");
-        const closeEmailModalBtn = document.getElementById("closeEmailModal");
-        closeEmailModalBtn.addEventListener("click", () => {
-            emailModal.style.display = "none";
-            document.getElementById("emailTemplatePreview").innerHTML = "";
-        });
-        window.addEventListener("click", e => {
-            if (e.target === emailModal) {
-                emailModal.style.display = "none";
-                document.getElementById("emailTemplatePreview").innerHTML = "";
-            }
-        });
-
-        const pdfModal = document.getElementById("pdfModal");
-        const closePdfModalBtn = document.getElementById("closePdfModal");
-        closePdfModalBtn.addEventListener("click", () => { pdfModal.style.display = "none"; });
-        window.addEventListener("click", e => { if (e.target === pdfModal) pdfModal.style.display = "none"; });
-        
         window.addEventListener("click", e => {
             const githubModal = document.getElementById('githubConfigModal');
             if (e.target === githubModal) {
                 closeGithubConfig();
+            }
+        });
+        
+        window.addEventListener("click", e => {
+            const firstTimeModal = document.getElementById('firstTimeHelpModal');
+            if (e.target === firstTimeModal) {
+                closeFirstTimeHelp();
             }
         });
     }
