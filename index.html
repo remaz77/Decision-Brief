@@ -31,11 +31,6 @@
         .btn-danger { background: #ef4444; color: white; border-color: #ef4444; }
         .btn-danger:hover { background: #dc2626; border-color: #dc2626; }
         
-        /* Email button visibility */
-        .email-btn-hidden {
-            display: none !important;
-        }
-        
         /* GitHub button styles */
         .btn-github { 
             background: #333; 
@@ -307,6 +302,33 @@
         .step-content {
             flex: 1;
         }
+        
+        /* Disabled section styles */
+        .section-disabled {
+            opacity: 0.6;
+            pointer-events: none;
+            background: #f1f5f9;
+        }
+        
+        .section-disabled textarea,
+        .section-disabled input,
+        .section-disabled select {
+            background: #e2e8f0;
+            cursor: not-allowed;
+        }
+        
+        /* Manager-only controls */
+        .manager-only {
+            display: none;
+        }
+        
+        .manager-mode .manager-only {
+            display: block;
+        }
+        
+        .manager-mode .requester-only {
+            display: none;
+        }
 
         @media (max-width: 1024px) {
             .metadata { grid-template-columns: repeat(2, 1fr); }
@@ -409,6 +431,202 @@
     </div>
 </div>
 
+<!-- Save Success Modal -->
+<div id="saveSuccessModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+            <div class="modal-title" style="color: #10b981;">
+                <i class="fas fa-check-circle"></i> Successfully Saved to Cloud!
+            </div>
+            <button class="close-btn" onclick="closeSaveSuccessModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- Success Summary -->
+            <div class="instructions" style="background: #d1fae5; border-left-color: #10b981; padding: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <i class="fas fa-cloud" style="font-size: 24px; color: #059669;"></i>
+                    <div>
+                        <h4 style="margin: 0; color: #065f46;">✅ Document Saved to Cloud</h4>
+                        <p style="margin: 5px 0 0 0; color: #047857; font-size: 13px;">
+                            Document ID: <code id="successDocId">Loading...</code>
+                        </p>
+                    </div>
+                </div>
+                <p style="margin: 10px 0 0 0; color: #065f46;">
+                    Your document is now safely stored in your GitHub account.
+                </p>
+            </div>
+
+            <!-- Step-by-Step Instructions -->
+            <div style="margin: 25px 0;">
+                <h4 style="color: #1e293b; margin-bottom: 15px; font-size: 16px;">
+                    <i class="fas fa-list-ol"></i> Next Steps
+                </h4>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px;">
+                    <!-- Step 1 -->
+                    <div style="background: #f0f9ff; border: 1px solid #e0f2fe; border-radius: 8px; padding: 15px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <div style="width: 24px; height: 24px; background: #0ea5e9; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">1</div>
+                            <h5 style="margin: 0; color: #0369a1;">Share with Manager</h5>
+                        </div>
+                        <p style="font-size: 13px; color: #475569; margin-bottom: 10px;">
+                            Send to your manager for review and decision. The manager will update Section 7 and save.
+                        </p>
+                        <button class="btn btn-warning" onclick="openEmailModalFromSuccess('manager')" style="width: 100%; padding: 8px;">
+                            <i class="fas fa-envelope"></i> Email to Manager
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Share Link Section -->
+            <div class="form-group" style="margin-top: 20px;">
+                <label class="form-label" style="font-size: 14px; color: #1e293b;">
+                    <i class="fas fa-link"></i> Shareable Link (Copy & Share)
+                </label>
+                <div class="share-link-container">
+                    <input type="text" class="share-link-input" id="successShareLink" value="" readonly style="font-size: 12px;">
+                    <button class="copy-btn" onclick="copySuccessShareLink()">Copy Link</button>
+                </div>
+                <small style="color: #666; display: block; margin-top: 8px;">
+                    Anyone with this link can view and edit this document (based on your GitHub permissions).
+                </small>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <h5 style="color: #475569; margin-bottom: 15px; font-size: 14px;">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h5>
+                <div class="email-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-info" onclick="openShareLink()">
+                        <i class="fas fa-external-link-alt"></i> Open in New Tab
+                    </button>
+                    <button class="btn" onclick="shareLinkViaEmailFromSuccess()">
+                        <i class="fas fa-envelope"></i> Share via Email
+                    </button>
+                    <button class="btn btn-github" onclick="openDashboard(); closeSaveSuccessModal()">
+                        <i class="fas fa-tachometer-alt"></i> View All Documents
+                    </button>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="instructions" style="margin-top: 25px; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                <h5 style="color: #475569; margin-bottom: 10px; font-size: 14px;">
+                    <i class="fas fa-question-circle"></i> How This Works:
+                </h5>
+                <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px;">
+                    <li><strong>Step 1:</strong> Email manager using button above or share the link</li>
+                    <li><strong>Step 2:</strong> Manager opens link, updates Section 7 (mandatory), and saves</li>
+                    <li><strong>Step 3:</strong> Manager emails decision back to requester</li>
+                    <li><strong>Note:</strong> Section 7 is locked for requesters, only managers can update it</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Manager Save Success Modal -->
+<div id="managerSaveSuccessModal" class="modal">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+            <div class="modal-title" style="color: #10b981;">
+                <i class="fas fa-check-circle"></i> Decision Saved to Cloud!
+            </div>
+            <button class="close-btn" onclick="closeManagerSaveSuccessModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <!-- Success Summary -->
+            <div class="instructions" style="background: #d1fae5; border-left-color: #10b981; padding: 15px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                    <i class="fas fa-cloud" style="font-size: 24px; color: #059669;"></i>
+                    <div>
+                        <h4 style="margin: 0; color: #065f46;">✅ Decision Saved to Cloud</h4>
+                        <p style="margin: 5px 0 0 0; color: #047857; font-size: 13px;">
+                            Document ID: <code id="managerSuccessDocId">Loading...</code>
+                        </p>
+                    </div>
+                </div>
+                <p style="margin: 10px 0 0 0; color: #065f46;">
+                    Your decision has been saved. Now share it with the requester.
+                </p>
+            </div>
+
+            <!-- Step-by-Step Instructions -->
+            <div style="margin: 25px 0;">
+                <h4 style="color: #1e293b; margin-bottom: 15px; font-size: 16px;">
+                    <i class="fas fa-list-ol"></i> Next Steps
+                </h4>
+                
+                <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px;">
+                    <!-- Step 1 -->
+                    <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 15px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                            <div style="width: 24px; height: 24px; background: #f59e0b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">1</div>
+                            <h5 style="margin: 0; color: #92400e;">Share Decision with Requester</h5>
+                        </div>
+                        <p style="font-size: 13px; color: #475569; margin-bottom: 10px;">
+                            Email the decision back to the requester with your decision notes.
+                        </p>
+                        <button class="btn btn-email" onclick="openEmailModalFromSuccess('requester')" style="width: 100%; padding: 8px;">
+                            <i class="fas fa-envelope"></i> Email to Requester
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Share Link Section -->
+            <div class="form-group" style="margin-top: 20px;">
+                <label class="form-label" style="font-size: 14px; color: #1e293b;">
+                    <i class="fas fa-link"></i> Updated Document Link
+                </label>
+                <div class="share-link-container">
+                    <input type="text" class="share-link-input" id="managerSuccessShareLink" value="" readonly style="font-size: 12px;">
+                    <button class="copy-btn" onclick="copyManagerSuccessShareLink()">Copy Link</button>
+                </div>
+                <small style="color: #666; display: block; margin-top: 8px;">
+                    This link now includes your decision. Share it with the requester.
+                </small>
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                <h5 style="color: #475569; margin-bottom: 15px; font-size: 14px;">
+                    <i class="fas fa-bolt"></i> Quick Actions
+                </h5>
+                <div class="email-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="generatePDF()" id="generatePdfFromManagerBtn">
+                        <i class="fas fa-file-pdf"></i> Generate PDF
+                    </button>
+                    <button class="btn" onclick="shareLinkViaEmailFromManagerSuccess()">
+                        <i class="fas fa-envelope"></i> Share via Email
+                    </button>
+                    <button class="btn" onclick="window.print()">
+                        <i class="fas fa-print"></i> Print Document
+                    </button>
+                </div>
+            </div>
+
+            <!-- Help Section -->
+            <div class="instructions" style="margin-top: 25px; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                <h5 style="color: #475569; margin-bottom: 10px; font-size: 14px;">
+                    <i class="fas fa-question-circle"></i> What Happens Next:
+                </h5>
+                <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px;">
+                    <li><strong>Email to Requester:</strong> Sends your decision with notes to the requester</li>
+                    <li><strong>Generate PDF:</strong> Creates a printable version of the complete document</li>
+                    <li><strong>Share Link:</strong> Provides a link to the updated document with your decision</li>
+                    <li><strong>The requester</strong> will receive the decision and can view it in the document</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Email Modal -->
 <div id="emailModal" class="modal">
     <div class="modal-content">
@@ -480,7 +698,6 @@
                 <ul>
                     <li><strong>Download PDF</strong> - Save the PDF to your computer</li>
                     <li><strong>Attach to Email</strong> - Manually attach to any email</li>
-                    <li><strong>Use "Create Email with PDF"</strong> - In the email modal to get both HTML and PDF</li>
                 </ul>
             </div>
         </div>
@@ -502,8 +719,8 @@
     </div>
     <div class="toolbar-right">
         <!-- Single merged Save & Share button -->
-        <button class="btn btn-cloud-save" onclick="saveAndShareToCloud()" id="saveAndShareBtn" title="Save to cloud and get shareable link">
-            <i class="fas fa-cloud-upload-alt"></i> Save & Share to Cloud
+        <button class="btn btn-cloud-save" onclick="saveToCloudAndShare()" id="saveAndShareBtn" title="Save to cloud and get shareable link">
+            <i class="fas fa-cloud-upload-alt"></i> Save to Cloud and Share
         </button>
         
         <!-- Load from Cloud button -->
@@ -511,10 +728,11 @@
             <i class="fab fa-github"></i> Load from Cloud
         </button>
         
-        <!-- Email buttons -->
-        <button class="btn btn-warning email-btn-hidden" id="emailToManagerBtn" onclick="openEmailModal('manager')" title="Send email to manager with document link">📧 Email to Manager</button>
-        <button class="btn btn-email email-btn-hidden" id="emailToRequesterBtn" onclick="openEmailModal('requester')" title="Send email to requester with decision and document link">📧 Email to Requester</button>
-        <button class="btn btn-primary" onclick="generatePDF()" id="generatePdfBtn" title="Please make a decision and add notes first" disabled>Generate PDF</button>
+        <!-- Email buttons (hidden by default) -->
+        <button class="btn btn-email" id="emailToRequesterBtn" onclick="openEmailModal('requester')" title="Send email to requester with decision" style="display: none;">
+            <i class="fas fa-envelope"></i> Email to Requester
+        </button>
+        <button class="btn btn-primary" onclick="generatePDF()" id="generatePdfBtn" title="Please make a decision and add notes first">Generate PDF</button>
         <button class="btn" onclick="window.print()">Print</button>
     </div>
 </div>
@@ -670,40 +888,44 @@
         <div class="next-steps-warning">* At least one next step is required (fill at least one field in any row)</div>
     </div>
 
-    <!-- SECTION 7: Decision -->
-    <div class="decision-section" id="decisionSection">
+    <!-- SECTION 7: Decision (Disabled for requester, enabled for manager) -->
+    <div class="decision-section section-disabled" id="decisionSection">
         <div class="decision-header">
             <div class="decision-title">
                 <span class="section-number">7</span>
                 Decision
+                <span class="status-indicator status-pending" id="decisionStatusLabel">Awaiting Manager</span>
             </div>
             <div class="decision-date-container">
                 <div class="decision-date-label">Decision Date:</div>
-                <input type="date" class="decision-date-input" id="decisionDate">
+                <input type="date" class="decision-date-input" id="decisionDate" disabled>
             </div>
         </div>
 
         <div class="decision-options">
             <div class="decision-option">
-                <input type="radio" id="approved" name="decision" value="approved">
+                <input type="radio" id="approved" name="decision" value="approved" disabled>
                 <label for="approved">Approved</label>
             </div>
             <div class="decision-option">
-                <input type="radio" id="approved-conditions" name="decision" value="approved-conditions">
+                <input type="radio" id="approved-conditions" name="decision" value="approved-conditions" disabled>
                 <label for="approved-conditions">Approved with conditions</label>
             </div>
             <div class="decision-option">
-                <input type="radio" id="not-approved" name="decision" value="not-approved">
+                <input type="radio" id="not-approved" name="decision" value="not-approved" disabled>
                 <label for="not-approved">Not approved</label>
             </div>
             <div class="decision-option">
-                <input type="radio" id="requester-promoted" name="decision" value="requester-promoted">
+                <input type="radio" id="requester-promoted" name="decision" value="requester-promoted" disabled>
                 <label for="requester-promoted">Requester promoted to decide</label>
             </div>
         </div>
         <div class="decision-notes">
-            <textarea id="decisionNotes" placeholder="Decision notes, conditions, or rationale... (Mandatory for manager approval)"></textarea>
+            <textarea id="decisionNotes" placeholder="Decision notes, conditions, or rationale... (Manager must provide decision and notes)" disabled></textarea>
             <div class="decision-required-warning">* Manager must provide decision and notes</div>
+        </div>
+        <div class="instructions" style="margin-top: 10px; font-size: 12px;">
+            <p><i class="fas fa-lock"></i> <strong>Section Locked:</strong> Only the Decision Owner (Manager) can update this section after the document is saved to cloud.</p>
         </div>
     </div>
 
@@ -742,24 +964,24 @@
                     <div style="text-align: center; padding: 15px; background: #fef3c7; border-radius: 8px;">
                         <div style="font-size: 24px; color: #f59e0b; margin-bottom: 10px;">2️⃣</div>
                         <h4 style="margin: 0 0 5px 0; color: #92400e;">Save to Cloud</h4>
-                        <p style="font-size: 12px; color: #475569; margin: 0;">Click the green "Save & Share" button</p>
+                        <p style="font-size: 12px; color: #475569; margin: 0;">Click "Save to Cloud and Share"</p>
                     </div>
                     
                     <div style="text-align: center; padding: 15px; background: #d1fae5; border-radius: 8px;">
                         <div style="font-size: 24px; color: #10b981; margin-bottom: 10px;">3️⃣</div>
-                        <h4 style="margin: 0 0 5px 0; color: #065f46;">Share & Collaborate</h4>
-                        <p style="font-size: 12px; color: #475569; margin: 0;">Email links or generate PDFs</p>
+                        <h4 style="margin: 0 0 5px 0; color: #065f46;">Share with Manager</h4>
+                        <p style="font-size: 12px; color: #475569; margin: 0;">Email link from success modal</p>
                     </div>
                 </div>
             </div>
             
             <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin: 20px 0;">
-                <h4 style="color: #475569; margin-bottom: 10px;"><i class="fas fa-lightbulb"></i> Quick Tips:</h4>
+                <h4 style="color: #475569; margin-bottom: 10px;"><i class="fas fa-lightbulb"></i> How It Works:</h4>
                 <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px;">
-                    <li>Required fields are marked with <span style="color: #ef4444;">*</span></li>
-                    <li>Click <i class="fab fa-github"></i> gear icon to setup FREE cloud storage</li>
-                    <li>Use "Dashboard" to manage all your documents</li>
-                    <li>Email buttons appear when document is saved</li>
+                    <li><strong>Requester:</strong> Fill Sections 1-6 → Save → Email to Manager</li>
+                    <li><strong>Section 7:</strong> Locked for requester, only manager can update</li>
+                    <li><strong>Manager:</strong> Receives link → Updates Section 7 → Saves → Emails back to requester</li>
+                    <li><strong>Cloud Storage:</strong> FREE GitHub Gists (100% private to your account)</li>
                 </ul>
             </div>
             
@@ -786,6 +1008,7 @@
     const GITHUB_CONFIG_KEY = 'decision_brief_github_config';
     const DOCUMENTS_DB_KEY = 'decision_brief_documents';
     const DASHBOARD_PASSWORD_KEY = 'decision_brief_dashboard_password';
+    const USER_ROLE_KEY = 'decision_brief_user_role';
     const TEMPLATE_URL = window.location.href.split('#')[0];
 
     let githubConfig = {
@@ -810,7 +1033,9 @@
     // Track document state
     let documentSaved = false;
     let section7Filled = false;
-    let currentEmailType = 'manager'; // 'manager' or 'requester'
+    let currentEmailType = 'manager';
+    let isManagerMode = false;
+    let currentUserRole = 'requester'; // 'requester' or 'manager'
 
     // ================================
     // INITIALIZATION
@@ -821,6 +1046,9 @@
         
         // Load documents database
         loadDocumentsDatabase();
+        
+        // Load user role
+        loadUserRole();
         
         // Initialize document
         initializeDocument();
@@ -840,7 +1068,100 @@
         setTimeout(() => {
             loadDocumentFromURL();
         }, 500);
+        
+        // Apply user role
+        applyUserRole();
     });
+
+    function loadUserRole() {
+        const savedRole = localStorage.getItem(USER_ROLE_KEY);
+        if (savedRole) {
+            currentUserRole = savedRole;
+        }
+        // Check URL for role hint
+        const urlParams = new URLSearchParams(window.location.search);
+        const roleParam = urlParams.get('role');
+        if (roleParam === 'manager') {
+            currentUserRole = 'manager';
+            localStorage.setItem(USER_ROLE_KEY, 'manager');
+        }
+    }
+
+    function applyUserRole() {
+        if (currentUserRole === 'manager') {
+            enableManagerMode();
+        } else {
+            enableRequesterMode();
+        }
+    }
+
+    function enableManagerMode() {
+        isManagerMode = true;
+        currentUserRole = 'manager';
+        localStorage.setItem(USER_ROLE_KEY, 'manager');
+        
+        // Enable Section 7 for manager
+        const decisionSection = document.getElementById('decisionSection');
+        decisionSection.classList.remove('section-disabled');
+        
+        // Enable all inputs in Section 7
+        decisionSection.querySelectorAll('input, textarea, select').forEach(el => {
+            el.disabled = false;
+        });
+        
+        // Update status label
+        document.getElementById('decisionStatusLabel').textContent = 'Manager Mode';
+        document.getElementById('decisionStatusLabel').className = 'status-indicator status-approved';
+        
+        // Update toolbar
+        document.getElementById('emailToRequesterBtn').style.display = 'inline-block';
+        
+        // Update instructions
+        const instructions = document.querySelector('#decisionSection .instructions');
+        if (instructions) {
+            instructions.innerHTML = '<p><i class="fas fa-unlock"></i> <strong>Manager Mode:</strong> You can update the decision and notes. After saving, use "Email to Requester" to share the decision.</p>';
+        }
+        
+        // Check if decision is already made to enable PDF button
+        checkDecisionMade();
+    }
+
+    function enableRequesterMode() {
+        isManagerMode = false;
+        currentUserRole = 'requester';
+        localStorage.setItem(USER_ROLE_KEY, 'requester');
+        
+        // Disable Section 7 for requester
+        const decisionSection = document.getElementById('decisionSection');
+        decisionSection.classList.add('section-disabled');
+        
+        // Disable all inputs in Section 7
+        decisionSection.querySelectorAll('input, textarea, select').forEach(el => {
+            el.disabled = true;
+        });
+        
+        // Update status label
+        document.getElementById('decisionStatusLabel').textContent = 'Awaiting Manager';
+        document.getElementById('decisionStatusLabel').className = 'status-indicator status-pending';
+        
+        // Update toolbar
+        document.getElementById('emailToRequesterBtn').style.display = 'none';
+        
+        // Update instructions
+        const instructions = document.querySelector('#decisionSection .instructions');
+        if (instructions) {
+            instructions.innerHTML = '<p><i class="fas fa-lock"></i> <strong>Section Locked:</strong> Only the Decision Owner (Manager) can update this section after the document is saved to cloud.</p>';
+        }
+    }
+
+    function toggleUserRole() {
+        if (currentUserRole === 'requester') {
+            enableManagerMode();
+        } else {
+            enableRequesterMode();
+        }
+        updateEmailButtonVisibility();
+    }
 
     function initializeDocument() {
         document.getElementById("generatedDate").textContent = new Date().toLocaleDateString("en-US", {
@@ -874,58 +1195,17 @@
     // 📧 EMAIL BUTTON VISIBILITY CONTROL
     // ================================
     function updateEmailButtonVisibility() {
-        const emailToManagerBtn = document.getElementById("emailToManagerBtn");
         const emailToRequesterBtn = document.getElementById("emailToRequesterBtn");
         
-        // Check if document has been saved
-        const isDocumentSaved = documentSaved;
-        
-        // Check if required fields are filled for manager email
-        const requiredFieldsFilled = checkRequiredFieldsForManager();
-        
-        // Check if Section 7 is filled for requester email
-        const section7Complete = checkSection7Complete();
-        
-        // Show/hide Email to Manager button
-        if (isDocumentSaved && requiredFieldsFilled) {
-            emailToManagerBtn.classList.remove("email-btn-hidden");
+        // Show Email to Requester button only for manager and when decision is made
+        if (isManagerMode && checkSection7Complete()) {
+            emailToRequesterBtn.style.display = 'inline-block';
         } else {
-            emailToManagerBtn.classList.add("email-btn-hidden");
+            emailToRequesterBtn.style.display = 'none';
         }
         
-        // Show/hide Email to Requester button
-        if (isDocumentSaved && section7Complete) {
-            emailToRequesterBtn.classList.remove("email-btn-hidden");
-        } else {
-            emailToRequesterBtn.classList.add("email-btn-hidden");
-        }
-    }
-    
-    function checkRequiredFieldsForManager() {
-        // Check all mandatory fields
-        const mandatoryFields = ["topic", "requestedBy", "decisionOwner", "background", "decisionRequired", "recommendation"];
-        
-        for (const fieldId of mandatoryFields) {
-            const field = document.getElementById(fieldId);
-            if (!field || !field.value.trim()) {
-                return false;
-            }
-        }
-        
-        // Check next steps
-        const stepActions = document.querySelectorAll(".step-action");
-        const stepResponsibles = document.querySelectorAll(".step-responsible");
-        const stepTimelines = document.querySelectorAll(".step-timeline");
-        
-        let hasAtLeastOneStep = false;
-        for (let i = 0; i < stepActions.length; i++) {
-            if (stepActions[i].value.trim() || stepResponsibles[i].value.trim() || stepTimelines[i].value.trim()) {
-                hasAtLeastOneStep = true;
-                break;
-            }
-        }
-        
-        return hasAtLeastOneStep;
+        // Update PDF button state
+        checkDecisionMade();
     }
     
     function checkSection7Complete() {
@@ -936,9 +1216,9 @@
     }
 
     // ================================
-    // ☁️ SAVE & SHARE TO CLOUD (MERGED FUNCTION)
+    // ☁️ SAVE TO CLOUD AND SHARE (UPDATED)
     // ================================
-    async function saveAndShareToCloud() {
+    async function saveToCloudAndShare() {
         // Step 1: Validate required fields
         if (!validateAllMandatoryFields()) {
             showAlert('❌ Please fill in all required fields (marked with *) before saving.', 'error');
@@ -948,6 +1228,13 @@
             if (firstMissing) {
                 firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
+            return;
+        }
+
+        // If manager, also validate Section 7
+        if (isManagerMode && !checkSection7Complete()) {
+            showAlert('❌ As a manager, you must provide a decision and notes in Section 7 before saving.', 'error');
+            document.getElementById("decisionSection").scrollIntoView({ behavior: "smooth" });
             return;
         }
 
@@ -989,9 +1276,13 @@
             section7Filled = checkSection7Complete();
             updateEmailButtonVisibility();
 
-            // Step 5: Show success modal with clear instructions
+            // Step 5: Show appropriate success modal based on user role
             setTimeout(() => {
-                showSaveSuccessModal(docId, shareUrl);
+                if (isManagerMode) {
+                    showManagerSaveSuccessModal(docId, shareUrl);
+                } else {
+                    showSaveSuccessModal(docId, shareUrl);
+                }
             }, 500);
 
         } catch (error) {
@@ -1004,133 +1295,30 @@
     }
 
     // ================================
-    // 📋 SAVE SUCCESS MODAL WITH CLEAR INSTRUCTIONS
+    // 📋 SAVE SUCCESS MODAL FOR REQUESTER
     // ================================
     function showSaveSuccessModal(docId, shareUrl) {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.style.display = 'flex';
-        modal.innerHTML = `
-            <div class="modal-content" style="max-width: 700px;">
-                <div class="modal-header">
-                    <div class="modal-title" style="color: #10b981;">
-                        <i class="fas fa-check-circle"></i> Successfully Saved & Shared!
-                    </div>
-                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
-                </div>
-                
-                <div class="modal-body">
-                    <!-- Success Summary -->
-                    <div class="instructions" style="background: #d1fae5; border-left-color: #10b981; padding: 15px;">
-                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                            <i class="fas fa-cloud" style="font-size: 24px; color: #059669;"></i>
-                            <div>
-                                <h4 style="margin: 0; color: #065f46;">✅ Document Saved to Cloud</h4>
-                                <p style="margin: 5px 0 0 0; color: #047857; font-size: 13px;">
-                                    Document ID: <code>${docId}</code>
-                                </p>
-                            </div>
-                        </div>
-                        <p style="margin: 10px 0 0 0; color: #065f46;">
-                            Your document is now safely stored in your GitHub account and accessible from any device.
-                        </p>
-                    </div>
+        document.getElementById('successDocId').textContent = docId;
+        document.getElementById('successShareLink').value = shareUrl;
+        document.getElementById('saveSuccessModal').style.display = 'flex';
+    }
 
-                    <!-- Step-by-Step Instructions -->
-                    <div style="margin: 25px 0;">
-                        <h4 style="color: #1e293b; margin-bottom: 15px; font-size: 16px;">
-                            <i class="fas fa-list-ol"></i> What can you do now?
-                        </h4>
-                        
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                            <!-- Step 1 -->
-                            <div style="background: #f0f9ff; border: 1px solid #e0f2fe; border-radius: 8px; padding: 15px;">
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                    <div style="width: 24px; height: 24px; background: #0ea5e9; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">1</div>
-                                    <h5 style="margin: 0; color: #0369a1;">Share with Manager</h5>
-                                </div>
-                                <p style="font-size: 13px; color: #475569; margin-bottom: 10px;">
-                                    Send to your manager for review and decision
-                                </p>
-                                <button class="btn btn-warning" onclick="openEmailModal('manager'); this.parentElement.parentElement.parentElement.parentElement.remove()" style="width: 100%; padding: 8px;">
-                                    <i class="fas fa-envelope"></i> Email to Manager
-                                </button>
-                            </div>
-                            
-                            <!-- Step 2 -->
-                            <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 8px; padding: 15px;">
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                                    <div style="width: 24px; height: 24px; background: #f59e0b; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold;">2</div>
-                                    <h5 style="margin: 0; color: #92400e;">Get PDF Version</h5>
-                                </div>
-                                <p style="font-size: 13px; color: #475569; margin-bottom: 10px;">
-                                    Generate a professional PDF document
-                                </p>
-                                <button class="btn btn-primary" onclick="generatePDF(); this.parentElement.parentElement.parentElement.parentElement.remove()" style="width: 100%; padding: 8px;">
-                                    <i class="fas fa-file-pdf"></i> Generate PDF
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+    function closeSaveSuccessModal() {
+        document.getElementById('saveSuccessModal').style.display = 'none';
+    }
 
-                    <!-- Share Link Section -->
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label class="form-label" style="font-size: 14px; color: #1e293b;">
-                            <i class="fas fa-link"></i> Shareable Link (Copy & Share)
-                        </label>
-                        <div class="share-link-container">
-                            <input type="text" class="share-link-input" id="successShareLink" value="${shareUrl}" readonly style="font-size: 12px;">
-                            <button class="copy-btn" onclick="copySuccessShareLink()">Copy Link</button>
-                        </div>
-                        <small style="color: #666; display: block; margin-top: 8px;">
-                            Anyone with this link can view and edit this document (based on your GitHub permissions).
-                        </small>
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                        <h5 style="color: #475569; margin-bottom: 15px; font-size: 14px;">
-                            <i class="fas fa-bolt"></i> Quick Actions
-                        </h5>
-                        <div class="email-actions" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                            <button class="btn btn-info" onclick="window.open('${shareUrl}', '_blank')">
-                                <i class="fas fa-external-link-alt"></i> Open in New Tab
-                            </button>
-                            <button class="btn" onclick="shareLinkViaEmail('${shareUrl}')">
-                                <i class="fas fa-envelope"></i> Email Just the Link
-                            </button>
-                            <button class="btn btn-success" onclick="generatePDFAndShare('${shareUrl}')">
-                                <i class="fas fa-file-pdf"></i> Create PDF & Share
-                            </button>
-                            <button class="btn btn-github" onclick="openDashboard(); this.parentElement.parentElement.parentElement.parentElement.parentElement.remove()">
-                                <i class="fas fa-tachometer-alt"></i> View All Documents
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Help Section -->
-                    <div class="instructions" style="margin-top: 25px; padding: 15px; background: #f8fafc; border-radius: 8px;">
-                        <h5 style="color: #475569; margin-bottom: 10px; font-size: 14px;">
-                            <i class="fas fa-question-circle"></i> Need Help?
-                        </h5>
-                        <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px;">
-                            <li><strong>First time?</strong> Click the <i class="fab fa-github"></i> gear icon to setup cloud storage</li>
-                            <li><strong>Sharing?</strong> Copy the link above or use the Email buttons</li>
-                            <li><strong>Need a file?</strong> Use "Generate PDF" for a printable version</li>
-                            <li><strong>Lost your work?</strong> All documents auto-save to your GitHub account</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        `;
+    function openEmailModalFromSuccess(recipientType) {
+        currentEmailType = recipientType;
+        setupToManagerEmail();
         
-        document.body.appendChild(modal);
+        const emailModal = document.getElementById("emailModal");
+        emailModal.style.display = "flex";
         
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
-            }
-        });
+        // Update email modal buttons for manager email
+        updateEmailModalButtons('manager');
+        
+        // Close success modal
+        closeSaveSuccessModal();
     }
 
     function copySuccessShareLink() {
@@ -1151,8 +1339,76 @@
         showAlert('✅ Document link copied to clipboard!', 'success');
     }
 
+    function openShareLink() {
+        const shareUrl = document.getElementById('successShareLink').value;
+        window.open(shareUrl, '_blank');
+    }
+
+    function shareLinkViaEmailFromSuccess() {
+        const shareUrl = document.getElementById('successShareLink').value;
+        shareLinkViaEmail(shareUrl);
+    }
+
     // ================================
-    // 📧 EMAIL FUNCTIONS (UPDATED WITH OUTLOOK SUPPORT)
+    // 📋 MANAGER SAVE SUCCESS MODAL
+    // ================================
+    function showManagerSaveSuccessModal(docId, shareUrl) {
+        document.getElementById('managerSuccessDocId').textContent = docId;
+        document.getElementById('managerSuccessShareLink').value = shareUrl;
+        document.getElementById('managerSaveSuccessModal').style.display = 'flex';
+    }
+
+    function closeManagerSaveSuccessModal() {
+        document.getElementById('managerSaveSuccessModal').style.display = 'none';
+    }
+
+    function openEmailModalFromSuccess(recipientType) {
+        currentEmailType = recipientType;
+        if (recipientType === 'manager') {
+            setupToManagerEmail();
+        } else {
+            setupToRequesterEmail();
+        }
+        
+        const emailModal = document.getElementById("emailModal");
+        emailModal.style.display = "flex";
+        
+        // Update email modal buttons
+        updateEmailModalButtons(recipientType);
+        
+        // Close success modal
+        if (recipientType === 'manager') {
+            closeSaveSuccessModal();
+        } else {
+            closeManagerSaveSuccessModal();
+        }
+    }
+
+    function copyManagerSuccessShareLink() {
+        const input = document.getElementById('managerSuccessShareLink');
+        input.select();
+        document.execCommand('copy');
+        
+        const btn = input.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+        
+        showAlert('✅ Document link copied to clipboard!', 'success');
+    }
+
+    function shareLinkViaEmailFromManagerSuccess() {
+        const shareUrl = document.getElementById('managerSuccessShareLink').value;
+        shareLinkViaEmail(shareUrl);
+    }
+
+    // ================================
+    // 📧 EMAIL FUNCTIONS (UPDATED)
     // ================================
     async function openEmailModal(recipientType) {
         currentEmailType = recipientType;
@@ -1161,7 +1417,7 @@
         if (!documentSaved) {
             const saveFirst = confirm("Document needs to be saved first. Click OK to save to cloud.");
             if (saveFirst) {
-                await saveAndShareToCloud();
+                await saveToCloudAndShare();
                 return;
             }
         }
@@ -1201,16 +1457,12 @@
                 <button class="btn btn-info" onclick="copyPlainTextToClipboard()">
                     📋 Copy Plain Text
                 </button>
-                <button class="btn btn-email" onclick="createEmailWithPDF()">
-                    📎 Create Email with PDF
-                </button>
             `;
             
             document.getElementById("emailInstructions").innerHTML = `
                 <li><strong>Copy HTML for Outlook</strong> - Best for Outlook with full formatting</li>
                 <li><strong>Share via Outlook</strong> - Opens Outlook Web App with email</li>
                 <li><strong>Copy Plain Text</strong> - For simple email clients</li>
-                <li><strong>Create Email with PDF</strong> - Downloads PDF and creates email</li>
             `;
         } else {
             actionsContainer.innerHTML = `
@@ -1223,16 +1475,12 @@
                 <button class="btn btn-primary" onclick="openEmailClient()">
                     📧 Open Email Client
                 </button>
-                <button class="btn btn-email" onclick="createEmailWithPDF()">
-                    📎 Create Email with PDF
-                </button>
             `;
             
             document.getElementById("emailInstructions").innerHTML = `
                 <li><strong>Copy HTML Email</strong> - Best for Outlook/Gmail with full formatting</li>
                 <li><strong>Copy Plain Text</strong> - For simple email clients</li>
                 <li><strong>Open Email Client</strong> - Opens your default email app</li>
-                <li><strong>Create Email with PDF</strong> - Downloads PDF and creates email</li>
             `;
         }
     }
@@ -1247,8 +1495,8 @@
         const decisionOwnerEmailVal = document.getElementById("decisionOwnerEmail").value || "";
         const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
         
-        // Generate document URL
-        const shareUrl = generateDocumentUrl(docId);
+        // Generate document URL with manager role
+        const shareUrl = generateDocumentUrl(docId) + "?role=manager";
         
         const subject = `Decision Brief for Review: ${topic}`;
         document.getElementById("emailSubject").value = subject;
@@ -1270,11 +1518,11 @@ ${shareUrl}
 
 Please click the link above to access the document. You'll be able to:
 1. Review all sections
-2. Make your decision in Section 7
+2. Make your decision in Section 7 (now unlocked for you)
 3. Add your decision notes
 4. Save the updated document
 
-Once you've completed your review, please use the "Email to Requester" button in the document to send your decision.
+Once you've made your decision, please use the "Save to Cloud and Share" button, then "Email to Requester" to send your decision back.
 
 Best regards,
 ${requester}
@@ -1331,10 +1579,9 @@ ${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Aria
 <ol style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0; padding-left: 20px;">
 <li style="margin-bottom: 5px;">Click the link above to open the Decision Brief</li>
 <li style="margin-bottom: 5px;">Review all sections carefully</li>
-<li style="margin-bottom: 5px;">Make your decision in Section 7</li>
-<li style="margin-bottom: 5px;">Add your decision notes</li>
-<li style="margin-bottom: 5px;">Click "Save to Cloud" to save changes</li>
-<li style="margin-bottom: 5px;">Use "Email to Requester" to send your decision</li>
+<li style="margin-bottom: 5px;"><strong>Section 7 will be unlocked for you</strong> - Make your decision and add notes</li>
+<li style="margin-bottom: 5px;">Click "Save to Cloud and Share" to save changes</li>
+<li style="margin-bottom: 5px;">Use "Email to Requester" to send your decision back</li>
 </ol>
 </div>
 
@@ -1342,7 +1589,6 @@ ${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Aria
 
 <div class="footer">
 <p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
-</div>
 </div>
 </body>
 </html>`;
@@ -1489,7 +1735,6 @@ ${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Aria
 <div class="footer">
 <p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
 </div>
-</div>
 </body>
 </html>`;
 
@@ -1591,34 +1836,6 @@ ${plainTextTemplate}`;
         window.open(mailtoLink, "_blank");
     }
 
-    function createEmailWithPDF() {
-        if (!currentPdfBlob) {
-            alert("Please generate PDF first using the 'Generate PDF' button.");
-            generatePDF();
-            return;
-        }
-        
-        const docId = document.getElementById("docId").textContent;
-        const topic = document.getElementById("topic").value || "Decision_Brief";
-        const cleanTopic = topic.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30);
-        const filename = `Decision_Brief_${cleanTopic}_${docId}.pdf`;
-        
-        const link = document.createElement("a");
-        link.href = currentPdfUrl;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        showAlert(`✅ PDF downloaded: ${filename}
-
-Now create your email:
-1. Use "Copy HTML Email" or "Copy Plain Text"
-2. Paste into your email client (Outlook / Gmail)
-3. Attach the downloaded PDF file manually
-4. Send the email`, 'info');
-    }
-
     function useTemplate() {
         if (currentEmailType === 'manager') {
             setupToManagerEmail();
@@ -1641,7 +1858,29 @@ Now create your email:
     }
 
     // ================================
-    // GITHUB FUNCTIONS - FIXED FOR SINGLE GIST MULTIPLE DOCUMENTS
+    // 🔗 SHARE LINK FUNCTIONS
+    // ================================
+    function shareLinkViaEmail(shareUrl) {
+        const topic = document.getElementById("topic").value || "Decision Brief";
+        const subject = `Decision Brief: ${topic}`;
+        
+        const emailBody = `Hello,
+
+I'm sharing a Decision Brief with you:
+
+📋 ${topic}
+🔗 View Link: ${shareUrl}
+
+Click the link above to view the Decision Brief in your browser. The form will automatically load with all the data.
+
+Best regards`;
+        
+        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoLink, '_blank');
+    }
+
+    // ================================
+    // GITHUB FUNCTIONS
     // ================================
     function loadGithubConfig() {
         try {
@@ -1757,7 +1996,9 @@ Now create your email:
                 title: data.Topic || 'Untitled Decision Brief',
                 requester: data.RequestedBy || 'Unknown',
                 decisionOwner: data.DecisionOwner || 'Unknown',
-                status: data.DecisionStatusText || 'Draft'
+                status: data.DecisionStatusText || 'Draft',
+                userRole: currentUserRole,
+                isManagerMode: isManagerMode
             };
             
             // Try to load existing Gist data first
@@ -1805,7 +2046,7 @@ Now create your email:
             // Prepare the new data structure for the Gist
             const allData = {
                 app: "Decision Brief",
-                version: "1.1",
+                version: "1.2",
                 exportedAt: new Date().toISOString(),
                 documents: existingDocuments,
                 gistFormat: "multi-document"
@@ -1880,6 +2121,7 @@ Now create your email:
 • Requested by: ${stats.requester}
 • Decision Owner: ${stats.decisionOwner}
 • Document ID: ${documentUniqueId}
+• User Role: ${currentUserRole}
 • Documents: ${stats.documents}
 • Next Steps: ${stats.nextSteps}
 
@@ -1905,9 +2147,6 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
         }
     }
     
-    // ================================
-    // 🆕 UPDATED LOAD FROM GITHUB FUNCTION - LOADS SPECIFIC DOCUMENT BY ID
-    // ================================
     async function loadFromGithub() {
         if (!githubConfig.token) {
             showAlert('Please setup GitHub token first! Click the GitHub config button.', 'error');
@@ -1993,6 +2232,24 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
                 documentUniqueId = documentToLoad.id;
                 document.getElementById("docId").textContent = documentToLoad.id;
                 
+                // Apply user role from loaded document if available
+                if (documentToLoad.userRole) {
+                    currentUserRole = documentToLoad.userRole;
+                    localStorage.setItem(USER_ROLE_KEY, currentUserRole);
+                    if (documentToLoad.isManagerMode) {
+                        enableManagerMode();
+                    } else {
+                        enableRequesterMode();
+                    }
+                } else {
+                    // Determine role based on Section 7 content
+                    if (documentToLoad.data.Decision && documentToLoad.data.DecisionNotes) {
+                        enableManagerMode();
+                    } else {
+                        enableRequesterMode();
+                    }
+                }
+                
                 // Update gistId in config if different
                 if (githubConfig.gistId !== gistId) {
                     githubConfig.gistId = gistId;
@@ -2007,6 +2264,7 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
 📊 Loaded Decision Brief:
 • Topic: ${documentToLoad.data.Topic || 'Untitled'}
 • Document ID: ${documentToLoad.id}
+• User Role: ${currentUserRole}
 
 ⏰ Last Saved: ${new Date(importedData.exportedAt).toLocaleString() || 'Unknown'}
 
@@ -2117,7 +2375,9 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
             decisionOwner: data.DecisionOwner || 'Unknown',
             status: data.DecisionStatusText || 'Draft',
             lastModified: timestamp,
-            gistId: githubConfig.gistId || null
+            gistId: githubConfig.gistId || null,
+            userRole: currentUserRole,
+            isManagerMode: isManagerMode
         });
         
         // Sort by timestamp (newest first)
@@ -2131,158 +2391,6 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
         saveDocumentsDatabase();
         
         return docId;
-    }
-
-    // ================================
-    // 🔗 SHARE & LINK FUNCTIONS
-    // ================================
-    function shareLinkViaEmail(shareUrl) {
-        const topic = document.getElementById("topic").value || "Decision Brief";
-        const subject = `Decision Brief: ${topic}`;
-        
-        const emailBody = `Hello,
-
-I'm sharing a Decision Brief with you:
-
-📋 ${topic}
-🔗 View Link: ${shareUrl}
-
-Click the link above to view the Decision Brief in your browser. The form will automatically load with all the data.
-
-Best regards`;
-        
-        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-        window.open(mailtoLink, '_blank');
-    }
-
-    async function generatePDFAndShare(shareUrl) {
-        if (!currentPdfBlob) {
-            await generatePDF();
-        }
-        
-        if (currentPdfBlob) {
-            const docId = document.getElementById("docId").textContent;
-            const topic = document.getElementById("topic").value || "Decision_Brief";
-            const cleanTopic = topic.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30);
-            const filename = `Decision_Brief_${cleanTopic}_${docId}.pdf`;
-            
-            const link = document.createElement("a");
-            link.href = currentPdfUrl;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            showPDFShareModal(shareUrl, filename);
-        }
-    }
-
-    function showPDFShareModal(shareUrl, filename) {
-        const modal = document.createElement('div');
-        modal.className = 'modal';
-        modal.style.display = 'flex';
-        modal.innerHTML = `
-            <div class="modal-content" style="max-width: 600px;">
-                <div class="modal-header">
-                    <div class="modal-title">
-                        <i class="fas fa-file-pdf"></i> PDF Ready for Sharing
-                    </div>
-                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
-                </div>
-                
-                <div class="modal-body">
-                    <div class="instructions" style="background: #e8f5e9; border-left-color: #10b981;">
-                        <p><strong>✅ PDF downloaded: ${filename}</strong></p>
-                    </div>
-                    
-                    <div class="form-group" style="margin-top: 20px;">
-                        <label class="form-label">Document Link</label>
-                        <div class="share-link-container">
-                            <input type="text" class="share-link-input" id="pdfShareLinkInput" value="${shareUrl}" readonly>
-                            <button class="copy-btn" onclick="copyPdfShareLink()">Copy</button>
-                        </div>
-                        <small style="color: #666;">
-                            Share this link for the interactive version.
-                        </small>
-                    </div>
-                    
-                    <div class="instructions" style="margin-top: 20px; padding: 15px; background: #f0f9ff;">
-                        <p><strong>📧 How to send via email:</strong></p>
-                        <ol>
-                            <li>Open your email client (Outlook, Gmail, etc.)</li>
-                            <li>Copy the link above and paste in email</li>
-                            <li>Attach the downloaded PDF file: <strong>${filename}</strong></li>
-                            <li>Add any additional message</li>
-                            <li>Send the email</li>
-                        </ol>
-                    </div>
-                    
-                    <div class="email-actions" style="margin-top: 20px;">
-                        <button class="btn btn-primary" onclick="createEmailWithLinkAndPDF('${shareUrl}')">
-                            <i class="fas fa-envelope"></i> Create Email Template
-                        </button>
-                        <button class="btn btn-info" onclick="openDashboard()">
-                            <i class="fas fa-tachometer-alt"></i> Manage All Documents
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.remove();
-            }
-        });
-    }
-
-    function copyPdfShareLink() {
-        const input = document.getElementById('pdfShareLinkInput');
-        input.select();
-        document.execCommand('copy');
-        
-        const btn = input.nextElementSibling;
-        const originalText = btn.textContent;
-        btn.textContent = 'Copied!';
-        btn.classList.add('copied');
-        
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.classList.remove('copied');
-        }, 2000);
-        
-        showAlert('✅ Document link copied!', 'success');
-    }
-
-    function createEmailWithLinkAndPDF(shareUrl) {
-        const topic = document.getElementById("topic").value || "Decision Brief";
-        const docId = document.getElementById("docId").textContent;
-        const requester = document.getElementById("requestedBy").value || "Requester";
-        const today = new Date().toLocaleDateString();
-        
-        const emailTemplate = `Subject: Decision Brief: ${topic}
-
-Dear Colleague,
-
-Please find attached the Decision Brief PDF and the interactive link below:
-
-📋 ${topic}
-🔗 Interactive Version: ${shareUrl}
-📎 PDF Attachment: See attached file
-
-The PDF contains the finalized version for your records. You can also use the link above to view and interact with the document online.
-
-Best regards,
-${requester}
-
----
-Generated by Decision Brief System on ${today}`;
-        
-        navigator.clipboard.writeText(emailTemplate).then(() => {
-            showAlert('✅ Email template copied to clipboard!\n\nNow paste into your email client and attach the PDF file.', 'success');
-        });
     }
 
     // ================================
@@ -2388,6 +2496,9 @@ Generated by Decision Brief System on ${today}`;
                         <button class="btn btn-danger" onclick="clearAllDocuments()">
                             <i class="fas fa-trash"></i> Clear All
                         </button>
+                        <button class="btn btn-warning" onclick="toggleUserRole()">
+                            <i class="fas fa-user-shield"></i> Switch to ${currentUserRole === 'requester' ? 'Manager' : 'Requester'}
+                        </button>
                     </div>
                     
                     <div id="documentsListContainer" style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px;">
@@ -2402,7 +2513,7 @@ Generated by Decision Brief System on ${today}`;
                             <li><strong>Password Protection</strong> - Secure your documents</li>
                             <li><strong>Quick Access</strong> - Load any document instantly</li>
                             <li><strong>Export All</strong> - Backup all documents as JSON</li>
-                            <li><strong>Share Links</strong> - Generate unique URLs for each document</li>
+                            <li><strong>Switch Role</strong> - Toggle between requester and manager view</li>
                         </ul>
                     </div>
                 </div>
@@ -2428,6 +2539,7 @@ Generated by Decision Brief System on ${today}`;
                     <th>Title</th>
                     <th>Requester</th>
                     <th>Status</th>
+                    <th>Role</th>
                     <th>Modified</th>
                     <th>Actions</th>
                 </tr>
@@ -2438,6 +2550,9 @@ Generated by Decision Brief System on ${today}`;
         documentsDatabase.forEach((doc, index) => {
             const date = new Date(doc.lastModified).toLocaleDateString();
             const statusClass = getStatusClass(doc.status);
+            const roleBadge = doc.userRole === 'manager' ? 
+                '<span style="background: #3b82f6; color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px;">Manager</span>' :
+                '<span style="background: #64748b; color: white; padding: 2px 6px; border-radius: 10px; font-size: 10px;">Requester</span>';
             
             html += `
                 <tr>
@@ -2451,6 +2566,7 @@ Generated by Decision Brief System on ${today}`;
                             ${doc.status}
                         </span>
                     </td>
+                    <td>${roleBadge}</td>
                     <td style="color: #64748b; font-size: 12px;">${date}</td>
                     <td>
                         <button class="btn btn-sm" onclick="loadDocumentFromDashboard('${doc.id}')" style="padding: 4px 8px; font-size: 12px; margin: 2px;">
@@ -2488,6 +2604,17 @@ Generated by Decision Brief System on ${today}`;
             populateForm(doc.data);
             documentUniqueId = docId;
             document.getElementById("docId").textContent = docId;
+            
+            // Apply user role from document
+            if (doc.userRole) {
+                currentUserRole = doc.userRole;
+                localStorage.setItem(USER_ROLE_KEY, currentUserRole);
+                if (doc.isManagerMode) {
+                    enableManagerMode();
+                } else {
+                    enableRequesterMode();
+                }
+            }
             
             // If document has gistId, update config
             if (doc.gistId && doc.gistId !== githubConfig.gistId) {
@@ -2541,7 +2668,7 @@ Generated by Decision Brief System on ${today}`;
                         
                         <div class="email-actions" style="margin-top: 20px;">
                             <button class="btn btn-primary" onclick="shareDashboardLinkViaEmail('${shareUrl}')">
-                                <i class="fas fa-envelope"></i> Email Link
+                                <i class="fas fa-envelope"></i> Share via Email
                             </button>
                             <button class="btn btn-info" onclick="loadDocumentFromDashboard('${docId}')">
                                 <i class="fas fa-edit"></i> Load Document
@@ -3084,8 +3211,19 @@ Best regards`;
         const decisionNotes = document.getElementById("decisionNotes").value.trim();
         const decisionMade = decisionSelected && decisionNotes.length > 0;
         const pdfBtn = document.getElementById("generatePdfBtn");
-        pdfBtn.disabled = !decisionMade;
-        pdfBtn.title = decisionMade ? "Generate PDF document" : "Please make a decision and add notes first";
+        
+        // Only enable PDF button for manager when decision is made
+        if (isManagerMode && decisionMade) {
+            pdfBtn.disabled = false;
+            pdfBtn.title = "Generate PDF document";
+        } else if (!isManagerMode) {
+            pdfBtn.disabled = true;
+            pdfBtn.title = "Only manager can generate PDF after making decision";
+        } else {
+            pdfBtn.disabled = true;
+            pdfBtn.title = "Please make a decision and add notes first";
+        }
+        
         return decisionMade;
     }
 
@@ -3137,9 +3275,10 @@ Best regards`;
         document.querySelectorAll(".score-select").forEach(select => { select.value = "0"; });
         document.querySelectorAll(".option-card").forEach(card => calculateScore(card));
         
-        // Reset document state
+        // Reset document state and user role
         documentSaved = false;
         section7Filled = false;
+        enableRequesterMode();
         
         updateStatusBadge();
         checkDecisionMade();
@@ -3211,6 +3350,8 @@ Best regards`;
                 default: return selectedDecision.value;
             }
         })();
+        data.UserRole = currentUserRole;
+        data.IsManagerMode = isManagerMode;
         return data;
     }
 
