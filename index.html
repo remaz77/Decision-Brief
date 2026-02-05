@@ -7,14 +7,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add Font Awesome for GitHub icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* All CSS styles remain exactly the same as before */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; padding: 20px; }
         .toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 0; margin-bottom: 20px; }
-        .toolbar-left, .toolbar-right { display: flex; gap: 12px; }
+        .toolbar-left, .toolbar-right { display: flex; gap: 12px; flex-wrap: wrap; }
         .btn { padding: 10px 20px; border: 1px solid #cbd5e1; background: white; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 600; color: #475569; cursor: pointer; transition: all 0.2s ease; }
         .btn:hover { background: #f1f5f9; border-color: #94a3b8; }
         .btn-primary { background: #1e293b; color: white; border-color: #1e293b; }
@@ -27,6 +28,31 @@
         .btn-warning:hover { background: #d97706; border-color: #d97706; }
         .btn-email { background: #8b5cf6; color: white; border-color: #8b5cf6; }
         .btn-email:hover { background: #7c3aed; border-color: #7c3aed; }
+        .btn-danger { background: #ef4444; color: white; border-color: #ef4444; }
+        .btn-danger:hover { background: #dc2626; border-color: #dc2626; }
+        
+        /* Email button visibility */
+        .email-btn-hidden {
+            display: none !important;
+        }
+        
+        /* GitHub button styles */
+        .btn-github { 
+            background: #333; 
+            color: white; 
+            border-color: #333; 
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-github:hover { background: #444; border-color: #444; }
+        .btn-github.save { background: #238636; border-color: #238636; }
+        .btn-github.save:hover { background: #2ea043; border-color: #2ea043; }
+        .btn-github.load { background: #1e293b; border-color: #1e293b; }
+        .btn-github.load:hover { background: #0f172a; border-color: #0f172a; }
+        .btn-github.config { background: #6e40c9; border-color: #6e40c9; }
+        .btn-github.config:hover { background: #7c3aed; border-color: #7c3aed; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
         .modal-content { background: white; border-radius: 12px; padding: 24px; width: 90%; max-width: 600px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
@@ -52,7 +78,7 @@
         .template-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .template-title { font-size: 14px; font-weight: 600; color: #475569; }
         .template-body { font-size: 12px; color: #64748b; line-height: 1.5; white-space: pre-wrap; }
-        .email-options { display: flex; gap: 10px; margin-bottom: 15px; }
+        .email-options { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .email-option-btn { flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; background: white; cursor: pointer; text-align: center; transition: all 0.2s ease; }
         .email-option-btn:hover { background: #f1f5f9; }
         .email-option-btn.active { border-color: #3b82f6; background: #eff6ff; }
@@ -68,14 +94,13 @@
         .mandatory-field input:focus, .mandatory-field textarea:focus, .mandatory-field select:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(239,68,68,0.1) !important; }
         .mandatory-warning { display: none; color: #ef4444; font-size: 12px; margin-top: 4px; font-weight: 500; }
         .mandatory-field .mandatory-warning { display: block; }
-        
-        /* Next Steps mandatory styles */
+
         .next-steps-mandatory .section-title::after { content: " *"; color: #ef4444; font-size: 18px; }
         .next-steps-mandatory .steps-table input { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
         .next-steps-mandatory .steps-table input:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(239,68,68,0.1) !important; }
         .next-steps-warning { display: none; color: #ef4444; font-size: 12px; margin-top: 10px; font-weight: 500; }
         .next-steps-mandatory .next-steps-warning { display: block; }
-        
+
         .page { max-width: 1100px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 30px; }
         .page-title { text-align: center; font-size: 32px; font-weight: 800; color: #1e293b; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #1e293b; letter-spacing: -0.5px; }
         .metadata { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
@@ -141,14 +166,95 @@
         .status-rejected { background: #fee2e2; color: #991b1b; }
         .status-conditional { background: #dbeafe; color: #1e40af; }
         .status-promoted { background: #ddd6fe; color: #5b21b6; }
+
+        /* Dashboard Table Styles */
+        .dashboard-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .dashboard-table thead {
+            background: #f1f5f9;
+        }
+
+        .dashboard-table th {
+            padding: 10px 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #475569;
+            border-bottom: 2px solid #e2e8f0;
+            font-size: 12px;
+        }
+
+        .dashboard-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .dashboard-table tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Password Modal Styles */
+        .password-input-group {
+            position: relative;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+        }
+
+        /* Export buttons */
+        .export-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* GitHub Status Styles */
+        .github-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 10px;
+            background: #e2e8f0;
+            color: #475569;
+        }
         
+        .status-connected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .token-input {
+            font-family: monospace;
+            font-size: 13px;
+        }
+
         @media (max-width: 1024px) {
             .metadata { grid-template-columns: repeat(2, 1fr); }
             .options-grid { grid-template-columns: repeat(2, 1fr); }
             .section-1-2, .section-4-5 { grid-template-columns: 1fr; gap: 15px; }
             .decision-header { flex-direction: column; align-items: flex-start; }
         }
-        
         @media (max-width: 768px) {
             .page { padding: 20px; }
             .toolbar { flex-direction: column; }
@@ -158,8 +264,8 @@
             .metadata { grid-template-columns: 1fr; }
             .email-actions { flex-direction: column; }
             .email-options { flex-direction: column; }
+            .dashboard-table { display: block; overflow-x: auto; }
         }
-        
         @media print {
             body { background: white; padding: 0; }
             .toolbar { display: none; }
@@ -173,52 +279,78 @@
 </head>
 <body>
 
-<!-- Share Modal -->
-<div id="shareModal" class="modal">
+<!-- GitHub Configuration Modal -->
+<div id="githubConfigModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <div class="modal-title">Share Decision Brief</div>
-            <button class="close-btn" id="closeModal">&times;</button>
+            <div class="modal-title"><i class="fab fa-github"></i> Free Cloud Sync Setup</div>
+            <button class="close-btn" onclick="closeGithubConfig()">&times;</button>
         </div>
+        
         <div class="modal-body">
-            <p>Share this Decision Brief via email:</p>
-            
-            <div class="email-options">
-                <div class="email-option-btn active" id="toManagerOption" onclick="selectEmailOption('toManager')">
-                    <div class="title">To Manager</div>
-                    <div class="desc">Share for review and decision</div>
-                </div>
-                <div class="email-option-btn" id="toRequesterOption" onclick="selectEmailOption('toRequester')">
-                    <div class="title">Back to Requester</div>
-                    <div class="desc">Send decision back to requester</div>
-                </div>
+            <div class="form-group">
+                <h4><i class="fas fa-cloud"></i> Sync with GitHub (100% Free)</h4>
+                <p style="margin-bottom: 15px; color: #666;">
+                    Store your Decision Brief data on GitHub Gists. All devices can sync automatically.
+                </p>
             </div>
             
-            <div class="share-link-container">
-                <input type="text" class="share-link-input" id="shareLinkInput" readonly>
-                <button class="copy-btn" id="copyLinkBtn">Copy Link</button>
+            <div class="form-group">
+                <label class="form-label">GitHub Personal Access Token *</label>
+                <input type="password" id="githubToken" class="form-input token-input" 
+                       placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+                <small style="color: #666;">
+                    Get token from: <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a><br>
+                    Select only: <code>gist</code> scope
+                </small>
             </div>
             
-            <div class="email-actions">
-                <button class="btn btn-email" onclick="openEmailModal()">📧 Create Email</button>
-                <button class="btn btn-info" onclick="testShareLink()">Test Link</button>
-                <button class="btn btn-success" onclick="createEmailFile()">📧 Download Email File</button>
+            <div class="form-group">
+                <label class="form-label">Gist ID (Optional)</label>
+                <input type="text" id="gistId" class="form-input token-input" 
+                       placeholder="Leave empty to create new">
+                <small style="color: #666;">
+                    If sharing with team, use same Gist ID on all devices
+                </small>
             </div>
+            
+            <div class="form-group">
+                <label class="form-label">Auto Save</label>
+                <select id="syncFrequency" class="form-input">
+                    <option value="manual">Manual Only</option>
+                    <option value="5">Every 5 minutes</option>
+                    <option value="15">Every 15 minutes</option>
+                    <option value="60">Every hour</option>
+                </select>
+            </div>
+            
+            <button class="btn btn-success" onclick="saveGithubConfig()" style="width: 100%; margin-top: 15px;">
+                <i class="fas fa-save"></i> Save Configuration
+            </button>
+            
+            <div id="configStatus" style="margin-top: 15px; padding: 10px; border-radius: 6px; display: none;"></div>
             
             <div class="instructions">
-                <p><strong>Important: For clickable links in email:</strong></p>
-                <ul>
-                    <li><strong>Method 1:</strong> Use "Create Email" then copy HTML and paste into email client</li>
-                    <li><strong>Method 2:</strong> Use "Download Email File" to get .eml file for Outlook</li>
-                    <li><strong>Method 3:</strong> Use mailto: link (plain text only)</li>
-                    <li><strong>Note:</strong> file:/// links are often blocked in emails for security</li>
-                </ul>
+                <h4><i class="fas fa-question-circle"></i> Setup Instructions:</h4>
+                <ol style="margin-left: 20px; color: #555;">
+                    <li>Go to <a href="https://github.com/settings/tokens" target="_blank">GitHub Tokens</a></li>
+                    <li>Click "Generate new token" → "Generate new token (classic)"</li>
+                    <li>Name: "Decision Brief Sync"</li>
+                    <li>Expiration: 90 days (recommended)</li>
+                    <li>Select ONLY: <strong>gist</strong> scope ✓</li>
+                    <li>Click "Generate token"</li>
+                    <li>Copy token (starts with ghp_)</li>
+                    <li>Paste above and save</li>
+                </ol>
+                <p style="margin-top: 10px; font-size: 12px; color: #777;">
+                    <i class="fas fa-shield-alt"></i> Token stored locally only. 100% free forever.
+                </p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Email Modal (for both To Manager and Back to Requester) -->
+<!-- Email Modal -->
 <div id="emailModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -230,22 +362,22 @@
                 <label class="form-label" id="toLabel">To (Recipient Email)</label>
                 <input type="email" class="form-input" id="toEmail" placeholder="email@company.com">
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label">Your Email (Optional)</label>
                 <input type="email" class="form-input" id="fromEmail" placeholder="your.email@company.com">
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label">Subject</label>
                 <input type="text" class="form-input" id="emailSubject" placeholder="Decision Brief">
             </div>
-            
+
             <div class="form-group">
                 <label class="form-label">Additional Message (Optional)</label>
                 <textarea class="form-input form-textarea" id="additionalMessage" rows="3" placeholder="Add any additional comments or instructions..."></textarea>
             </div>
-            
+
             <div class="email-template">
                 <div class="template-header">
                     <div class="template-title" id="templateTitle">HTML Email Template:</div>
@@ -253,45 +385,50 @@
                 </div>
                 <div class="template-body" id="emailTemplatePreview" style="max-height: 300px; overflow-y: auto; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></div>
             </div>
-            
+
             <div class="email-actions">
                 <button class="btn btn-success" onclick="copyHTMLToClipboard()">📋 Copy HTML Email</button>
                 <button class="btn btn-info" onclick="copyPlainTextToClipboard()">📋 Copy Plain Text</button>
-                <button class="btn btn-warning" onclick="createEmailFile()">📧 Download Email File</button>
                 <button class="btn btn-primary" onclick="openEmailClient()">📧 Open Email Client</button>
+                <button class="btn btn-email" onclick="createEmailWithPDF()">📎 Create Email with PDF</button>
             </div>
-            
+
             <div class="instructions">
-                <p><strong>How to send with clickable link:</strong></p>
+                <p><strong>How to send:</strong></p>
                 <ul id="emailInstructions">
-                    <li><strong>For Outlook:</strong> Use "Download Email File" then double-click .eml file</li>
-                    <li><strong>For Gmail/Webmail:</strong> Use "Copy HTML Email", paste into compose window</li>
-                    <li><strong>For any email client:</strong> Use "Open Email Client" to open default mail app</li>
-                    <li><strong>Note:</strong> Some email clients block file:/// links for security</li>
+                    <li><strong>Copy HTML Email</strong> - Best for Outlook/Gmail with full formatting</li>
+                    <li><strong>Copy Plain Text</strong> - For simple email clients</li>
+                    <li><strong>Open Email Client</strong> - Opens your default email app</li>
+                    <li><strong>Create Email with PDF</strong> - Downloads PDF and creates email</li>
                 </ul>
             </div>
         </div>
     </div>
 </div>
 
-<!-- PDF Modal -->
+<!-- PDF Download Modal -->
 <div id="pdfModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <div class="modal-title">PDF Generated Successfully</div>
+            <div class="modal-title">PDF Ready for Download</div>
             <button class="close-btn" id="closePdfModal">&times;</button>
         </div>
         <div class="modal-body">
-            <p>Your Decision Brief has been converted to PDF.</p>
+            <p>Your Decision Brief PDF has been generated successfully.</p>
             
-            <div class="share-link-container">
-                <input type="text" class="share-link-input" id="pdfLinkInput" readonly>
-                <button class="copy-btn" id="copyPdfLinkBtn">Copy PDF Link</button>
+            <div class="email-actions" style="margin: 20px 0;">
+                <button class="btn btn-success" id="downloadPdfBtn" style="width: 100%; padding: 15px; font-size: 16px;">
+                    <i class="fas fa-download"></i> Download PDF File
+                </button>
             </div>
             
-            <div class="email-actions">
-                <button class="btn btn-success" id="downloadPdfBtn">Download PDF</button>
-                <button class="btn btn-primary" onclick="window.print()">Print</button>
+            <div class="instructions">
+                <p><strong>How to share:</strong></p>
+                <ul>
+                    <li><strong>Download PDF</strong> - Save the PDF to your computer</li>
+                    <li><strong>Attach to Email</strong> - Manually attach to any email</li>
+                    <li><strong>Use "Create Email with PDF"</strong> - In the email modal to get both HTML and PDF</li>
+                </ul>
             </div>
         </div>
     </div>
@@ -301,18 +438,42 @@
 <div class="toolbar">
     <div class="toolbar-left">
         <button class="btn" onclick="resetForm()">Reset Form</button>
-        <button class="btn btn-info" onclick="loadFromLocalStorage()">Load Saved Data</button>
+        <!-- Dashboard button -->
+        <button class="btn btn-info" onclick="openDashboard()" title="Manage all documents">
+            <i class="fas fa-tachometer-alt"></i> Dashboard
+        </button>
+        <!-- GitHub buttons -->
+        <button class="btn btn-github config" onclick="showGithubConfigModal()" title="GitHub Cloud Settings">
+            <i class="fab fa-github"></i> <i class="fas fa-cog"></i>
+        </button>
+        <button class="btn btn-github save" onclick="saveToGithub()" id="saveToGithubBtn" title="Save to GitHub Cloud (Free)" disabled>
+            <i class="fab fa-github"></i> Save to Cloud
+        </button>
+        <button class="btn btn-github load" onclick="loadFromGithub()" id="loadFromGithubBtn" title="Load from GitHub Cloud" disabled>
+            <i class="fab fa-github"></i> Load from Cloud
+        </button>
     </div>
     <div class="toolbar-right">
-        <button class="btn btn-warning" onclick="generateShareLink()">Share via Email</button>
-        <button class="btn btn-success" onclick="generatePDF()" id="generatePdfBtn">Generate PDF</button>
+        <button class="btn btn-info" onclick="createDocumentLink()">
+            <i class="fas fa-link"></i> Share & Save
+        </button>
+        <!-- Email buttons - initially hidden -->
+        <button class="btn btn-warning email-btn-hidden" id="emailToManagerBtn" onclick="openEmailModal('manager')" title="Send email to manager with document link">📧 Email to Manager</button>
+        <button class="btn btn-email email-btn-hidden" id="emailToRequesterBtn" onclick="openEmailModal('requester')" title="Send email to requester with decision and document link">📧 Email to Requester</button>
+        <button class="btn btn-success" onclick="generatePDF()" id="generatePdfBtn" title="Please make a decision and add notes first" disabled>Generate PDF</button>
         <button class="btn btn-primary" onclick="window.print()">Print</button>
     </div>
 </div>
 
 <!-- Main Page -->
 <div class="page" id="contentToPrint">
-    <h1 class="page-title">Decision Brief <span id="statusBadge" class="status-indicator">Draft</span></h1>
+    <h1 class="page-title">
+        Decision Brief 
+        <span id="statusBadge" class="status-indicator">Draft</span>
+        <span id="githubStatus" class="github-status status-disconnected" style="display: none;">
+            <i class="fab fa-github"></i> GitHub: Not Connected
+        </span>
+    </h1>
 
     <!-- Metadata Section -->
     <div class="metadata">
@@ -335,6 +496,16 @@
             <div class="meta-label">Request Date</div>
             <input type="date" class="meta-input" id="requestDate">
         </div>
+
+        <div class="meta-item" id="requesterEmailField">
+            <div class="meta-label">Requester Email</div>
+            <input type="email" class="meta-input" id="requesterEmail" placeholder="requester@company.com">
+        </div>
+
+        <div class="meta-item" id="decisionOwnerEmailField">
+            <div class="meta-label">Decision Owner Email</div>
+            <input type="email" class="meta-input" id="decisionOwnerEmail" placeholder="manager@company.com">
+        </div>
     </div>
 
     <!-- SECTION 1 & 2 -->
@@ -342,14 +513,14 @@
         <div class="mandatory-field" id="backgroundField">
             <div class="section-title">
                 <span class="section-number">1</span>
-                Background & Requirement
+                Background &amp; Requirement
             </div>
             <div class="text-section">
                 <textarea id="background" placeholder="Describe the context, problem statement, and business need..."></textarea>
                 <div class="mandatory-warning">* This field is required</div>
             </div>
         </div>
-        
+
         <div class="mandatory-field" id="decisionRequiredField">
             <div class="section-title">
                 <span class="section-number">2</span>
@@ -369,7 +540,7 @@
             Options Considered
         </div>
         <div class="options-grid" id="optionsGrid">
-            <!-- Options will be inserted here by JavaScript -->
+            <!-- Options inserted by JS -->
         </div>
     </div>
 
@@ -397,7 +568,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="mandatory-field" id="recommendationField">
             <div class="section-title">
                 <span class="section-number">5</span>
@@ -410,7 +581,7 @@
         </div>
     </div>
 
-    <!-- SECTION 6: Next Steps (MANDATORY - at least one step) -->
+    <!-- SECTION 6: Next Steps -->
     <div class="section" id="nextStepsSection">
         <div class="section-title">
             <span class="section-number">6</span>
@@ -445,7 +616,7 @@
         <div class="next-steps-warning">* At least one next step is required (fill at least one field in any row)</div>
     </div>
 
-    <!-- SECTION 7: DECISION (MANDATORY FOR MANAGER) -->
+    <!-- SECTION 7: Decision -->
     <div class="decision-section" id="decisionSection">
         <div class="decision-header">
             <div class="decision-title">
@@ -457,7 +628,7 @@
                 <input type="date" class="decision-date-input" id="decisionDate">
             </div>
         </div>
-        
+
         <div class="decision-options">
             <div class="decision-option">
                 <input type="radio" id="approved" name="decision" value="approved">
@@ -473,7 +644,7 @@
             </div>
             <div class="decision-option">
                 <input type="radio" id="requester-promoted" name="decision" value="requester-promoted">
-                <label for="requester-promoted">Requester Promoted to decide</label>
+                <label for="requester-promoted">Requester promoted to decide</label>
             </div>
         </div>
         <div class="decision-notes">
@@ -482,72 +653,1803 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <div class="footer">
-        Document ID: DB-<span id="docId">001</span> | Generated on <span id="generatedDate"></span>
+        Document ID: <span id="docId">Draft</span> | Generated on <span id="generatedDate"></span>
     </div>
 </div>
 
 <script>
-    // Global variables
-    let currentDocumentId = '';
-    let isManagerView = false;
-    let currentShareUrl = '';
-    let selectedEmailOption = 'toManager';
+    // ================================
+    // 🔗 GITHUB GIST CONFIGURATION
+    // ================================
+    const GITHUB_CONFIG_KEY = 'decision_brief_github_config';
+    const DOCUMENTS_DB_KEY = 'decision_brief_documents';
+    const DASHBOARD_PASSWORD_KEY = 'decision_brief_dashboard_password';
+    const TEMPLATE_URL = window.location.href.split('#')[0];
+
+    let githubConfig = {
+        token: '',
+        gistId: '',
+        syncFrequency: 'manual',
+        lastSync: null
+    };
+    
+    let documentsDatabase = [];
+    let dashboardPassword = null;
+    let syncInterval = null;
+    
+    // Global state
+    let currentPdfBlob = null;
+    let currentPdfUrl = null;
+    let documentUniqueId = null;
+    let currentFormData = null;
     let htmlEmailTemplate = '';
     let plainTextTemplate = '';
+    
+    // Track document state
+    let documentSaved = false;
+    let section7Filled = false;
 
-    // Initialize document
-    document.addEventListener('DOMContentLoaded', function() {
+    // ================================
+    // INITIALIZATION
+    // ================================
+    document.addEventListener("DOMContentLoaded", function () {
+        // Load GitHub config
+        loadGithubConfig();
+        
+        // Load documents database
+        loadDocumentsDatabase();
+        
+        // Initialize document
         initializeDocument();
+        
+        // Setup PDF modal event listeners
+        setupPdfModalListeners();
+        
+        // Load document from URL if present
+        setTimeout(() => {
+            loadDocumentFromURL();
+        }, 500);
     });
 
     function initializeDocument() {
-        // Set generated date
-        document.getElementById('generatedDate').textContent = new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+        document.getElementById("generatedDate").textContent = new Date().toLocaleDateString("en-US", {
+            year: "numeric", month: "long", day: "numeric"
         });
 
-        // Set request date (default to today)
-        const requestDateInput = document.getElementById('requestDate');
+        const requestDateInput = document.getElementById("requestDate");
         requestDateInput.valueAsDate = new Date();
 
-        // Set decision date (default to today)
-        const decisionDateInput = document.getElementById('decisionDate');
+        const decisionDateInput = document.getElementById("decisionDate");
         decisionDateInput.valueAsDate = new Date();
 
-        // Generate or get document ID from URL
-        currentDocumentId = getDocumentIdFromURL();
-        document.getElementById('docId').textContent = currentDocumentId;
-
-        // Create options with scoring
+        generateDocumentId();
         createOptionsGrid();
-
-        // Initialize scores
         initializeScores();
-
-        // Set up event listeners
         setupEventListeners();
-
-        // Check if we should load saved data
-        loadDataOnStartup();
+        updateStatusBadge();
+        
+        // Initialize email button visibility
+        updateEmailButtonVisibility();
     }
 
-    function getDocumentIdFromURL() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const docIdFromUrl = urlParams.get('doc');
+    function generateDocumentId() {
+        const timestamp = Date.now();
+        const random = Math.floor(Math.random() * 1000);
+        documentUniqueId = `DB-${timestamp}-${random}`;
+        document.getElementById("docId").textContent = documentUniqueId;
+    }
+
+    // ================================
+    // EMAIL BUTTON VISIBILITY CONTROL
+    // ================================
+    function updateEmailButtonVisibility() {
+        const emailToManagerBtn = document.getElementById("emailToManagerBtn");
+        const emailToRequesterBtn = document.getElementById("emailToRequesterBtn");
         
-        if (docIdFromUrl) {
-            return docIdFromUrl;
+        // Check if document has been saved
+        const isDocumentSaved = documentSaved;
+        
+        // Check if required fields are filled for manager email
+        const requiredFieldsFilled = checkRequiredFieldsForManager();
+        
+        // Check if Section 7 is filled for requester email
+        const section7Complete = checkSection7Complete();
+        
+        // Show/hide Email to Manager button
+        if (isDocumentSaved && requiredFieldsFilled) {
+            emailToManagerBtn.classList.remove("email-btn-hidden");
+        } else {
+            emailToManagerBtn.classList.add("email-btn-hidden");
         }
         
-        return String(Math.floor(Math.random() * 9000) + 1000);
+        // Show/hide Email to Requester button
+        if (isDocumentSaved && section7Complete) {
+            emailToRequesterBtn.classList.remove("email-btn-hidden");
+        } else {
+            emailToRequesterBtn.classList.add("email-btn-hidden");
+        }
+    }
+    
+    function checkRequiredFieldsForManager() {
+        // Check all mandatory fields
+        const mandatoryFields = ["topic", "requestedBy", "decisionOwner", "background", "decisionRequired", "recommendation"];
+        
+        for (const fieldId of mandatoryFields) {
+            const field = document.getElementById(fieldId);
+            if (!field || !field.value.trim()) {
+                return false;
+            }
+        }
+        
+        // Check next steps
+        const stepActions = document.querySelectorAll(".step-action");
+        const stepResponsibles = document.querySelectorAll(".step-responsible");
+        const stepTimelines = document.querySelectorAll(".step-timeline");
+        
+        let hasAtLeastOneStep = false;
+        for (let i = 0; i < stepActions.length; i++) {
+            if (stepActions[i].value.trim() || stepResponsibles[i].value.trim() || stepTimelines[i].value.trim()) {
+                hasAtLeastOneStep = true;
+                break;
+            }
+        }
+        
+        return hasAtLeastOneStep;
+    }
+    
+    function checkSection7Complete() {
+        const decisionSelected = document.querySelector('input[name="decision"]:checked');
+        const decisionNotes = document.getElementById("decisionNotes").value.trim();
+        
+        return decisionSelected && decisionNotes.length > 0;
     }
 
+    // ================================
+    // GITHUB FUNCTIONS
+    // ================================
+    function loadGithubConfig() {
+        try {
+            const saved = localStorage.getItem(GITHUB_CONFIG_KEY);
+            if (saved) {
+                githubConfig = JSON.parse(saved);
+                updateGithubStatus();
+                
+                if (githubConfig.syncFrequency !== 'manual' && githubConfig.token) {
+                    startAutoSync(parseInt(githubConfig.syncFrequency));
+                }
+            }
+        } catch (error) {
+            console.error("Error loading GitHub config:", error);
+        }
+    }
+    
+    function saveGithubConfig() {
+        try {
+            githubConfig.token = document.getElementById('githubToken').value.trim();
+            githubConfig.gistId = document.getElementById('gistId').value.trim();
+            githubConfig.syncFrequency = document.getElementById('syncFrequency').value;
+            
+            localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
+            
+            updateGithubStatus();
+            
+            if (syncInterval) {
+                clearInterval(syncInterval);
+                syncInterval = null;
+            }
+            
+            if (githubConfig.syncFrequency !== 'manual' && githubConfig.token) {
+                startAutoSync(parseInt(githubConfig.syncFrequency));
+            }
+            
+            const statusEl = document.getElementById('configStatus');
+            statusEl.style.display = 'block';
+            statusEl.style.background = '#e8f5e9';
+            statusEl.style.color = '#2e7d32';
+            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Configuration saved!';
+            
+            setTimeout(() => {
+                closeGithubConfig();
+            }, 1500);
+            
+        } catch (error) {
+            console.error("Error saving GitHub config:", error);
+            const statusEl = document.getElementById('configStatus');
+            statusEl.style.display = 'block';
+            statusEl.style.background = '#ffebee';
+            statusEl.style.color = '#c62828';
+            statusEl.innerHTML = '<i class="fas fa-exclamation-circle"></i> Error saving configuration';
+        }
+    }
+    
+    function updateGithubStatus() {
+        const statusEl = document.getElementById('githubStatus');
+        if (!statusEl) return;
+        
+        if (githubConfig.token) {
+            statusEl.className = 'github-status status-connected';
+            statusEl.innerHTML = `<i class="fab fa-github"></i> GitHub: Connected`;
+            statusEl.style.display = 'inline-flex';
+            
+            document.getElementById('saveToGithubBtn').disabled = false;
+            document.getElementById('loadFromGithubBtn').disabled = false;
+        } else {
+            statusEl.className = 'github-status status-disconnected';
+            statusEl.innerHTML = '<i class="fab fa-github"></i> GitHub: Not Connected';
+            statusEl.style.display = 'inline-flex';
+            
+            document.getElementById('saveToGithubBtn').disabled = true;
+            document.getElementById('loadFromGithubBtn').disabled = true;
+        }
+    }
+    
+    function startAutoSync(minutes) {
+        if (syncInterval) clearInterval(syncInterval);
+        
+        syncInterval = setInterval(() => {
+            console.log(`Auto-syncing to GitHub...`);
+            saveToGithub(true);
+        }, minutes * 60 * 1000);
+        
+        console.log(`Auto-sync started: every ${minutes} minutes`);
+    }
+    
+    async function saveToGithub(silent = false) {
+        if (!githubConfig.token) {
+            if (!silent) {
+                showAlert('Please setup GitHub token first! Click the GitHub config button.', 'error');
+                showGithubConfigModal();
+            }
+            return false;
+        }
+        
+        try {
+            if (!silent) {
+                showAlert('💾 Saving to GitHub Cloud...', 'info');
+            }
+            
+            const data = collectFormData();
+            currentFormData = data;
+            
+            if (!documentUniqueId) {
+                generateDocumentId();
+            }
+            
+            const allData = {
+                app: "Decision Brief",
+                version: "1.0",
+                exportedAt: new Date().toISOString(),
+                data: data,
+                documentUniqueId: documentUniqueId,
+                generatedDate: document.getElementById("generatedDate").textContent
+            };
+            
+            const gistData = {
+                description: `Decision Brief - ${data.Topic || 'Untitled'} - ${documentUniqueId}`,
+                public: false,
+                files: {
+                    "decision-brief-data.json": {
+                        content: JSON.stringify(allData, null, 2)
+                    }
+                }
+            };
+            
+            let response;
+            let isNewGist = false;
+            
+            if (githubConfig.gistId && githubConfig.gistId.trim() !== '') {
+                response = await fetch(`https://api.github.com/gists/${githubConfig.gistId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gistData)
+                });
+            } else {
+                response = await fetch('https://api.github.com/gists', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${githubConfig.token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(gistData)
+                });
+                isNewGist = true;
+            }
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                if (isNewGist && result.id) {
+                    githubConfig.gistId = result.id;
+                    localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
+                    
+                    if (document.getElementById('gistId')) {
+                        document.getElementById('gistId').value = result.id;
+                    }
+                }
+                
+                githubConfig.lastSync = new Date().toISOString();
+                localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
+                
+                updateGithubStatus();
+                
+                if (!silent) {
+                    const stats = {
+                        topic: data.Topic || 'Untitled',
+                        requester: data.RequestedBy || 'Unknown',
+                        decisionOwner: data.DecisionOwner || 'Unknown',
+                        documents: data.Documents ? data.Documents.length : 0,
+                        nextSteps: data.NextSteps ? data.NextSteps.length : 0
+                    };
+                    
+                    const message = `✅ DATA SAVED SUCCESSFULLY!
+
+📊 Decision Brief Saved:
+• Topic: ${stats.topic}
+• Requested by: ${stats.requester}
+• Decision Owner: ${stats.decisionOwner}
+• Document ID: ${documentUniqueId}
+• Documents: ${stats.documents}
+• Next Steps: ${stats.nextSteps}
+
+${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + githubConfig.gistId}
+⏰ Time: ${new Date().toLocaleTimeString()}`;
+                    
+                    showAlert(message, 'success');
+                }
+                
+                return true;
+            } else {
+                const error = result.message || `HTTP ${response.status}: Failed to save`;
+                console.error('GitHub API error:', error);
+                throw new Error(error);
+            }
+            
+        } catch (error) {
+            console.error('GitHub save error:', error);
+            if (!silent) {
+                showAlert(`❌ SAVE FAILED: ${error.message}`, 'error');
+            }
+            return false;
+        }
+    }
+    
+    async function loadFromGithub() {
+        if (!githubConfig.token) {
+            showAlert('Please setup GitHub token first! Click the GitHub config button.', 'error');
+            showGithubConfigModal();
+            return;
+        }
+        
+        if (!githubConfig.gistId || githubConfig.gistId.trim() === '') {
+            showAlert('No Gist ID configured. Save to GitHub first to create a Gist.', 'error');
+            return;
+        }
+        
+        try {
+            console.log('Loading from GitHub Gist:', githubConfig.gistId);
+            
+            showAlert('🔄 Loading from GitHub Cloud...', 'info');
+            
+            const response = await fetch(`https://api.github.com/gists/${githubConfig.gistId}`, {
+                headers: {
+                    'Authorization': `Bearer ${githubConfig.token}`,
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            });
+            
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || `HTTP ${response.status}: Failed to load`);
+            }
+            
+            const gist = await response.json();
+            
+            if (!gist.files || !gist.files['decision-brief-data.json']) {
+                throw new Error('No decision-brief-data.json file found in Gist');
+            }
+            
+            const fileContent = gist.files['decision-brief-data.json'].content;
+            const importedData = JSON.parse(fileContent);
+            
+            if (importedData.data) {
+                populateForm(importedData.data);
+                currentFormData = importedData.data;
+                
+                if (importedData.documentUniqueId) {
+                    documentUniqueId = importedData.documentUniqueId;
+                    document.getElementById("docId").textContent = documentUniqueId;
+                }
+            } else {
+                populateForm(importedData);
+                currentFormData = importedData;
+            }
+            
+            githubConfig.lastSync = new Date().toISOString();
+            localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
+            
+            const data = importedData.data || importedData;
+            const syncTime = importedData.exportedAt ? 
+                new Date(importedData.exportedAt).toLocaleString() : 'Unknown';
+            
+            showAlert(`✅ DATA LOADED SUCCESSFULLY!
+
+📊 Loaded Decision Brief:
+• Topic: ${data.Topic || 'Untitled'}
+• Requested by: ${data.RequestedBy || 'Unknown'}
+• Decision Owner: ${data.DecisionOwner || 'Unknown'}
+• Document ID: ${documentUniqueId || 'N/A'}
+
+⏰ Last Saved: ${syncTime}
+
+✅ Form data restored!`, 'success');
+            
+            updateStatusBadge();
+            validateAllMandatoryFields();
+            
+            // Update email button visibility after loading
+            documentSaved = true;
+            section7Filled = checkSection7Complete();
+            updateEmailButtonVisibility();
+            
+        } catch (error) {
+            console.error('GitHub load error:', error);
+            
+            let errorMsg = `❌ Error loading from GitHub: ${error.message}`;
+            
+            if (error.message.includes('401') || error.message.includes('403')) {
+                errorMsg += '\n\n🔑 Token may be invalid or expired. Generate a new token.';
+            } else if (error.message.includes('404')) {
+                errorMsg += '\n\n🔗 Gist not found. Check Gist ID or save data first.';
+            } else if (error.message.includes('JSON')) {
+                errorMsg += '\n\n📄 Invalid data format in Gist.';
+            }
+            
+            showAlert(errorMsg, 'error');
+        }
+    }
+    
+    function showGithubConfigModal() {
+        const modal = document.getElementById('githubConfigModal');
+        modal.style.display = 'flex';
+        
+        document.getElementById('githubToken').value = githubConfig.token || '';
+        document.getElementById('gistId').value = githubConfig.gistId || '';
+        document.getElementById('syncFrequency').value = githubConfig.syncFrequency || 'manual';
+    }
+    
+    function closeGithubConfig() {
+        document.getElementById('githubConfigModal').style.display = 'none';
+        document.getElementById('configStatus').style.display = 'none';
+    }
+
+    // ================================
+    // 📁 DOCUMENT MANAGEMENT SYSTEM
+    // ================================
+    function loadDocumentsDatabase() {
+        try {
+            const saved = localStorage.getItem(DOCUMENTS_DB_KEY);
+            if (saved) {
+                documentsDatabase = JSON.parse(saved);
+            }
+        } catch (error) {
+            console.error("Error loading documents database:", error);
+            documentsDatabase = [];
+        }
+        
+        // Load dashboard password
+        const savedPassword = localStorage.getItem(DASHBOARD_PASSWORD_KEY);
+        if (savedPassword) {
+            dashboardPassword = savedPassword;
+        }
+    }
+
+    function saveDocumentsDatabase() {
+        try {
+            localStorage.setItem(DOCUMENTS_DB_KEY, JSON.stringify(documentsDatabase));
+        } catch (error) {
+            console.error("Error saving documents database:", error);
+        }
+    }
+
+    function generateDocumentUrl(docId = null) {
+        if (!docId) {
+            docId = document.getElementById("docId").textContent;
+        }
+        
+        const baseUrl = window.location.href.split('#')[0];
+        return `${baseUrl}#doc=${docId}`;
+    }
+
+    function saveDocumentToDatabase() {
+        const docId = document.getElementById("docId").textContent;
+        const data = collectFormData();
+        const timestamp = new Date().toISOString();
+        
+        // Remove existing entry if any
+        documentsDatabase = documentsDatabase.filter(doc => doc.id !== docId);
+        
+        // Add new entry
+        documentsDatabase.push({
+            id: docId,
+            data: data,
+            timestamp: timestamp,
+            title: data.Topic || 'Untitled Decision Brief',
+            requester: data.RequestedBy || 'Unknown',
+            decisionOwner: data.DecisionOwner || 'Unknown',
+            status: data.DecisionStatusText || 'Draft',
+            lastModified: timestamp
+        });
+        
+        // Sort by timestamp (newest first)
+        documentsDatabase.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        
+        // Keep only last 100 documents
+        if (documentsDatabase.length > 100) {
+            documentsDatabase = documentsDatabase.slice(0, 100);
+        }
+        
+        saveDocumentsDatabase();
+        showAlert('✅ Document saved to local database!', 'success');
+        
+        return docId;
+    }
+
+    // ================================
+    // 🔗 SHARE & LINK FUNCTIONS
+    // ================================
+    function createDocumentLink() {
+        const docId = saveDocumentToDatabase();
+        const shareUrl = generateDocumentUrl(docId);
+        
+        // Mark document as saved
+        documentSaved = true;
+        
+        // Check if Section 7 is filled
+        section7Filled = checkSection7Complete();
+        
+        // Update email button visibility
+        updateEmailButtonVisibility();
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-link"></i> Document Link Created
+                    </div>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="instructions" style="background: #e8f5e9; border-left-color: #10b981;">
+                        <p><strong>✅ Document saved!</strong> You can now share this unique link.</p>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">Document Link (Unique URL)</label>
+                        <div class="share-link-container">
+                            <input type="text" class="share-link-input" id="docLinkInput" value="${shareUrl}" readonly>
+                            <button class="copy-btn" onclick="copyDocumentLink()">Copy</button>
+                        </div>
+                        <small style="color: #666;">
+                            This link will load this specific document. Bookmark it or share with others.
+                        </small>
+                    </div>
+                    
+                    <div class="email-actions" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="shareLinkViaEmail('${shareUrl}')">
+                            <i class="fas fa-envelope"></i> Email Link
+                        </button>
+                        <button class="btn btn-success" onclick="generatePDFAndShare('${shareUrl}')">
+                            <i class="fas fa-file-pdf"></i> Create PDF & Share
+                        </button>
+                        <button class="btn btn-info" onclick="openDashboard()">
+                            <i class="fas fa-tachometer-alt"></i> Open Dashboard
+                        </button>
+                    </div>
+                    
+                    <div class="instructions" style="margin-top: 20px;">
+                        <p><strong>Email Options Now Available:</strong></p>
+                        <ul>
+                            <li><strong>Email to Manager</strong> - Send for review (button now visible in toolbar)</li>
+                            <li><strong>Email to Requester</strong> - Send decision (visible when Section 7 is completed)</li>
+                            <li><strong>Email Link</strong> - Send just the link above</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    function copyDocumentLink() {
+        const input = document.getElementById('docLinkInput');
+        input.select();
+        document.execCommand('copy');
+        
+        const btn = input.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+        
+        showAlert('✅ Document link copied to clipboard!', 'success');
+    }
+
+    function shareLinkViaEmail(shareUrl) {
+        const topic = document.getElementById("topic").value || "Decision Brief";
+        const subject = `Decision Brief: ${topic}`;
+        
+        const emailBody = `Hello,
+
+I'm sharing a Decision Brief with you:
+
+📋 ${topic}
+🔗 View Link: ${shareUrl}
+
+Click the link above to view the Decision Brief in your browser. The form will automatically load with all the data.
+
+Best regards`;
+        
+        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoLink, '_blank');
+    }
+
+    async function generatePDFAndShare(shareUrl) {
+        if (!currentPdfBlob) {
+            await generatePDF();
+        }
+        
+        if (currentPdfBlob) {
+            const docId = document.getElementById("docId").textContent;
+            const topic = document.getElementById("topic").value || "Decision_Brief";
+            const cleanTopic = topic.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30);
+            const filename = `Decision_Brief_${cleanTopic}_${docId}.pdf`;
+            
+            const link = document.createElement("a");
+            link.href = currentPdfUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showPDFShareModal(shareUrl, filename);
+        }
+    }
+
+    function showPDFShareModal(shareUrl, filename) {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-file-pdf"></i> PDF Ready for Sharing
+                    </div>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="instructions" style="background: #e8f5e9; border-left-color: #10b981;">
+                        <p><strong>✅ PDF downloaded: ${filename}</strong></p>
+                    </div>
+                    
+                    <div class="form-group" style="margin-top: 20px;">
+                        <label class="form-label">Document Link</label>
+                        <div class="share-link-container">
+                            <input type="text" class="share-link-input" id="pdfShareLinkInput" value="${shareUrl}" readonly>
+                            <button class="copy-btn" onclick="copyPdfShareLink()">Copy</button>
+                        </div>
+                        <small style="color: #666;">
+                            Share this link for the interactive version.
+                        </small>
+                    </div>
+                    
+                    <div class="instructions" style="margin-top: 20px; padding: 15px; background: #f0f9ff;">
+                        <p><strong>📧 How to send via email:</strong></p>
+                        <ol>
+                            <li>Open your email client (Outlook, Gmail, etc.)</li>
+                            <li>Copy the link above and paste in email</li>
+                            <li>Attach the downloaded PDF file: <strong>${filename}</strong></li>
+                            <li>Add any additional message</li>
+                            <li>Send the email</li>
+                        </ol>
+                    </div>
+                    
+                    <div class="email-actions" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="createEmailWithLinkAndPDF('${shareUrl}')">
+                            <i class="fas fa-envelope"></i> Create Email Template
+                        </button>
+                        <button class="btn btn-info" onclick="openDashboard()">
+                            <i class="fas fa-tachometer-alt"></i> Manage All Documents
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    function copyPdfShareLink() {
+        const input = document.getElementById('pdfShareLinkInput');
+        input.select();
+        document.execCommand('copy');
+        
+        const btn = input.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+        
+        showAlert('✅ Document link copied!', 'success');
+    }
+
+    function createEmailWithLinkAndPDF(shareUrl) {
+        const topic = document.getElementById("topic").value || "Decision Brief";
+        const docId = document.getElementById("docId").textContent;
+        const requester = document.getElementById("requestedBy").value || "Requester";
+        const today = new Date().toLocaleDateString();
+        
+        const emailTemplate = `Subject: Decision Brief: ${topic}
+
+Dear Colleague,
+
+Please find attached the Decision Brief PDF and the interactive link below:
+
+📋 ${topic}
+🔗 Interactive Version: ${shareUrl}
+📎 PDF Attachment: See attached file
+
+The PDF contains the finalized version for your records. You can also use the link above to view and interact with the document online.
+
+Best regards,
+${requester}
+
+---
+Generated by Decision Brief System on ${today}`;
+        
+        navigator.clipboard.writeText(emailTemplate).then(() => {
+            showAlert('✅ Email template copied to clipboard!\n\nNow paste into your email client and attach the PDF file.', 'success');
+        });
+    }
+
+    // ================================
+    // 🔐 PASSWORD-PROTECTED DASHBOARD
+    // ================================
+    function openDashboard() {
+        saveDocumentToDatabase();
+        
+        if (!dashboardPassword) {
+            showDashboard();
+            return;
+        }
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-lock"></i> Dashboard Access
+                    </div>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Enter Dashboard Password</label>
+                        <input type="password" class="form-input" id="dashboardPasswordInput" placeholder="Enter password">
+                    </div>
+                    
+                    <div class="email-actions" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="checkDashboardPassword()" style="width: 100%;">
+                            <i class="fas fa-unlock"></i> Unlock Dashboard
+                        </button>
+                    </div>
+                    
+                    <div class="instructions" style="margin-top: 15px;">
+                        <p><strong>Forgot password?</strong> Clear browser data or <button class="btn btn-sm" onclick="resetDashboardPassword()" style="padding: 2px 8px; font-size: 12px;">Reset Password</button></p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    function checkDashboardPassword() {
+        const input = document.getElementById('dashboardPasswordInput');
+        const enteredPassword = input.value.trim();
+        
+        if (enteredPassword === dashboardPassword) {
+            document.querySelectorAll('.modal').forEach(modal => modal.remove());
+            showDashboard();
+        } else {
+            showAlert('❌ Incorrect password. Please try again.', 'error');
+            input.value = '';
+            input.focus();
+        }
+    }
+
+    function resetDashboardPassword() {
+        if (confirm('Reset dashboard password? This will remove password protection.')) {
+            localStorage.removeItem(DASHBOARD_PASSWORD_KEY);
+            dashboardPassword = null;
+            document.querySelectorAll('.modal').forEach(modal => modal.remove());
+            showDashboard();
+        }
+    }
+
+    function showDashboard() {
+        loadDocumentsDatabase();
+        
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-tachometer-alt"></i> Documents Dashboard
+                        <span style="font-size: 12px; color: #666; margin-left: 10px;">
+                            ${documentsDatabase.length} document(s)
+                        </span>
+                    </div>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="setupDashboardPassword()">
+                            <i class="fas fa-lock"></i> ${dashboardPassword ? 'Change Password' : 'Set Password'}
+                        </button>
+                        <button class="btn btn-info" onclick="exportAllDocuments()">
+                            <i class="fas fa-download"></i> Export All
+                        </button>
+                        <button class="btn btn-danger" onclick="clearAllDocuments()">
+                            <i class="fas fa-trash"></i> Clear All
+                        </button>
+                    </div>
+                    
+                    <div id="documentsListContainer" style="max-height: 400px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px;">
+                        ${documentsDatabase.length === 0 ? 
+                            '<div style="text-align: center; padding: 40px; color: #64748b;"><i class="fas fa-folder-open fa-2x"></i><p style="margin-top: 10px;">No documents saved yet</p></div>' : 
+                            generateDocumentsListHTML()}
+                    </div>
+                    
+                    <div class="instructions" style="margin-top: 20px;">
+                        <p><strong>Dashboard Features:</strong></p>
+                        <ul>
+                            <li><strong>Password Protection</strong> - Secure your documents</li>
+                            <li><strong>Quick Access</strong> - Load any document instantly</li>
+                            <li><strong>Export All</strong> - Backup all documents as JSON</li>
+                            <li><strong>Share Links</strong> - Generate unique URLs for each document</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    function generateDocumentsListHTML() {
+        if (documentsDatabase.length === 0) return '';
+        
+        let html = '<table class="dashboard-table">';
+        html += `
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Requester</th>
+                    <th>Status</th>
+                    <th>Modified</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+        `;
+        
+        documentsDatabase.forEach((doc, index) => {
+            const date = new Date(doc.lastModified).toLocaleDateString();
+            const statusClass = getStatusClass(doc.status);
+            
+            html += `
+                <tr>
+                    <td>
+                        <strong>${doc.title || 'Untitled'}</strong><br>
+                        <small style="color: #64748b; font-family: monospace;">${doc.id}</small>
+                    </td>
+                    <td>${doc.requester}</td>
+                    <td>
+                        <span class="status-indicator ${statusClass}" style="display: inline-block; padding: 2px 8px; font-size: 11px;">
+                            ${doc.status}
+                        </span>
+                    </td>
+                    <td style="color: #64748b; font-size: 12px;">${date}</td>
+                    <td>
+                        <button class="btn btn-sm" onclick="loadDocumentFromDashboard('${doc.id}')" style="padding: 4px 8px; font-size: 12px; margin: 2px;">
+                            <i class="fas fa-edit"></i> Load
+                        </button>
+                        <button class="btn btn-sm" onclick="shareDocumentFromDashboard('${doc.id}')" style="padding: 4px 8px; font-size: 12px; margin: 2px; background: #3b82f6; color: white;">
+                            <i class="fas fa-share"></i> Share
+                        </button>
+                        <button class="btn btn-sm" onclick="deleteDocumentFromDashboard('${doc.id}')" style="padding: 4px 8px; font-size: 12px; margin: 2px; background: #ef4444; color: white;">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += '</tbody></table>';
+        return html;
+    }
+
+    function getStatusClass(status) {
+        switch(status.toLowerCase()) {
+            case 'approved': return 'status-approved';
+            case 'approved with conditions': return 'status-conditional';
+            case 'not approved': return 'status-rejected';
+            case 'requester to decide': return 'status-promoted';
+            case 'draft': return 'status-pending';
+            default: return '';
+        }
+    }
+
+    function loadDocumentFromDashboard(docId) {
+        const doc = documentsDatabase.find(d => d.id === docId);
+        if (doc) {
+            populateForm(doc.data);
+            documentUniqueId = docId;
+            document.getElementById("docId").textContent = docId;
+            
+            document.querySelectorAll('.modal').forEach(modal => modal.remove());
+            
+            // Update document state
+            documentSaved = true;
+            section7Filled = checkSection7Complete();
+            updateEmailButtonVisibility();
+            
+            showAlert(`✅ Document loaded: ${doc.title || 'Untitled'}`, 'success');
+        }
+    }
+
+    function shareDocumentFromDashboard(docId) {
+        const doc = documentsDatabase.find(d => d.id === docId);
+        if (doc) {
+            const shareUrl = generateDocumentUrl(docId);
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px;">
+                    <div class="modal-header">
+                        <div class="modal-title">
+                            <i class="fas fa-share-alt"></i> Share Document
+                        </div>
+                        <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                    </div>
+                    
+                    <div class="modal-body">
+                        <p><strong>${doc.title || 'Untitled Document'}</strong></p>
+                        <p style="color: #666; font-size: 13px; margin: 10px 0;">
+                            Document ID: ${docId}<br>
+                            Created: ${new Date(doc.timestamp).toLocaleDateString()}
+                        </p>
+                        
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label class="form-label">Shareable Link</label>
+                            <div class="share-link-container">
+                                <input type="text" class="share-link-input" id="dashboardShareLink" value="${shareUrl}" readonly>
+                                <button class="copy-btn" onclick="copyDashboardShareLink()">Copy</button>
+                            </div>
+                        </div>
+                        
+                        <div class="email-actions" style="margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="shareDashboardLinkViaEmail('${shareUrl}')">
+                                <i class="fas fa-envelope"></i> Email Link
+                            </button>
+                            <button class="btn btn-info" onclick="loadDocumentFromDashboard('${docId}')">
+                                <i class="fas fa-edit"></i> Load Document
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+    }
+
+    function copyDashboardShareLink() {
+        const input = document.getElementById('dashboardShareLink');
+        input.select();
+        document.execCommand('copy');
+        
+        const btn = input.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+        
+        showAlert('✅ Document link copied!', 'success');
+    }
+
+    function shareDashboardLinkViaEmail(shareUrl) {
+        const doc = documentsDatabase.find(d => d.id === docId);
+        const subject = `Decision Brief: ${doc?.title || 'Document'}`;
+        
+        const emailBody = `Hello,
+
+I'm sharing a Decision Brief with you:
+
+📋 ${doc?.title || 'Decision Brief'}
+🔗 View Link: ${shareUrl}
+
+Click the link above to view the Decision Brief in your browser. The form will automatically load with all the data.
+
+Best regards`;
+        
+        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoLink, '_blank');
+    }
+
+    function deleteDocumentFromDashboard(docId) {
+        if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+            documentsDatabase = documentsDatabase.filter(doc => doc.id !== docId);
+            saveDocumentsDatabase();
+            
+            const container = document.getElementById('documentsListContainer');
+            if (container) {
+                container.innerHTML = documentsDatabase.length === 0 ? 
+                    '<div style="text-align: center; padding: 40px; color: #64748b;"><i class="fas fa-folder-open fa-2x"></i><p style="margin-top: 10px;">No documents saved yet</p></div>' : 
+                    generateDocumentsListHTML();
+            }
+            
+            showAlert('✅ Document deleted!', 'success');
+        }
+    }
+
+    function setupDashboardPassword() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <div class="modal-title">
+                        <i class="fas fa-lock"></i> ${dashboardPassword ? 'Change Dashboard Password' : 'Set Dashboard Password'}
+                    </div>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">${dashboardPassword ? 'New Password' : 'Set Password'}</label>
+                        <input type="password" class="form-input" id="newPasswordInput" placeholder="Enter password">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-input" id="confirmPasswordInput" placeholder="Confirm password">
+                    </div>
+                    
+                    ${dashboardPassword ? `
+                    <div class="form-group">
+                        <label class="form-label">Current Password (Required to change)</label>
+                        <input type="password" class="form-input" id="currentPasswordInput" placeholder="Enter current password">
+                    </div>
+                    ` : ''}
+                    
+                    <div class="email-actions" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="saveDashboardPassword()" style="width: 100%;">
+                            <i class="fas fa-save"></i> Save Password
+                        </button>
+                    </div>
+                    
+                    <div class="instructions" style="margin-top: 15px;">
+                        <p><strong>Note:</strong> Password is stored locally in your browser. If you forget it, you can reset it from the password prompt.</p>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
+    }
+
+    function saveDashboardPassword() {
+        const newPassword = document.getElementById('newPasswordInput').value.trim();
+        const confirmPassword = document.getElementById('confirmPasswordInput').value.trim();
+        
+        if (dashboardPassword) {
+            const currentPassword = document.getElementById('currentPasswordInput').value.trim();
+            if (currentPassword !== dashboardPassword) {
+                showAlert('❌ Current password is incorrect.', 'error');
+                return;
+            }
+        }
+        
+        if (!newPassword) {
+            showAlert('❌ Please enter a password.', 'error');
+            return;
+        }
+        
+        if (newPassword !== confirmPassword) {
+            showAlert('❌ Passwords do not match.', 'error');
+            return;
+        }
+        
+        dashboardPassword = newPassword;
+        localStorage.setItem(DASHBOARD_PASSWORD_KEY, dashboardPassword);
+        
+        document.querySelectorAll('.modal').forEach(modal => modal.remove());
+        
+        showAlert(`✅ Dashboard password ${dashboardPassword ? 'changed' : 'set'} successfully!`, 'success');
+    }
+
+    function exportAllDocuments() {
+        const exportData = {
+            app: "Decision Brief Dashboard Export",
+            version: "1.0",
+            exportedAt: new Date().toISOString(),
+            documentCount: documentsDatabase.length,
+            documents: documentsDatabase
+        };
+        
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const dataUrl = URL.createObjectURL(dataBlob);
+        
+        const date = new Date().toISOString().split('T')[0];
+        const filename = `decision_briefs_backup_${date}.json`;
+        
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showAlert(`✅ Exported ${documentsDatabase.length} document(s) to ${filename}`, 'success');
+    }
+
+    function clearAllDocuments() {
+        if (confirm('Are you sure you want to delete ALL documents? This action cannot be undone.')) {
+            documentsDatabase = [];
+            saveDocumentsDatabase();
+            
+            const container = document.getElementById('documentsListContainer');
+            if (container) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #64748b;"><i class="fas fa-folder-open fa-2x"></i><p style="margin-top: 10px;">No documents saved yet</p></div>';
+            }
+            
+            showAlert('✅ All documents cleared!', 'success');
+        }
+    }
+
+    // ================================
+    // 📄 URL LOADING FUNCTION
+    // ================================
+    function loadDocumentFromURL() {
+        const hash = window.location.hash;
+        if (hash.startsWith('#doc=')) {
+            const docId = hash.split('=')[1];
+            const doc = documentsDatabase.find(d => d.id === docId);
+            
+            if (doc) {
+                populateForm(doc.data);
+                documentUniqueId = docId;
+                document.getElementById("docId").textContent = docId;
+                
+                // Update document state
+                documentSaved = true;
+                section7Filled = checkSection7Complete();
+                updateEmailButtonVisibility();
+                
+                showAlert(`✅ Document loaded from URL: ${doc.title || 'Untitled'}`, 'success');
+            } else {
+                const urlParams = new URLSearchParams(window.location.hash.substring(1));
+                const encodedData = urlParams.get('data');
+                
+                if (encodedData) {
+                    try {
+                        const formData = JSON.parse(atob(encodedData));
+                        populateForm(formData);
+                        if (docId) {
+                            document.getElementById("docId").textContent = docId;
+                            documentUniqueId = docId;
+                        }
+                        
+                        // Update document state
+                        documentSaved = true;
+                        section7Filled = checkSection7Complete();
+                        updateEmailButtonVisibility();
+                        
+                        showAlert('✅ Document loaded from shared link!', 'success');
+                    } catch (error) {
+                        console.error("Error loading from URL data:", error);
+                    }
+                }
+            }
+        }
+    }
+
+    // ================================
+    // PDF FUNCTIONS
+    // ================================
+    function setupPdfModalListeners() {
+        const closePdfModalBtn = document.getElementById("closePdfModal");
+        const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+
+        closePdfModalBtn.addEventListener("click", () => {
+            document.getElementById("pdfModal").style.display = "none";
+        });
+
+        window.addEventListener("click", e => {
+            if (e.target === document.getElementById("pdfModal")) {
+                document.getElementById("pdfModal").style.display = "none";
+            }
+        });
+
+        downloadPdfBtn.addEventListener("click", function() {
+            if (currentPdfBlob && currentPdfUrl) {
+                const docId = document.getElementById("docId").textContent;
+                const topic = document.getElementById("topic").value || "Decision_Brief";
+                const cleanTopic = topic.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30);
+                const filename = `Decision_Brief_${cleanTopic}_${docId}.pdf`;
+                
+                const link = document.createElement("a");
+                link.href = currentPdfUrl;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                showAlert(`✅ PDF downloaded: ${filename}`, 'success');
+            }
+        });
+    }
+
+    async function generatePDF() {
+        if (!checkDecisionMade()) {
+            alert("Please make a decision and provide notes before generating PDF.");
+            document.getElementById("decisionSection").scrollIntoView({ behavior: "smooth" });
+            return;
+        }
+
+        const pdfBtn = document.getElementById("generatePdfBtn");
+        const originalText = pdfBtn.textContent;
+        pdfBtn.textContent = "Generating PDF...";
+        pdfBtn.disabled = true;
+
+        try {
+            await saveToGithub(true);
+
+            const element = document.getElementById("contentToPrint");
+            const originalScrollY = window.scrollY;
+            window.scrollTo(0, 0);
+
+            const canvas = await html2canvas(element, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: "#ffffff"
+            });
+
+            window.scrollTo(0, originalScrollY);
+
+            const imgData = canvas.toDataURL("image/png");
+            const pdf = new jspdf.jsPDF({
+                orientation: "portrait",
+                unit: "mm",
+                format: "a4",
+                compress: true
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+
+            const imgWidth = pdfWidth;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            let heightLeft = imgHeight;
+            let position = 0;
+
+            if (imgHeight <= pdfHeight) {
+                pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight, "", "FAST");
+            } else {
+                while (heightLeft > 0) {
+                    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight, "", "FAST");
+                    heightLeft -= pdfHeight;
+                    if (heightLeft > 0) {
+                        pdf.addPage();
+                        position -= pdfHeight;
+                    }
+                }
+            }
+
+            const docId = document.getElementById("docId").textContent;
+            const date = new Date().toLocaleDateString();
+            pdf.setFontSize(8);
+            pdf.setTextColor(128, 128, 128);
+            pdf.text(
+                `Decision Brief: ${docId} | Generated: ${date}`,
+                10,
+                pdfHeight - 5
+            );
+
+            currentPdfBlob = pdf.output("blob");
+            currentPdfUrl = URL.createObjectURL(currentPdfBlob);
+
+            document.getElementById("pdfModal").style.display = "flex";
+
+        } catch (error) {
+            console.error("Error generating PDF:", error);
+            alert("Error generating PDF. Please try again.");
+        } finally {
+            pdfBtn.textContent = originalText;
+            pdfBtn.disabled = false;
+        }
+    }
+
+    // ================================
+    // EMAIL FUNCTIONS (UPDATED WITH CALIBRI 11PT)
+    // ================================
+    async function openEmailModal(recipientType) {
+        const saved = await saveToGithub(true);
+        if (!saved) {
+            alert("Please configure GitHub and save the document first.");
+            return;
+        }
+        
+        if (recipientType === 'manager') {
+            setupToManagerEmail();
+        } else {
+            setupToRequesterEmail();
+        }
+
+        const emailModal = document.getElementById("emailModal");
+        emailModal.style.display = "flex";
+        setTimeout(() => {
+            const preview = document.getElementById("emailTemplatePreview");
+            if (preview) {
+                preview.style.display = "none";
+                setTimeout(() => { preview.style.display = "block"; }, 10);
+            }
+        }, 50);
+    }
+
+    function setupToManagerEmail() {
+        const topic = document.getElementById("topic").value || "Decision Brief";
+        const requester = document.getElementById("requestedBy").value || "Requester";
+        const docId = document.getElementById("docId").textContent;
+        const decisionOwner = document.getElementById("decisionOwner").value || "Manager";
+        const additionalMessage = document.getElementById("additionalMessage").value || "";
+        const requesterEmailVal = document.getElementById("requesterEmail").value || "";
+        const decisionOwnerEmailVal = document.getElementById("decisionOwnerEmail").value || "";
+        const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+        
+        // Generate document URL
+        const shareUrl = generateDocumentUrl(docId);
+        
+        const subject = `Decision Brief for Review: ${topic}`;
+        document.getElementById("emailSubject").value = subject;
+
+        // Plain text template with Calibri formatting in mind
+        plainTextTemplate = `Dear ${decisionOwner},
+
+I have prepared a Decision Brief that requires your review and decision.
+
+Decision Brief Details:
+• Topic: ${topic}
+• Requested by: ${requester}
+• Request Date: ${today}
+
+${additionalMessage ? additionalMessage + "\n\n" : ""}How to Review:
+
+You can access and review the Decision Brief using this link:
+${shareUrl}
+
+Please click the link above to access the document. You'll be able to:
+1. Review all sections
+2. Make your decision in Section 7
+3. Add your decision notes
+4. Save the updated document
+
+Once you've completed your review, please use the "Email to Requester" button in the document to send your decision.
+
+Best regards,
+${requester}
+
+---
+Generated by Decision Brief System on ${today}`;
+
+        // HTML email template with Calibri font
+        htmlEmailTemplate = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
+.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+.header { margin-bottom: 20px; }
+.details { margin: 15px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #1e293b; }
+.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; }
+.link-box a { color: #1e40af; text-decoration: none; font-weight: normal; }
+.link-box a:hover { text-decoration: underline; }
+.instructions { margin: 15px 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
+.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h2 style="font-family: Calibri, Arial, sans-serif; font-size: 14pt; font-weight: normal; color: #000000; margin: 0 0 10px 0;">Decision Brief - Review Required</h2>
+</div>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">Dear ${decisionOwner},</p>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">I have prepared a Decision Brief that requires your review and decision.</p>
+
+<div class="details">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e293b; margin: 0 0 10px 0;">Document Details</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Topic:</strong> ${topic}</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Requested by:</strong> ${requester}</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Request Date:</strong> ${today}</p>
+</div>
+
+${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Additional Notes:</strong><br>${additionalMessage.replace(/\n/g,"<br>")}</p></div>` : ""}
+
+<div class="link-box">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e40af; margin: 0 0 10px 0;">Access the Decision Brief</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0;">Please use the following link to access and review the document:</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 15px 0; background-color: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">
+<a href="${shareUrl}" style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; text-decoration: none; font-weight: normal;">${shareUrl}</a>
+</p>
+</div>
+
+<div class="instructions">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #0ea5e9; margin: 0 0 10px 0;">Review Instructions</h3>
+<ol style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0; padding-left: 20px;">
+<li style="margin-bottom: 5px;">Click the link above to open the Decision Brief</li>
+<li style="margin-bottom: 5px;">Review all sections carefully</li>
+<li style="margin-bottom: 5px;">Make your decision in Section 7</li>
+<li style="margin-bottom: 5px;">Add your decision notes</li>
+<li style="margin-bottom: 5px;">Click "Save to Cloud" to save changes</li>
+<li style="margin-bottom: 5px;">Use "Email to Requester" to send your decision</li>
+</ol>
+</div>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 20px 0 0 0;">Best regards,<br><strong>${requester}</strong></p>
+
+<div class="footer">
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
+</div>
+</div>
+</body>
+</html>`;
+
+        document.getElementById("emailModalTitle").textContent = "Email to Manager";
+        document.getElementById("toLabel").textContent = "To (Manager Email)";
+        document.getElementById("templateTitle").textContent = "HTML Email Template (Calibri 11pt):";
+        const preview = document.getElementById("emailTemplatePreview");
+        preview.innerHTML = htmlEmailTemplate;
+
+        if (decisionOwnerEmailVal) document.getElementById("toEmail").value = decisionOwnerEmailVal;
+        if (requesterEmailVal) document.getElementById("fromEmail").value = requesterEmailVal;
+
+        document.getElementById("emailInstructions").innerHTML = `
+            <li><strong>Copy HTML Email</strong> - Best for Outlook with Calibri 11pt formatting</li>
+            <li><strong>Copy Plain Text</strong> - For simple email clients</li>
+            <li><strong>Open Email Client</strong> - Opens with pre-filled email</li>
+            <li><strong>Create Email with PDF</strong> - Downloads PDF and then you attach it manually</li>
+        `;
+    }
+
+    function setupToRequesterEmail() {
+        const topic = document.getElementById("topic").value || "Decision Brief";
+        const requester = document.getElementById("requestedBy").value || "Requester";
+        const docId = document.getElementById("docId").textContent;
+        const decisionOwner = document.getElementById("decisionOwner").value || "Manager";
+        const requesterEmailVal = document.getElementById("requesterEmail").value || "";
+        const decisionOwnerEmailVal = document.getElementById("decisionOwnerEmail").value || "";
+        const decision = document.querySelector('input[name="decision"]:checked');
+        const decisionDate = document.getElementById("decisionDate").value;
+        const decisionNotes = document.getElementById("decisionNotes").value || "";
+        const additionalMessage = document.getElementById("additionalMessage").value || "";
+
+        let decisionText = "Pending";
+        let decisionColor = "#64748b";
+        let decisionIcon = "⏳";
+        if (decision) {
+            switch (decision.value) {
+                case "approved": 
+                    decisionText = "Approved"; 
+                    decisionColor = "#10b981";
+                    decisionIcon = "✅";
+                    break;
+                case "approved-conditions": 
+                    decisionText = "Approved with Conditions"; 
+                    decisionColor = "#3b82f6";
+                    decisionIcon = "✅";
+                    break;
+                case "not-approved": 
+                    decisionText = "Not Approved"; 
+                    decisionColor = "#ef4444";
+                    decisionIcon = "❌";
+                    break;
+                case "requester-promoted": 
+                    decisionText = "Requester to Decide"; 
+                    decisionColor = "#8b5cf6";
+                    decisionIcon = "👤";
+                    break;
+            }
+        }
+
+        let formattedDate = "Not specified";
+        if (decisionDate) {
+            const d = new Date(decisionDate);
+            formattedDate = d.toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+        }
+        const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+        
+        // Generate document URL
+        const shareUrl = generateDocumentUrl(docId);
+        
+        const subject = `Decision Brief Decision: ${decisionText} - ${topic}`;
+        document.getElementById("emailSubject").value = subject;
+
+        // Plain text template with Calibri formatting in mind
+        plainTextTemplate = `Dear ${requester},
+
+The Decision Brief has been reviewed and a decision has been made.
+
+Decision Brief Details:
+• Topic: ${topic}
+• Decision: ${decisionIcon} ${decisionText}
+• Decision Date: ${formattedDate}
+• Decision Owner: ${decisionOwner}
+
+${decisionNotes ? `Decision Notes:\n${decisionNotes}\n\n` : ""}${additionalMessage ? `Additional Message:\n${additionalMessage}\n\n` : ""}You can access the finalized Decision Brief using this link:
+${shareUrl}
+
+Click the link above to view the completed Decision Brief with all details.
+
+Best regards,
+${decisionOwner}
+
+---
+Generated by Decision Brief System on ${today}`;
+
+        // HTML email template with Calibri font
+        htmlEmailTemplate = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
+.container { max-width: 600px; margin: 0 auto; padding: 20px; }
+.header { background-color: ${decisionColor}; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
+.header h2 { color: white; margin: 0; font-family: Calibri, Arial, sans-serif; font-size: 14pt; font-weight: normal; }
+.decision-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-family: Calibri, Arial, sans-serif; font-size: 11pt; font-weight: normal; color: white; background: ${decisionColor}; margin: 5px 0; }
+.details { margin: 15px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #1e293b; }
+.notes { margin: 15px 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
+.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; }
+.link-box a { color: #1e40af; text-decoration: none; font-weight: normal; }
+.link-box a:hover { text-decoration: underline; }
+.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h2>${decisionIcon} Decision Brief - Decision Made</h2>
+</div>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">Dear ${requester},</p>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">The Decision Brief has been reviewed and a decision has been made.</p>
+
+<div class="details">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e293b; margin: 0 0 10px 0;">Document Details</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Topic:</strong> ${topic}</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision:</strong> <span class="decision-badge">${decisionIcon} ${decisionText}</span></p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision Date:</strong> ${formattedDate}</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision Owner:</strong> ${decisionOwner}</p>
+</div>
+
+${decisionNotes ? `<div class="notes">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #0ea5e9; margin: 0 0 10px 0;">Decision Notes</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;">${decisionNotes.replace(/\n/g,"<br>")}</p>
+</div>` : ""}
+
+${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Additional Message:</strong><br>${additionalMessage.replace(/\n/g,"<br>")}</p></div>` : ""}
+
+<div class="link-box">
+<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e40af; margin: 0 0 10px 0;">Access the Decision Brief</h3>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0;">You can access the finalized Decision Brief using this link:</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 15px 0; background-color: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">
+<a href="${shareUrl}" style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; text-decoration: none; font-weight: normal;">${shareUrl}</a>
+</p>
+</div>
+
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 20px 0 0 0;">Best regards,<br><strong>${decisionOwner}</strong></p>
+
+<div class="footer">
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
+</div>
+</div>
+</body>
+</html>`;
+
+        document.getElementById("emailModalTitle").textContent = "Email to Requester";
+        document.getElementById("toLabel").textContent = "To (Requester Email)";
+        document.getElementById("templateTitle").textContent = "HTML Email Template (Calibri 11pt):";
+        const preview = document.getElementById("emailTemplatePreview");
+        preview.innerHTML = htmlEmailTemplate;
+
+        if (requesterEmailVal) document.getElementById("toEmail").value = requesterEmailVal;
+        if (decisionOwnerEmailVal) document.getElementById("fromEmail").value = decisionOwnerEmailVal;
+
+        document.getElementById("emailInstructions").innerHTML = `
+            <li><strong>Copy HTML Email</strong> - Best for Outlook with Calibri 11pt formatting</li>
+            <li><strong>Copy Plain Text</strong> - For simple email clients</li>
+            <li><strong>Open Email Client</strong> - Opens with decision details</li>
+            <li><strong>Create Email with PDF</strong> - Downloads PDF and then you attach it manually</li>
+        `;
+    }
+
+    function createEmailWithPDF() {
+        if (!currentPdfBlob) {
+            alert("Please generate PDF first using the 'Generate PDF' button.");
+            generatePDF();
+            return;
+        }
+        
+        const docId = document.getElementById("docId").textContent;
+        const topic = document.getElementById("topic").value || "Decision_Brief";
+        const cleanTopic = topic.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 30);
+        const filename = `Decision_Brief_${cleanTopic}_${docId}.pdf`;
+        
+        const link = document.createElement("a");
+        link.href = currentPdfUrl;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        alert(`✅ PDF downloaded: ${filename}
+
+Now create your email:
+1. Use "Copy HTML Email" or "Copy Plain Text"
+2. Paste into your email client (Outlook / Gmail)
+3. Attach the downloaded PDF file manually
+4. Send the email`);
+    }
+
+    function useTemplate() {
+        const emailTitle = document.getElementById("emailModalTitle").textContent;
+        if (emailTitle.includes("Manager")) {
+            setupToManagerEmail();
+        } else {
+            setupToRequesterEmail();
+        }
+    }
+
+    function copyHTMLToClipboard() {
+        const toEmail = document.getElementById("toEmail").value || "recipient@company.com";
+        const fromEmail = document.getElementById("fromEmail").value || "sender@company.com";
+        const subject = document.getElementById("emailSubject").value;
+        const emailHTML = `To: ${toEmail}
+From: ${fromEmail}
+Subject: ${subject}
+Content-Type: text/html; charset=UTF-8
+MIME-Version: 1.0
+
+${htmlEmailTemplate}`;
+        navigator.clipboard.writeText(emailHTML).then(() => {
+            alert("✅ HTML email copied to clipboard!\n\nPaste into Outlook/Gmail.\n\nThen attach the PDF file you downloaded.");
+        }).catch(err => {
+            console.error("Copy failed", err);
+            alert("❌ Failed to copy. Please try again.");
+        });
+    }
+
+    function copyPlainTextToClipboard() {
+        const toEmail = document.getElementById("toEmail").value || "recipient@company.com";
+        const fromEmail = document.getElementById("fromEmail").value || "sender@company.com";
+        const subject = document.getElementById("emailSubject").value;
+        const emailText = `To: ${toEmail}
+From: ${fromEmail}
+Subject: ${subject}
+
+${plainTextTemplate}`;
+        navigator.clipboard.writeText(emailText).then(() => {
+            alert("✅ Plain text email copied to clipboard!");
+        });
+    }
+
+    function openEmailClient() {
+        const toEmail = document.getElementById("toEmail").value;
+        const fromEmail = document.getElementById("fromEmail").value || "";
+        const subject = document.getElementById("emailSubject").value;
+        if (!toEmail) {
+            alert("Please enter recipient email address.");
+            return;
+        }
+        let mailtoLink = `mailto:${toEmail}`;
+        if (fromEmail) mailtoLink += `?cc=${fromEmail}`;
+        mailtoLink += `${fromEmail ? "&" : "?"}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainTextTemplate)}`;
+        window.open(mailtoLink, "_blank");
+    }
+
+    // ================================
+    // EXISTING FORM FUNCTIONS (UPDATED)
+    // ================================
     function createOptionsGrid() {
-        const optionsGrid = document.getElementById('optionsGrid');
+        const optionsGrid = document.getElementById("optionsGrid");
         const criteria = [
             { name: "Cost", desc: "Financial impact and budget" },
             { name: "Time", desc: "Implementation timeline" },
@@ -563,11 +2465,11 @@
         ];
 
         optionTemplates.forEach((option, index) => {
-            const optionCard = document.createElement('div');
-            optionCard.className = 'option-card';
+            const optionCard = document.createElement("div");
+            optionCard.className = "option-card";
             optionCard.dataset.optionIndex = index;
-            
-            let criteriaHTML = '';
+
+            let criteriaHTML = "";
             criteria.forEach((criterion, critIndex) => {
                 criteriaHTML += `
                     <tr>
@@ -585,1261 +2487,424 @@
                     </tr>
                 `;
             });
-            
+
             optionCard.innerHTML = `
                 <div class="option-header">
                     <div class="option-name">${option.name}</div>
                     <div class="score-display">Score: <span class="score-value">0</span></div>
                 </div>
-                
                 <div class="option-input">
                     <input type="text" class="option-title" data-field="title" value="${option.name}" placeholder="Option name">
                 </div>
-                
                 <div class="option-input">
                     <input type="text" class="option-description" data-field="description" value="${option.desc}" placeholder="Brief description">
                 </div>
-                
                 <table class="criteria-table">
-                    <tbody>
-                        ${criteriaHTML}
-                    </tbody>
+                    <tbody>${criteriaHTML}</tbody>
                 </table>
             `;
-            
             optionsGrid.appendChild(optionCard);
         });
     }
 
     function calculateScore(optionCard) {
-        const scoreSelects = optionCard.querySelectorAll('.score-select');
+        const scoreSelects = optionCard.querySelectorAll(".score-select");
         let totalScore = 0;
-        
         scoreSelects.forEach(select => {
             totalScore += parseInt(select.value) || 0;
         });
-        
-        const scoreDisplay = optionCard.querySelector('.score-display');
-        const scoreValue = optionCard.querySelector('.score-value');
-        
+
+        const scoreDisplay = optionCard.querySelector(".score-display");
+        const scoreValue = optionCard.querySelector(".score-value");
         scoreValue.textContent = totalScore;
-        
-        if (totalScore <= 10) {
-            scoreDisplay.style.background = '#10b981';
-        } else if (totalScore <= 15) {
-            scoreDisplay.style.background = '#f59e0b';
-        } else if (totalScore > 15) {
-            scoreDisplay.style.background = '#ef4444';
-        } else {
-            scoreDisplay.style.background = '#1e293b';
-        }
-        
+
+        if (totalScore <= 10) scoreDisplay.style.background = "#10b981";
+        else if (totalScore <= 15) scoreDisplay.style.background = "#f59e0b";
+        else if (totalScore > 15) scoreDisplay.style.background = "#ef4444";
+        else scoreDisplay.style.background = "#1e293b";
+
         return totalScore;
     }
 
     function initializeScores() {
-        document.querySelectorAll('.option-card').forEach(card => {
+        document.querySelectorAll(".option-card").forEach(card => {
             calculateScore(card);
-            
-            card.querySelectorAll('.score-select').forEach(select => {
-                select.addEventListener('change', () => {
-                    calculateScore(card);
-                });
+            card.querySelectorAll(".score-select").forEach(select => {
+                select.addEventListener("change", () => calculateScore(card));
             });
         });
     }
 
     function setupEventListeners() {
-        // Decision radio buttons
         document.querySelectorAll('input[name="decision"]').forEach(radio => {
-            radio.addEventListener('change', function() {
+            radio.addEventListener("change", function () {
                 updateStatusBadge();
                 checkDecisionMade();
+                
+                // Update Section 7 state and email button visibility
+                section7Filled = checkSection7Complete();
+                updateEmailButtonVisibility();
             });
         });
 
-        // Decision notes input
-        document.getElementById('decisionNotes').addEventListener('input', checkDecisionMade);
-
-        // Decision date input
-        document.getElementById('decisionDate').addEventListener('change', function() {
-            updateStatusBadge();
+        document.getElementById("decisionNotes").addEventListener("input", function() {
+            checkDecisionMade();
+            
+            // Update Section 7 state and email button visibility
+            section7Filled = checkSection7Complete();
+            updateEmailButtonVisibility();
         });
+        
+        document.getElementById("decisionDate").addEventListener("change", updateStatusBadge);
 
-        // Mandatory field validation
-        const mandatoryFields = ['topic', 'requestedBy', 'decisionOwner', 'background', 'decisionRequired', 'recommendation'];
+        // Add listeners to all form fields to update email button visibility
+        const mandatoryFields = ["topic", "requestedBy", "decisionOwner", "background", "decisionRequired", "recommendation"];
         mandatoryFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
-            if (field) {
-                field.addEventListener('input', function() {
-                    validateMandatoryField(fieldId);
-                });
-                field.addEventListener('blur', function() {
-                    validateMandatoryField(fieldId);
-                });
-            }
-        });
-
-        // Next Steps validation
-        document.querySelectorAll('.step-action, .step-responsible, .step-timeline').forEach(input => {
-            input.addEventListener('input', validateNextSteps);
-            input.addEventListener('blur', validateNextSteps);
-        });
-
-        // Save data on input changes
-        document.querySelectorAll('input, textarea, select').forEach(element => {
-            element.addEventListener('input', autoSaveData);
-            element.addEventListener('change', autoSaveData);
-        });
-
-        // Share Modal
-        const shareModal = document.getElementById('shareModal');
-        const closeModalBtn = document.getElementById('closeModal');
-        const shareLinkInput = document.getElementById('shareLinkInput');
-        const copyLinkBtn = document.getElementById('copyLinkBtn');
-
-        closeModalBtn.addEventListener('click', () => {
-            shareModal.style.display = 'none';
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target === shareModal) {
-                shareModal.style.display = 'none';
-            }
-        });
-
-        copyLinkBtn.addEventListener('click', () => {
-            shareLinkInput.select();
-            shareLinkInput.setSelectionRange(0, 99999);
-            
-            navigator.clipboard.writeText(shareLinkInput.value).then(() => {
-                copyLinkBtn.textContent = 'Copied!';
-                copyLinkBtn.classList.add('copied');
-                
-                setTimeout(() => {
-                    copyLinkBtn.textContent = 'Copy Link';
-                    copyLinkBtn.classList.remove('copied');
-                }, 2000);
+            if (!field) return;
+            field.addEventListener("input", () => {
+                validateMandatoryField(fieldId);
+                updateEmailButtonVisibility();
             });
+            field.addEventListener("blur", () => validateMandatoryField(fieldId));
         });
 
-        // Email Modal - Fix for template size issue
-        const emailModal = document.getElementById('emailModal');
-        const closeEmailModalBtn = document.getElementById('closeEmailModal');
-
-        closeEmailModalBtn.addEventListener('click', () => {
-            emailModal.style.display = 'none';
-            // Reset template preview when closing modal
-            document.getElementById('emailTemplatePreview').innerHTML = '';
+        document.querySelectorAll(".step-action, .step-responsible, .step-timeline").forEach(input => {
+            input.addEventListener("input", () => {
+                validateNextSteps();
+                updateEmailButtonVisibility();
+            });
+            input.addEventListener("blur", validateNextSteps);
         });
 
-        window.addEventListener('click', (e) => {
+        const emailModal = document.getElementById("emailModal");
+        const closeEmailModalBtn = document.getElementById("closeEmailModal");
+        closeEmailModalBtn.addEventListener("click", () => {
+            emailModal.style.display = "none";
+            document.getElementById("emailTemplatePreview").innerHTML = "";
+        });
+        window.addEventListener("click", e => {
             if (e.target === emailModal) {
-                emailModal.style.display = 'none';
-                // Reset template preview when closing modal
-                document.getElementById('emailTemplatePreview').innerHTML = '';
+                emailModal.style.display = "none";
+                document.getElementById("emailTemplatePreview").innerHTML = "";
             }
         });
 
-        // PDF Modal
-        const pdfModal = document.getElementById('pdfModal');
-        const closePdfModalBtn = document.getElementById('closePdfModal');
-        const pdfLinkInput = document.getElementById('pdfLinkInput');
-        const copyPdfLinkBtn = document.getElementById('copyPdfLinkBtn');
-        const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-
-        closePdfModalBtn.addEventListener('click', () => {
-            pdfModal.style.display = 'none';
-        });
-
-        window.addEventListener('click', (e) => {
-            if (e.target === pdfModal) {
-                pdfModal.style.display = 'none';
-            }
-        });
-
-        copyPdfLinkBtn.addEventListener('click', () => {
-            pdfLinkInput.select();
-            pdfLinkInput.setSelectionRange(0, 99999);
-            
-            navigator.clipboard.writeText(pdfLinkInput.value).then(() => {
-                copyPdfLinkBtn.textContent = 'Copied!';
-                copyPdfLinkBtn.classList.add('copied');
-                
-                setTimeout(() => {
-                    copyPdfLinkBtn.textContent = 'Copy PDF Link';
-                    copyPdfLinkBtn.classList.remove('copied');
-                }, 2000);
-            });
-        });
-    }
-
-    function selectEmailOption(option) {
-        selectedEmailOption = option;
+        const pdfModal = document.getElementById("pdfModal");
+        const closePdfModalBtn = document.getElementById("closePdfModal");
+        closePdfModalBtn.addEventListener("click", () => { pdfModal.style.display = "none"; });
+        window.addEventListener("click", e => { if (e.target === pdfModal) pdfModal.style.display = "none"; });
         
-        document.getElementById('toManagerOption').classList.remove('active');
-        document.getElementById('toRequesterOption').classList.remove('active');
-        document.getElementById(option + 'Option').classList.add('active');
+        window.addEventListener("click", e => {
+            const githubModal = document.getElementById('githubConfigModal');
+            if (e.target === githubModal) {
+                closeGithubConfig();
+            }
+        });
     }
 
     function validateMandatoryField(fieldId) {
         const field = document.getElementById(fieldId);
-        const fieldContainer = document.getElementById(fieldId + 'Field');
-        
+        const fieldContainer = document.getElementById(fieldId + "Field");
         if (!field || !fieldContainer) return;
-        
-        if (!field.value.trim()) {
-            fieldContainer.classList.add('mandatory-field');
-        } else {
-            fieldContainer.classList.remove('mandatory-field');
-        }
+        if (!field.value.trim()) fieldContainer.classList.add("mandatory-field");
+        else fieldContainer.classList.remove("mandatory-field");
     }
 
-    // Validate Next Steps - at least one field filled in any row
     function validateNextSteps() {
-        const stepActions = document.querySelectorAll('.step-action');
-        const stepResponsibles = document.querySelectorAll('.step-responsible');
-        const stepTimelines = document.querySelectorAll('.step-timeline');
-        const nextStepsSection = document.getElementById('nextStepsSection');
-        
+        const stepActions = document.querySelectorAll(".step-action");
+        const stepResponsibles = document.querySelectorAll(".step-responsible");
+        const stepTimelines = document.querySelectorAll(".step-timeline");
+        const nextStepsSection = document.getElementById("nextStepsSection");
         let hasAtLeastOneStep = false;
-        
+
         for (let i = 0; i < stepActions.length; i++) {
             if (stepActions[i].value.trim() || stepResponsibles[i].value.trim() || stepTimelines[i].value.trim()) {
                 hasAtLeastOneStep = true;
                 break;
             }
         }
-        
-        if (!hasAtLeastOneStep) {
-            nextStepsSection.classList.add('next-steps-mandatory');
-        } else {
-            nextStepsSection.classList.remove('next-steps-mandatory');
-        }
-        
+        if (!hasAtLeastOneStep) nextStepsSection.classList.add("next-steps-mandatory");
+        else nextStepsSection.classList.remove("next-steps-mandatory");
         return hasAtLeastOneStep;
     }
 
     function validateAllMandatoryFields() {
-        const mandatoryFields = ['topic', 'requestedBy', 'decisionOwner', 'background', 'decisionRequired', 'recommendation'];
+        const mandatoryFields = ["topic", "requestedBy", "decisionOwner", "background", "decisionRequired", "recommendation"];
         let isValid = true;
-        
-        // Validate basic mandatory fields
         mandatoryFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
-            const fieldContainer = document.getElementById(fieldId + 'Field');
-            
+            const fieldContainer = document.getElementById(fieldId + "Field");
             if (field && fieldContainer) {
                 if (!field.value.trim()) {
-                    fieldContainer.classList.add('mandatory-field');
+                    fieldContainer.classList.add("mandatory-field");
                     isValid = false;
                 } else {
-                    fieldContainer.classList.remove('mandatory-field');
+                    fieldContainer.classList.remove("mandatory-field");
                 }
             }
         });
-        
-        // Validate next steps
-        if (!validateNextSteps()) {
-            isValid = false;
-        }
-        
-        // Validate decision if in manager view
-        if (isManagerView) {
-            const decisionSelected = document.querySelector('input[name="decision"]:checked');
-            const decisionNotes = document.getElementById('decisionNotes').value.trim();
-            
-            if (!decisionSelected || !decisionNotes) {
-                document.getElementById('decisionSection').classList.add('decision-mandatory');
-                isValid = false;
-            } else {
-                document.getElementById('decisionSection').classList.remove('decision-mandatory');
-            }
-        }
-        
+        if (!validateNextSteps()) isValid = false;
         return isValid;
-    }
-
-    function loadDataOnStartup() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const docId = urlParams.get('doc');
-        
-        if (docId) {
-            loadSharedDocument(docId);
-        } else {
-            const autoSaved = localStorage.getItem('decisionBrief_autoSave');
-            if (autoSaved) {
-                try {
-                    const data = JSON.parse(autoSaved);
-                    populateForm(data);
-                } catch (e) {
-                    console.error('Error loading auto-saved data:', e);
-                }
-            }
-        }
-    }
-
-    function loadSharedDocument(docId) {
-        const savedData = localStorage.getItem(`decisionBrief_${docId}`);
-        
-        if (savedData) {
-            try {
-                const data = JSON.parse(savedData);
-                populateForm(data);
-                setManagerView(true);
-            } catch (e) {
-                console.error('Error loading shared document:', e);
-                setManagerView(false);
-            }
-        } else {
-            setManagerView(true);
-        }
-    }
-
-    function setManagerView(isManager) {
-        isManagerView = isManager;
-        const decisionSection = document.getElementById('decisionSection');
-        const shareBtn = document.querySelector('.btn-warning');
-        
-        if (isManager) {
-            decisionSection.classList.add('decision-mandatory');
-            shareBtn.textContent = 'Share Updated Brief';
-            shareBtn.title = 'Share the updated brief with decision';
-            checkDecisionMade();
-        } else {
-            decisionSection.classList.remove('decision-mandatory');
-            shareBtn.textContent = 'Share via Email';
-            shareBtn.title = 'Generate link to share via email';
-        }
-        
-        updateStatusBadge();
     }
 
     function checkDecisionMade() {
         const decisionSelected = document.querySelector('input[name="decision"]:checked');
-        const decisionNotes = document.getElementById('decisionNotes').value.trim();
+        const decisionNotes = document.getElementById("decisionNotes").value.trim();
         const decisionMade = decisionSelected && decisionNotes.length > 0;
-        
-        const pdfBtn = document.getElementById('generatePdfBtn');
+        const pdfBtn = document.getElementById("generatePdfBtn");
         pdfBtn.disabled = !decisionMade;
-        pdfBtn.title = decisionMade ? 
-            "Generate PDF document" : "Please make a decision and add notes first";
-        
+        pdfBtn.title = decisionMade ? "Generate PDF document" : "Please make a decision and add notes first";
         return decisionMade;
     }
 
     function updateStatusBadge() {
-        const statusBadge = document.getElementById('statusBadge');
+        const statusBadge = document.getElementById("statusBadge");
         const decisionSelected = document.querySelector('input[name="decision"]:checked');
-        
         if (!decisionSelected) {
-            statusBadge.textContent = isManagerView ? 'Pending Decision' : 'Draft';
-            statusBadge.className = isManagerView ? 'status-indicator status-pending' : 'status-indicator';
+            statusBadge.textContent = "Draft";
+            statusBadge.className = "status-indicator";
             return;
         }
-        
-        const decisionValue = decisionSelected.value;
-        
-        switch(decisionValue) {
-            case 'approved':
-                statusBadge.textContent = 'Approved';
-                statusBadge.className = 'status-indicator status-approved';
+        switch (decisionSelected.value) {
+            case "approved":
+                statusBadge.textContent = "Approved";
+                statusBadge.className = "status-indicator status-approved";
                 break;
-            case 'approved-conditions':
-                statusBadge.textContent = 'Approved with Conditions';
-                statusBadge.className = 'status-indicator status-conditional';
+            case "approved-conditions":
+                statusBadge.textContent = "Approved with Conditions";
+                statusBadge.className = "status-indicator status-conditional";
                 break;
-            case 'not-approved':
-                statusBadge.textContent = 'Not Approved';
-                statusBadge.className = 'status-indicator status-rejected';
+            case "not-approved":
+                statusBadge.textContent = "Not Approved";
+                statusBadge.className = "status-indicator status-rejected";
                 break;
-            case 'requester-promoted':
-                statusBadge.textContent = 'Requester Promoted to Decide';
-                statusBadge.className = 'status-indicator status-promoted';
+            case "requester-promoted":
+                statusBadge.textContent = "Requester to Decide";
+                statusBadge.className = "status-indicator status-promoted";
                 break;
             default:
-                statusBadge.textContent = 'Pending Decision';
-                statusBadge.className = 'status-indicator status-pending';
+                statusBadge.textContent = "Draft";
+                statusBadge.className = "status-indicator";
         }
-    }
-
-    function autoSaveData() {
-        const formData = collectFormData();
-        localStorage.setItem('decisionBrief_autoSave', JSON.stringify(formData));
     }
 
     function resetForm() {
-        if (confirm('Reset all form data?')) {
-            document.querySelectorAll('input[type="text"], textarea').forEach(input => {
-                input.value = '';
-            });
-            
-            const optionTemplates = [
-                { name: "Option A", desc: "Baseline / Maintain status quo" },
-                { name: "Option B", desc: "Recommended approach" },
-                { name: "Option C", desc: "Alternative solution" }
-            ];
-            
-            document.querySelectorAll('.option-title').forEach((input, index) => {
-                if (optionTemplates[index]) {
-                    input.value = optionTemplates[index].name;
-                }
-            });
-            
-            document.querySelectorAll('.option-description').forEach((input, index) => {
-                if (optionTemplates[index]) {
-                    input.value = optionTemplates[index].desc;
-                }
-            });
-            
-            document.querySelectorAll('.score-select').forEach(select => {
-                select.value = '0';
-            });
-            
-            document.querySelectorAll('input[type="radio"]').forEach(radio => {
-                radio.checked = false;
-            });
-            
-            const requestDateInput = document.getElementById('requestDate');
-            const decisionDateInput = document.getElementById('decisionDate');
-            requestDateInput.valueAsDate = new Date();
-            decisionDateInput.valueAsDate = new Date();
-            
-            currentDocumentId = String(Math.floor(Math.random() * 9000) + 1000);
-            document.getElementById('docId').textContent = currentDocumentId;
-            
-            document.querySelectorAll('.option-card').forEach(card => {
-                calculateScore(card);
-            });
-            
-            history.replaceState(null, '', window.location.pathname);
-            localStorage.removeItem('decisionBrief_autoSave');
-            setManagerView(false);
-            
-            // Reset mandatory field indicators
-            const mandatoryFields = ['topic', 'requestedBy', 'decisionOwner', 'background', 'decisionRequired', 'recommendation'];
-            mandatoryFields.forEach(fieldId => {
-                const fieldContainer = document.getElementById(fieldId + 'Field');
-                if (fieldContainer) {
-                    fieldContainer.classList.remove('mandatory-field');
-                }
-            });
-            
-            // Reset next steps mandatory indicator
-            document.getElementById('nextStepsSection').classList.remove('next-steps-mandatory');
-            
-            // Reset decision mandatory indicator
-            document.getElementById('decisionSection').classList.remove('decision-mandatory');
-        }
-    }
-
-    function generateShareLink() {
-        if (!validateAllMandatoryFields()) {
-            alert('Please fill all mandatory fields before sharing (marked with *).\n\n- All fields with * are required\n- At least one Next Step must be filled\n- If you are the manager, decision and notes are required');
-            return null;
-        }
-        
-        const formData = collectFormData();
-        const shareDocId = String(Math.floor(Math.random() * 9000) + 1000);
-        localStorage.setItem(`decisionBrief_${shareDocId}`, JSON.stringify(formData));
-        
-        const currentPath = window.location.href;
-        let basePath = currentPath.split('?')[0];
-        currentShareUrl = `${basePath}?doc=${shareDocId}`;
-        
-        const shareLinkInput = document.getElementById('shareLinkInput');
-        shareLinkInput.value = currentShareUrl;
-        
-        const shareModal = document.getElementById('shareModal');
-        shareModal.style.display = 'flex';
-        
-        localStorage.setItem('decisionBrief_autoSave', JSON.stringify(formData));
-        
-        console.log('Share link generated:', currentShareUrl);
-        return currentShareUrl;
-    }
-
-    function testShareLink() {
-        if (!currentShareUrl) {
-            alert('Please generate a share link first.');
-            return;
-        }
-        
-        try {
-            window.open(currentShareUrl, '_blank');
-            alert('Link opened in new tab. If it doesn\'t work, copy and paste the link into your browser.');
-        } catch (e) {
-            alert('Could not open link automatically. Please copy and paste this link into your browser:\n\n' + currentShareUrl);
-        }
-    }
-
-    function openEmailModal() {
-        if (!currentShareUrl) {
-            currentShareUrl = generateShareLink();
-            if (!currentShareUrl) return;
-        }
-        
-        if (selectedEmailOption === 'toManager') {
-            setupToManagerEmail();
-        } else {
-            setupToRequesterEmail();
-        }
-        
-        const emailModal = document.getElementById('emailModal');
-        emailModal.style.display = 'flex';
-        
-        // Fix for template size issue - force reflow
-        setTimeout(() => {
-            const preview = document.getElementById('emailTemplatePreview');
-            if (preview) {
-                preview.style.display = 'none';
-                setTimeout(() => {
-                    preview.style.display = 'block';
-                }, 10);
-            }
-        }, 50);
-    }
-
-    function setupToManagerEmail() {
-        const topic = document.getElementById('topic').value || 'Decision Brief';
-        const requester = document.getElementById('requestedBy').value || 'Requester';
-        const docId = document.getElementById('docId').textContent;
-        const decisionOwner = document.getElementById('decisionOwner').value || 'Manager';
-        const additionalMessage = document.getElementById('additionalMessage').value || '';
-        
-        const today = new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
+        if (!confirm("Reset all fields?")) return;
+        document.querySelectorAll("input[type='text'], input[type='email'], textarea").forEach(el => el.value = "");
+        document.querySelectorAll("input[type='radio'][name='decision']").forEach(r => r.checked = false);
+        document.getElementById("requestDate").valueAsDate = new Date();
+        document.getElementById("decisionDate").valueAsDate = new Date();
+        documentUniqueId = null;
+        generateDocumentId();
+        document.getElementById("nextStepsSection").classList.remove("next-steps-mandatory");
+        const mandatoryFields = ["topic", "requestedBy", "decisionOwner", "background", "decisionRequired", "recommendation"];
+        mandatoryFields.forEach(fieldId => {
+            const fieldContainer = document.getElementById(fieldId + "Field");
+            if (fieldContainer) fieldContainer.classList.remove("mandatory-field");
         });
+        document.querySelectorAll(".score-select").forEach(select => { select.value = "0"; });
+        document.querySelectorAll(".option-card").forEach(card => calculateScore(card));
         
-        // Create subject
-        const subject = `Decision Brief: ${topic} - DB${docId}`;
-        document.getElementById('emailSubject').value = subject;
+        // Reset document state
+        documentSaved = false;
+        section7Filled = false;
         
-        // Plain text version
-        plainTextTemplate = `Dear ${decisionOwner},
-
-I have prepared a Decision Brief that requires your review and decision.
-
-Topic: ${topic}
-Requested by: ${requester}
-Document ID: DB${docId}
-
-${additionalMessage ? additionalMessage + '\n\n' : ''}You can access the full Decision Brief here:
-${currentShareUrl}
-
-Please review the document and provide your decision in Section 7.
-
-Note: If the link doesn't work, please copy and paste it into your browser.
-
-Best regards,
-${requester}
-
----
-Generated on: ${today}`;
-        
-        // HTML version with clickable link
-        htmlEmailTemplate = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #f8f9fa; padding: 15px; border-left: 4px solid #3b82f6; margin-bottom: 20px; }
-        .details { background: #f8fafc; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #e2e8f0; }
-        .link-container { background: #eff6ff; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center; border: 1px solid #3b82f6; }
-        .link { color: #3b82f6; text-decoration: underline; font-weight: bold; font-size: 14px; word-break: break-all; }
-        .note { background: #fff3cd; padding: 10px; border-radius: 5px; font-size: 14px; margin-top: 20px; border: 1px solid #ffc107; }
-        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #666; text-align: center; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h2 style="margin: 0; color: #1e293b;">Decision Brief - Review Required</h2>
-    </div>
-    
-    <p>Dear ${decisionOwner},</p>
-    
-    <p>I have prepared a Decision Brief that requires your review and decision.</p>
-    
-    <div class="details">
-        <p><strong>Topic:</strong> ${topic}</p>
-        <p><strong>Requested by:</strong> ${requester}</p>
-        <p><strong>Document ID:</strong> DB${docId}</p>
-    </div>
-    
-    ${additionalMessage ? `<p>${additionalMessage.replace(/\n/g, '<br>')}</p>` : ''}
-    
-    <p>You can access the full Decision Brief by clicking the link below:</p>
-    
-    <div class="link-container">
-        <p style="margin: 0;">
-            <a href="${currentShareUrl}" class="link" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: bold;">
-                Open Decision Brief - DB${docId}
-            </a>
-        </p>
-        <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
-            ${currentShareUrl}
-        </p>
-    </div>
-    
-    <p>Please review the document and provide your decision in Section 7.</p>
-    
-    <div class="note">
-        <p><strong>Note:</strong> If the link doesn't work in your email client, please copy and paste the URL above into your browser.</p>
-    </div>
-    
-    <p>Best regards,<br>
-    <strong>${requester}</strong></p>
-    
-    <div class="footer">
-        Generated on: ${today}
-    </div>
-</body>
-</html>`;
-        
-        // Update modal UI
-        document.getElementById('emailModalTitle').textContent = 'Create Email to Manager';
-        document.getElementById('toLabel').textContent = 'To (Manager Email)';
-        document.getElementById('templateTitle').textContent = 'HTML Email Template:';
-        
-        // Update template preview - FIXED: Clear and set fresh content
-        const preview = document.getElementById('emailTemplatePreview');
-        preview.innerHTML = '';
-        preview.innerHTML = htmlEmailTemplate;
-        
-        // Auto-fill emails
-        const decisionOwnerName = document.getElementById('decisionOwner').value;
-        if (decisionOwnerName) {
-            const email = decisionOwnerName.toLowerCase().replace(/\s+/g, '.') + '@company.com';
-            document.getElementById('toEmail').value = email;
-        }
-        
-        const requesterName = document.getElementById('requestedBy').value;
-        if (requesterName) {
-            const requesterEmail = requesterName.toLowerCase().replace(/\s+/g, '.') + '@company.com';
-            document.getElementById('fromEmail').value = requesterEmail;
-        }
-        
-        document.getElementById('emailInstructions').innerHTML = `
-            <li><strong>For Outlook:</strong> Use "Download Email File" then double-click .eml file</li>
-            <li><strong>For Gmail/Webmail:</strong> Use "Copy HTML Email", paste into compose window</li>
-            <li><strong>For any email client:</strong> Use "Open Email Client" to open default mail app</li>
-            <li><strong>Note:</strong> Some email clients block file:/// links for security</li>
-        `;
+        updateStatusBadge();
+        checkDecisionMade();
+        updateEmailButtonVisibility();
     }
 
-    function setupToRequesterEmail() {
-        const topic = document.getElementById('topic').value || 'Decision Brief';
-        const requester = document.getElementById('requestedBy').value || 'Requester';
-        const docId = document.getElementById('docId').textContent;
-        const decisionOwner = document.getElementById('decisionOwner').value || 'Manager';
-        const decision = document.querySelector('input[name="decision"]:checked');
-        const decisionDate = document.getElementById('decisionDate').value;
-        const additionalMessage = document.getElementById('additionalMessage').value || '';
-        
-        let decisionText = 'Decision Made';
-        let decisionClass = 'default';
-        if (decision) {
-            switch(decision.value) {
-                case 'approved':
-                    decisionText = 'Approved';
-                    decisionClass = 'approved';
-                    break;
-                case 'approved-conditions':
-                    decisionText = 'Approved with Conditions';
-                    decisionClass = 'conditional';
-                    break;
-                case 'not-approved':
-                    decisionText = 'Not Approved';
-                    decisionClass = 'rejected';
-                    break;
-                case 'requester-promoted':
-                    decisionText = 'Requester Promoted to Decide';
-                    decisionClass = 'promoted';
-                    break;
-            }
-        }
-        
-        let formattedDate = 'Not specified';
-        if (decisionDate) {
-            const dateObj = new Date(decisionDate);
-            formattedDate = dateObj.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-        
-        const today = new Date().toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-        
-        // Create subject
-        const subject = `Decision Brief Decision - ${decisionText} - DB${docId}`;
-        document.getElementById('emailSubject').value = subject;
-        
-        // Plain text version
-        plainTextTemplate = `Dear ${requester},
-
-The Decision Brief has been reviewed and a decision has been made.
-
-Topic: ${topic}
-Document ID: DB${docId}
-Decision: ${decisionText}
-Decision Date: ${formattedDate}
-Decision Owner: ${decisionOwner}
-
-${additionalMessage ? additionalMessage + '\n\n' : ''}You can access the finalized Decision Brief here:
-${currentShareUrl}
-
-Please review the decision and notes in Section 7.
-
-Note: If the link doesn't work, please copy and paste it into your browser.
-
-Best regards,
-${decisionOwner}
-
----
-Generated on: ${today}`;
-        
-        // HTML version with clickable link
-        const decisionColor = decisionClass === 'approved' ? '#10b981' : 
-                             decisionClass === 'rejected' ? '#ef4444' : 
-                             decisionClass === 'conditional' ? '#3b82f6' : 
-                             decisionClass === 'promoted' ? '#8b5cf6' : '#64748b';
-        
-        htmlEmailTemplate = `<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background: #f8f9fa; padding: 15px; border-left: 4px solid ${decisionColor}; margin-bottom: 20px; }
-        .decision-badge { 
-            display: inline-block; 
-            padding: 8px 20px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            color: white;
-            background: ${decisionColor};
-            margin: 10px 0; 
-        }
-        .details { background: #f8fafc; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #e2e8f0; }
-        .link-container { background: #eff6ff; padding: 15px; border-radius: 5px; margin: 20px 0; text-align: center; border: 1px solid #3b82f6; }
-        .link { color: #3b82f6; text-decoration: underline; font-weight: bold; font-size: 14px; word-break: break-all; }
-        .note { background: #fff3cd; padding: 10px; border-radius: 5px; font-size: 14px; margin-top: 20px; border: 1px solid #ffc107; }
-        .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #ddd; font-size: 12px; color: #666; text-align: center; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h2 style="margin: 0; color: #1e293b;">Decision Brief - Decision Made</h2>
-    </div>
-    
-    <p>Dear ${requester},</p>
-    
-    <p>The Decision Brief has been reviewed and a decision has been made.</p>
-    
-    <div class="details">
-        <p><strong>Topic:</strong> ${topic}</p>
-        <p><strong>Document ID:</strong> DB${docId}</p>
-        <p><strong>Decision:</strong> <span class="decision-badge">${decisionText}</span></p>
-        <p><strong>Decision Date:</strong> ${formattedDate}</p>
-        <p><strong>Decision Owner:</strong> ${decisionOwner}</p>
-    </div>
-    
-    ${additionalMessage ? `<p>${additionalMessage.replace(/\n/g, '<br>')}</p>` : ''}
-    
-    <p>You can access the finalized Decision Brief by clicking the link below:</p>
-    
-    <div class="link-container">
-        <p style="margin: 0;">
-            <a href="${currentShareUrl}" class="link" target="_blank" style="color: #3b82f6; text-decoration: underline; font-weight: bold;">
-                Open Decision Brief - DB${docId}
-            </a>
-        </p>
-        <p style="margin: 10px 0 0 0; font-size: 12px; color: #666;">
-            ${currentShareUrl}
-        </p>
-    </div>
-    
-    <p>Please review the decision and notes in Section 7.</p>
-    
-    <div class="note">
-        <p><strong>Note:</strong> If the link doesn't work in your email client, please copy and paste the URL above into your browser.</p>
-    </div>
-    
-    <p>Best regards,<br>
-    <strong>${decisionOwner}</strong></p>
-    
-    <div class="footer">
-        Generated on: ${today}
-    </div>
-</body>
-</html>`;
-        
-        // Update modal UI
-        document.getElementById('emailModalTitle').textContent = 'Create Email to Requester';
-        document.getElementById('toLabel').textContent = 'To (Requester Email)';
-        document.getElementById('templateTitle').textContent = 'HTML Email Template:';
-        
-        // Update template preview - FIXED: Clear and set fresh content
-        const preview = document.getElementById('emailTemplatePreview');
-        preview.innerHTML = '';
-        preview.innerHTML = htmlEmailTemplate;
-        
-        // Auto-fill emails
-        const requesterName = document.getElementById('requestedBy').value;
-        if (requesterName) {
-            const requesterEmail = requesterName.toLowerCase().replace(/\s+/g, '.') + '@company.com';
-            document.getElementById('toEmail').value = requesterEmail;
-        }
-        
-        const decisionOwnerName = document.getElementById('decisionOwner').value;
-        if (decisionOwnerName) {
-            const ownerEmail = decisionOwnerName.toLowerCase().replace(/\s+/g, '.') + '@company.com';
-            document.getElementById('fromEmail').value = ownerEmail;
-        }
-        
-        document.getElementById('emailInstructions').innerHTML = `
-            <li><strong>For Outlook:</strong> Use "Download Email File" then double-click .eml file</li>
-            <li><strong>For Gmail/Webmail:</strong> Use "Copy HTML Email", paste into compose window</li>
-            <li><strong>For any email client:</strong> Use "Open Email Client" to open default mail app</li>
-            <li><strong>Note:</strong> HTML version shows decision status with color coding</li>
-        `;
-    }
-
-    function useTemplate() {
-        if (selectedEmailOption === 'toManager') {
-            setupToManagerEmail();
-        } else {
-            setupToRequesterEmail();
-        }
-    }
-
-    function copyHTMLToClipboard() {
-        const toEmail = document.getElementById('toEmail').value || 'recipient@company.com';
-        const fromEmail = document.getElementById('fromEmail').value || 'sender@company.com';
-        const subject = document.getElementById('emailSubject').value;
-        
-        // Create email HTML with proper headers
-        const emailHTML = `Subject: ${subject}
-To: ${toEmail}
-From: ${fromEmail}
-Content-Type: text/html; charset=UTF-8
-MIME-Version: 1.0
-
-${htmlEmailTemplate}`;
-        
-        // Copy to clipboard
-        navigator.clipboard.writeText(emailHTML).then(() => {
-            alert('HTML email copied to clipboard!\n\nPaste into your email client:\n1. Open new email\n2. Click "Insert" or "Format"\n3. Choose "Insert HTML" or similar\n4. Paste the content');
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            // Fallback method
-            const textArea = document.createElement('textarea');
-            textArea.value = emailHTML;
-            document.body.appendChild(textArea);
-            textArea.select();
-            try {
-                document.execCommand('copy');
-                alert('HTML email copied to clipboard!\n\nPaste into your email client.');
-            } catch (err) {
-                alert('Please copy the HTML manually from the preview above.');
-            }
-            document.body.removeChild(textArea);
-        });
-    }
-
-    function copyPlainTextToClipboard() {
-        const toEmail = document.getElementById('toEmail').value || 'recipient@company.com';
-        const fromEmail = document.getElementById('fromEmail').value || 'sender@company.com';
-        const subject = document.getElementById('emailSubject').value;
-        
-        const emailText = `Subject: ${subject}
-To: ${toEmail}
-From: ${fromEmail}
-
-${plainTextTemplate}`;
-        
-        navigator.clipboard.writeText(emailText).then(() => {
-            alert('Plain text email copied to clipboard! Paste into your email client.');
-        });
-    }
-
-    function createEmailFile() {
-        const toEmail = document.getElementById('toEmail').value || 'recipient@company.com';
-        const fromEmail = document.getElementById('fromEmail').value || 'sender@company.com';
-        const subject = document.getElementById('emailSubject').value;
-        
-        // Create .eml file content
-        const emlContent = `From: ${fromEmail}
-To: ${toEmail}
-Subject: ${subject}
-Date: ${new Date().toUTCString()}
-MIME-Version: 1.0
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-${htmlEmailTemplate}`;
-        
-        // Create and download .eml file
-        const blob = new Blob([emlContent], { type: 'message/rfc822' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `Decision_Brief_${subject.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 50)}.eml`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        alert('Email file (.eml) downloaded!\n\nTo send:\n1. Double-click the .eml file\n2. It will open in Outlook\n3. Click "Send"\n\nFor other email clients:\n1. Open the .eml file in a text editor\n2. Copy the HTML part\n3. Paste into your email client');
-    }
-
-    // NEW FUNCTION: Open Email Client with mailto: link
-    function openEmailClient() {
-        const toEmail = document.getElementById('toEmail').value;
-        const fromEmail = document.getElementById('fromEmail').value || '';
-        const subject = document.getElementById('emailSubject').value;
-        
-        if (!toEmail) {
-            alert('Please enter recipient email address.');
-            return;
-        }
-        
-        // Create mailto link
-        let mailtoLink = `mailto:${toEmail}`;
-        
-        // Add CC if from email is provided
-        if (fromEmail) {
-            mailtoLink += `?cc=${fromEmail}`;
-        }
-        
-        // Add subject and body
-        mailtoLink += `${fromEmail ? '&' : '?'}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainTextTemplate)}`;
-        
-        // Open email client
-        window.open(mailtoLink, '_blank');
-        
-        // Show instructions
-        alert('Email client opened!\n\nNote: This method creates a plain text email.\nFor HTML email with clickable links, use "Copy HTML Email" or "Download Email File".');
-    }
-
-    // Rest of the functions remain the same...
     function collectFormData() {
         const data = {};
-        
-        // Collect metadata
-        data.topic = document.getElementById('topic').value;
-        data.requestedBy = document.getElementById('requestedBy').value;
-        data.decisionOwner = document.getElementById('decisionOwner').value;
-        data.requestDate = document.getElementById('requestDate').value;
-        data.decisionDate = document.getElementById('decisionDate').value;
-        
-        // Collect sections 1 & 2
-        data.background = document.getElementById('background').value;
-        data.decisionRequired = document.getElementById('decisionRequired').value;
-        
-        // Collect options
-        data.options = [];
-        document.querySelectorAll('.option-card').forEach((card, index) => {
+        data.Topic = document.getElementById("topic").value;
+        data.RequestedBy = document.getElementById("requestedBy").value;
+        data.DecisionOwner = document.getElementById("decisionOwner").value;
+        data.RequesterEmail = document.getElementById("requesterEmail").value || "";
+        data.DecisionOwnerEmail = document.getElementById("decisionOwnerEmail").value || "";
+        data.RequestDate = document.getElementById("requestDate").value;
+        data.DecisionDate = document.getElementById("decisionDate").value;
+        data.Background = document.getElementById("background").value;
+        data.DecisionRequired = document.getElementById("decisionRequired").value;
+
+        data.Options = [];
+        document.querySelectorAll(".option-card").forEach(card => {
             const option = {
-                title: card.querySelector('.option-title').value,
-                description: card.querySelector('.option-description').value,
-                scores: []
+                Title: card.querySelector(".option-title").value,
+                Description: card.querySelector(".option-description").value,
+                Scores: []
             };
-            
-            // Collect scores
-            card.querySelectorAll('.score-select').forEach((select, critIndex) => {
-                const criteria = ["Cost", "Time", "Risk", "People", "Compliance"];
-                option.scores.push({
-                    criterion: criteria[critIndex],
-                    score: parseInt(select.value) || 0
+            const criteria = ["Cost", "Time", "Risk", "People", "Compliance"];
+            card.querySelectorAll(".score-select").forEach((select, idx) => {
+                option.Scores.push({
+                    Criterion: criteria[idx],
+                    Score: parseInt(select.value) || 0
                 });
             });
-            
-            data.options.push(option);
+            data.Options.push(option);
         });
-        
-        // Collect documents
-        data.documents = [];
-        document.querySelectorAll('.document-input').forEach((input, index) => {
-            if (input.value.trim()) {
-                data.documents.push(input.value);
-            }
+
+        data.Documents = [];
+        document.querySelectorAll(".document-input").forEach(input => {
+            if (input.value.trim()) data.Documents.push(input.value.trim());
         });
-        
-        // Collect recommendation
-        data.recommendation = document.getElementById('recommendation').value;
-        
-        // Collect next steps
-        data.nextSteps = [];
-        const stepActions = document.querySelectorAll('.step-action');
-        const stepResponsibles = document.querySelectorAll('.step-responsible');
-        const stepTimelines = document.querySelectorAll('.step-timeline');
-        
+
+        data.Recommendation = document.getElementById("recommendation").value;
+
+        data.NextSteps = [];
+        const stepActions = document.querySelectorAll(".step-action");
+        const stepResponsibles = document.querySelectorAll(".step-responsible");
+        const stepTimelines = document.querySelectorAll(".step-timeline");
         for (let i = 0; i < stepActions.length; i++) {
             if (stepActions[i].value.trim() || stepResponsibles[i].value.trim() || stepTimelines[i].value.trim()) {
-                data.nextSteps.push({
-                    action: stepActions[i].value,
-                    responsible: stepResponsibles[i].value,
-                    timeline: stepTimelines[i].value
+                data.NextSteps.push({
+                    Action: stepActions[i].value,
+                    Responsible: stepResponsibles[i].value,
+                    Timeline: stepTimelines[i].value
                 });
             }
         }
-        
-        // Collect decision
+
         const selectedDecision = document.querySelector('input[name="decision"]:checked');
-        data.decision = selectedDecision ? selectedDecision.value : '';
-        data.decisionNotes = document.getElementById('decisionNotes').value;
-        
-        // Add document ID and timestamp
-        data.docId = document.getElementById('docId').textContent;
-        data.generatedDate = document.getElementById('generatedDate').textContent;
-        data.timestamp = new Date().toISOString();
-        data.isManagerView = isManagerView;
-        
+        data.Decision = selectedDecision ? selectedDecision.value : "";
+        data.DecisionNotes = document.getElementById("decisionNotes").value;
+        data.DocId = document.getElementById("docId").textContent;
+        data.GeneratedDate = document.getElementById("generatedDate").textContent;
+        data.DecisionStatusText = (function () {
+            if (!selectedDecision) return "Pending";
+            switch (selectedDecision.value) {
+                case "approved": return "Approved";
+                case "approved-conditions": return "Approved with conditions";
+                case "not-approved": return "Not approved";
+                case "requester-promoted": return "Requester to decide";
+                default: return selectedDecision.value;
+            }
+        })();
         return data;
     }
 
-    function loadFromLocalStorage() {
-        const savedData = localStorage.getItem('decisionBrief_autoSave');
-        
-        if (savedData) {
-            try {
-                const data = JSON.parse(savedData);
-                populateForm(data);
-                alert('Saved data loaded successfully!');
-            } catch (e) {
-                console.error('Error loading saved data:', e);
-                alert('Error loading saved data.');
-            }
-        } else {
-            alert('No saved data found.');
-        }
-    }
-
     function populateForm(data) {
-        // Metadata
-        if (data.topic) document.getElementById('topic').value = data.topic;
-        if (data.requestedBy) document.getElementById('requestedBy').value = data.requestedBy;
-        if (data.decisionOwner) document.getElementById('decisionOwner').value = data.decisionOwner;
-        if (data.requestDate) document.getElementById('requestDate').value = data.requestDate;
-        if (data.decisionDate) document.getElementById('decisionDate').value = data.decisionDate;
-        
-        // Sections 1 & 2
-        if (data.background) document.getElementById('background').value = data.background;
-        if (data.decisionRequired) document.getElementById('decisionRequired').value = data.decisionRequired;
-        
-        // Options
-        if (data.options && data.options.length > 0) {
-            const optionCards = document.querySelectorAll('.option-card');
-            data.options.forEach((option, index) => {
-                if (optionCards[index]) {
-                    if (option.title) optionCards[index].querySelector('.option-title').value = option.title;
-                    if (option.description) optionCards[index].querySelector('.option-description').value = option.description;
-                    
-                    // Scores
-                    if (option.scores && option.scores.length > 0) {
-                        const scoreSelects = optionCards[index].querySelectorAll('.score-select');
-                        option.scores.forEach((score, scoreIndex) => {
-                            if (scoreSelects[scoreIndex]) {
-                                scoreSelects[scoreIndex].value = score.score;
-                            }
+        if (!data) return;
+        if (data.Topic) document.getElementById("topic").value = data.Topic;
+        if (data.RequestedBy) document.getElementById("requestedBy").value = data.RequestedBy;
+        if (data.DecisionOwner) document.getElementById("decisionOwner").value = data.DecisionOwner;
+        if (data.RequesterEmail) document.getElementById("requesterEmail").value = data.RequesterEmail;
+        if (data.DecisionOwnerEmail) document.getElementById("decisionOwnerEmail").value = data.DecisionOwnerEmail;
+        if (data.RequestDate) document.getElementById("requestDate").value = data.RequestDate;
+        if (data.DecisionDate) document.getElementById("decisionDate").value = data.DecisionDate;
+        if (data.Background) document.getElementById("background").value = data.Background;
+        if (data.DecisionRequired) document.getElementById("decisionRequired").value = data.DecisionRequired;
+        if (data.Recommendation) document.getElementById("recommendation").value = data.Recommendation;
+
+        if (data.Options && data.Options.length > 0) {
+            const optionCards = document.querySelectorAll(".option-card");
+            data.Options.forEach((option, idx) => {
+                if (optionCards[idx]) {
+                    if (option.Title) optionCards[idx].querySelector(".option-title").value = option.Title;
+                    if (option.Description) optionCards[idx].querySelector(".option-description").value = option.Description;
+                    if (option.Scores && option.Scores.length > 0) {
+                        const selects = optionCards[idx].querySelectorAll(".score-select");
+                        option.Scores.forEach((scoreObj, sIdx) => {
+                            if (selects[sIdx]) selects[sIdx].value = scoreObj.Score;
                         });
                     }
-                    
-                    // Recalculate score display
-                    calculateScore(optionCards[index]);
+                    calculateScore(optionCards[idx]);
                 }
             });
         }
-        
-        // Documents
-        if (data.documents && data.documents.length > 0) {
-            const docInputs = document.querySelectorAll('.document-input');
-            data.documents.forEach((doc, index) => {
-                if (docInputs[index]) {
-                    docInputs[index].value = doc;
-                }
+
+        if (data.Documents && data.Documents.length > 0) {
+            const docInputs = document.querySelectorAll(".document-input");
+            data.Documents.forEach((doc, idx) => {
+                if (docInputs[idx]) docInputs[idx].value = doc;
             });
         }
-        
-        // Recommendation
-        if (data.recommendation) document.getElementById('recommendation').value = data.recommendation;
-        
-        // Next steps
-        if (data.nextSteps && data.nextSteps.length > 0) {
-            const stepActions = document.querySelectorAll('.step-action');
-            const stepResponsibles = document.querySelectorAll('.step-responsible');
-            const stepTimelines = document.querySelectorAll('.step-timeline');
-            
-            data.nextSteps.forEach((step, index) => {
-                if (stepActions[index]) stepActions[index].value = step.action || '';
-                if (stepResponsibles[index]) stepResponsibles[index].value = step.responsible || '';
-                if (stepTimelines[index]) stepTimelines[index].value = step.timeline || '';
+
+        if (data.NextSteps && data.NextSteps.length > 0) {
+            const stepActions = document.querySelectorAll(".step-action");
+            const stepResponsibles = document.querySelectorAll(".step-responsible");
+            const stepTimelines = document.querySelectorAll(".step-timeline");
+            data.NextSteps.forEach((step, idx) => {
+                if (stepActions[idx]) stepActions[idx].value = step.Action || "";
+                if (stepResponsibles[idx]) stepResponsibles[idx].value = step.Responsible || "";
+                if (stepTimelines[idx]) stepTimelines[idx].value = step.Timeline || "";
             });
         }
-        
-        // Decision
-        if (data.decision) {
-            const decisionRadio = document.querySelector(`input[name="decision"][value="${data.decision}"]`);
-            if (decisionRadio) {
-                decisionRadio.checked = true;
-                decisionRadio.dispatchEvent(new Event('change'));
-            }
+
+        if (data.Decision) {
+            const r = document.querySelector(`input[name="decision"][value="${data.Decision}"]`);
+            if (r) r.checked = true;
         }
-        
-        if (data.decisionNotes) document.getElementById('decisionNotes').value = data.decisionNotes;
-        
-        // Document ID
-        if (data.docId) {
-            currentDocumentId = data.docId;
-            document.getElementById('docId').textContent = currentDocumentId;
-        }
-        
-        // Update status
+        if (data.DecisionNotes) document.getElementById("decisionNotes").value = data.DecisionNotes;
+        if (data.DocId) document.getElementById("docId").textContent = data.DocId;
+
         updateStatusBadge();
         checkDecisionMade();
-        
-        // Set manager view if data indicates it
-        if (data.isManagerView) {
-            setManagerView(true);
-        }
-        
-        // Validate mandatory fields
         validateAllMandatoryFields();
+        
+        // Update document state
+        documentSaved = true;
+        section7Filled = checkSection7Complete();
+        updateEmailButtonVisibility();
     }
 
-    // UPDATED PDF GENERATION - Fit to one page
-    async function generatePDF() {
-        if (!checkDecisionMade()) {
-            alert('Please make a decision and provide notes before generating PDF.');
-            document.getElementById('decisionSection').scrollIntoView({ behavior: 'smooth' });
-            return;
+    function showAlert(message, type = 'info') {
+        const alert = document.createElement('div');
+        alert.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s;
+            min-width: 250px;
+            max-width: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            word-wrap: break-word;
+            white-space: pre-line;
+        `;
+        
+        switch(type) {
+            case 'success':
+                alert.style.backgroundColor = '#10b981';
+                alert.innerHTML = `<i class="fas fa-check-circle" style="margin-right: 10px;"></i> ${message}`;
+                break;
+            case 'error':
+                alert.style.backgroundColor = '#ef4444';
+                alert.innerHTML = `<i class="fas fa-exclamation-circle" style="margin-right: 10px;"></i> ${message}`;
+                break;
+            case 'warning':
+                alert.style.backgroundColor = '#f59e0b';
+                alert.innerHTML = `<i class="fas fa-exclamation-triangle" style="margin-right: 10px;"></i> ${message}`;
+                break;
+            default:
+                alert.style.backgroundColor = '#3b82f6';
+                alert.innerHTML = `<i class="fas fa-info-circle" style="margin-right: 10px;"></i> ${message}`;
         }
         
-        const pdfBtn = document.getElementById('generatePdfBtn');
-        const originalText = pdfBtn.textContent;
-        pdfBtn.textContent = 'Generating PDF...';
-        pdfBtn.disabled = true;
-        
-        try {
-            const element = document.getElementById('contentToPrint');
-            
-            // Adjust styles for PDF
-            const originalStyles = {
-                boxShadow: element.style.boxShadow,
-                borderRadius: element.style.borderRadius,
-                padding: element.style.padding
-            };
-            
-            // Remove shadows and rounded corners for cleaner PDF
-            element.style.boxShadow = 'none';
-            element.style.borderRadius = '0';
-            element.style.padding = '20px 15px';
-            
-            // Adjust font sizes for better fit
-            const originalFontSizes = {};
-            document.querySelectorAll('#contentToPrint *').forEach(el => {
-                const style = window.getComputedStyle(el);
-                originalFontSizes[el] = style.fontSize;
-                if (parseFloat(style.fontSize) > 12) {
-                    el.style.fontSize = (parseFloat(style.fontSize) * 0.9) + 'px';
-                }
-            });
-            
-            // Create canvas with optimized settings
-            const canvas = await html2canvas(element, {
-                scale: 1.5, // Reduced scale to fit in one page
-                useCORS: true,
-                logging: false,
-                backgroundColor: '#ffffff',
-                width: 794, // A4 width in pixels at 96 DPI
-                height: 1123, // A4 height in pixels at 96 DPI
-                windowWidth: 794,
-                windowHeight: 1123
-            });
-            
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jspdf.jsPDF('p', 'pt', 'a4');
-            
-            // Get A4 dimensions in points
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            
-            // Calculate dimensions to fit the image to page
-            const imgWidth = pdfWidth - 40; // 20pt margins on each side
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
-            // Check if it fits in one page
-            if (imgHeight > pdfHeight - 40) {
-                // Scale down to fit
-                const scale = (pdfHeight - 40) / imgHeight;
-                const scaledWidth = imgWidth * scale;
-                const scaledHeight = imgHeight * scale;
-                
-                // Center horizontally
-                const xPos = (pdfWidth - scaledWidth) / 2;
-                
-                pdf.addImage(imgData, 'PNG', xPos, 20, scaledWidth, scaledHeight);
-            } else {
-                // Center vertically
-                const yPos = (pdfHeight - imgHeight) / 2;
-                pdf.addImage(imgData, 'PNG', 20, yPos, imgWidth, imgHeight);
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
             }
-            
-            // Restore original styles
-            element.style.boxShadow = originalStyles.boxShadow;
-            element.style.borderRadius = originalStyles.borderRadius;
-            element.style.padding = originalStyles.padding;
-            
-            // Restore font sizes
-            Object.keys(originalFontSizes).forEach(el => {
-                if (el.style) {
-                    el.style.fontSize = originalFontSizes[el];
-                }
-            });
-            
-            // Generate PDF filename
-            const docId = document.getElementById('docId').textContent;
-            const topic = document.getElementById('topic').value || 'Decision_Brief';
-            const cleanTopic = topic.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30);
-            const filename = `Decision_Brief_${cleanTopic}_DB${docId}.pdf`;
-            
-            // Create download link
-            const pdfBlob = pdf.output('blob');
-            const pdfUrl = URL.createObjectURL(pdfBlob);
-            
-            // Set up download button
-            document.getElementById('downloadPdfBtn').onclick = function() {
-                const link = document.createElement('a');
-                link.href = pdfUrl;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            };
-            
-            // Create PDF data URL
-            const pdfDataUrl = pdf.output('datauristring');
-            document.getElementById('pdfLinkInput').value = pdfDataUrl;
-            
-            // Show PDF modal
-            document.getElementById('pdfModal').style.display = 'flex';
-            
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            alert('Error generating PDF. Please try printing instead.');
-        } finally {
-            pdfBtn.textContent = originalText;
-            pdfBtn.disabled = false;
-        }
+            @keyframes fadeOut {
+                from { opacity: 1; }
+                to { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.body.appendChild(alert);
+        
+        setTimeout(() => {
+            if (alert.parentNode) {
+                alert.parentNode.removeChild(alert);
+            }
+        }, 5000);
     }
 </script>
 </body>
