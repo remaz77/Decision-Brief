@@ -1069,8 +1069,8 @@
             loadDocumentFromURL();
         }, 500);
         
-        // Update UI based on initial state
-        updateUIForRole();
+        // Apply user role based on URL and document state
+        applyUserRole();
     });
 
     function updateUIForRole() {
@@ -1098,42 +1098,45 @@
     }
 
     // ================================
-    // AUTO ROLE DETECTION
+    // AUTO ROLE DETECTION - FIXED VERSION
     // ================================
     function detectUserRole() {
-        // Check URL parameters first
+        // Check URL parameters first for explicit role
         const urlParams = new URLSearchParams(window.location.search);
         const roleParam = urlParams.get('role');
         
-        // Check if document is loaded from URL
+        // If URL has explicit role parameter, use it
+        if (roleParam === 'manager') {
+            return 'manager';
+        }
+        if (roleParam === 'requester') {
+            return 'requester';
+        }
+        
+        // Check if document is loaded from URL (shared link)
         const hash = window.location.hash;
         const hasDocumentId = hash.includes('doc=');
         
-        // Check current document state
-        const decisionSelected = document.querySelector('input[name="decision"]:checked');
-        const decisionNotes = document.getElementById("decisionNotes").value.trim();
-        const isDecisionMade = decisionSelected && decisionNotes.length > 0;
-        
-        // Logic for role detection:
-        // 1. If URL has ?role=manager, set as manager
-        // 2. If document loaded from URL AND decision is not made yet, set as manager
-        // 3. If document loaded from URL AND decision is already made, set as requester (viewing response)
-        // 4. Otherwise, default to requester (creating new document)
-        
-        if (roleParam === 'manager') {
-            return 'manager';
-        } else if (hasDocumentId && !isDecisionMade) {
-            return 'manager';
-        } else if (hasDocumentId && isDecisionMade) {
-            return 'requester';
-        } else {
-            return 'requester';
+        // If this is a shared link (has document ID), check document state
+        if (hasDocumentId) {
+            // Get current decision state from form
+            const decisionSelected = document.querySelector('input[name="decision"]:checked');
+            const decisionNotes = document.getElementById("decisionNotes").value.trim();
+            const isDecisionMade = decisionSelected && decisionNotes.length > 0;
+            
+            // If decision is already made, this is for requester to view
+            // If decision is not made, this is for manager to decide
+            return isDecisionMade ? 'requester' : 'manager';
         }
+        
+        // Default for new documents (no document ID in URL)
+        return 'requester';
     }
 
     function applyUserRole() {
         const detectedRole = detectUserRole();
         currentUserRole = detectedRole;
+        localStorage.setItem(USER_ROLE_KEY, currentUserRole);
         
         if (currentUserRole === 'manager') {
             enableManagerMode();
@@ -1141,7 +1144,6 @@
             enableRequesterMode();
         }
         
-        localStorage.setItem(USER_ROLE_KEY, currentUserRole);
         updateUIForRole();
     }
 
@@ -1166,6 +1168,8 @@
         if (instructions) {
             instructions.innerHTML = '<p><i class="fas fa-unlock"></i> <strong>Manager Mode:</strong> You can update the decision and notes. After saving, use "Share via Email" to send the decision to the requester.</p>';
         }
+        
+        console.log('Manager mode enabled - Section 7 unlocked');
     }
 
     function enableRequesterMode() {
@@ -1180,7 +1184,7 @@
             el.disabled = true;
         });
         
-        // Update status label
+        // Update status label based on current decision state
         const decisionSelected = document.querySelector('input[name="decision"]:checked');
         const decisionNotes = document.getElementById("decisionNotes").value.trim();
         
@@ -1197,6 +1201,8 @@
         if (instructions) {
             instructions.innerHTML = '<p><i class="fas fa-lock"></i> <strong>Section Locked:</strong> Only the Decision Owner (Manager) can update this section after the document is saved to cloud.</p>';
         }
+        
+        console.log('Requester mode enabled - Section 7 locked');
     }
 
     function initializeDocument() {
@@ -1415,12 +1421,10 @@
     }
 
     function shareLinkViaEmailFromSuccess() {
-        const shareUrl = document.getElementById('successShareLink').value;
         openShareViaEmail('manager');
     }
 
     function shareLinkViaEmailFromManagerSuccess() {
-        const shareUrl = document.getElementById('managerSuccessShareLink').value;
         openShareViaEmail('requester');
     }
 
@@ -1439,7 +1443,7 @@
         const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
         
         // Generate document URL with manager role
-        const shareUrl = generateDocumentUrl(docId);
+        const shareUrl = generateDocumentUrl(docId) + "&role=manager";
         
         const subject = `Decision Brief for Review: ${topic}`;
         document.getElementById("emailSubject").value = subject;
@@ -2128,6 +2132,7 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
             }
             
             if (documentToLoad) {
+                // Populate form with loaded data
                 populateForm(documentToLoad.data);
                 currentFormData = documentToLoad.data;
                 documentUniqueId = documentToLoad.id;
@@ -2136,19 +2141,8 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
                 // Update document state
                 documentSaved = true;
                 
-                // Apply user role from loaded document if available
-                if (documentToLoad.userRole) {
-                    currentUserRole = documentToLoad.userRole;
-                    localStorage.setItem(USER_ROLE_KEY, currentUserRole);
-                    if (documentToLoad.isManagerMode) {
-                        enableManagerMode();
-                    } else {
-                        enableRequesterMode();
-                    }
-                } else {
-                    // Auto-detect role based on document state
-                    applyUserRole();
-                }
+                // Apply user role based on loaded document state
+                applyUserRole();
                 
                 // Update gistId in config if different
                 if (githubConfig.gistId !== gistId) {
@@ -2518,19 +2512,8 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
             // Update document state
             documentSaved = true;
             
-            // Apply user role from document
-            if (doc.userRole) {
-                currentUserRole = doc.userRole;
-                localStorage.setItem(USER_ROLE_KEY, currentUserRole);
-                if (doc.isManagerMode) {
-                    enableManagerMode();
-                } else {
-                    enableRequesterMode();
-                }
-            } else {
-                // Auto-detect role
-                applyUserRole();
-            }
+            // Apply user role based on loaded document
+            applyUserRole();
             
             // If document has gistId, update config
             if (doc.gistId && doc.gistId !== githubConfig.gistId) {
@@ -2775,6 +2758,20 @@ Best regards`;
             
             showAlert('✅ All documents cleared!', 'success');
         }
+    }
+
+    function toggleUserRole() {
+        currentUserRole = currentUserRole === 'requester' ? 'manager' : 'requester';
+        localStorage.setItem(USER_ROLE_KEY, currentUserRole);
+        
+        if (currentUserRole === 'manager') {
+            enableManagerMode();
+        } else {
+            enableRequesterMode();
+        }
+        
+        updateUIForRole();
+        showAlert(`Switched to ${currentUserRole} mode`, 'info');
     }
 
     // ================================
@@ -3304,6 +3301,9 @@ Best regards`;
         if (data.DecisionNotes) document.getElementById("decisionNotes").value = data.DecisionNotes;
         if (data.DocId) document.getElementById("docId").textContent = data.DocId;
 
+        // Apply user role based on loaded data
+        applyUserRole();
+        
         updateStatusBadge();
         checkDecisionMade();
         validateAllMandatoryFields();
