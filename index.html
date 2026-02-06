@@ -12,6 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        /* CSS remains the same as before, just including the essential parts */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; padding: 20px; }
         .toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 0; margin-bottom: 20px; }
@@ -474,8 +475,8 @@
                         <p style="font-size: 13px; color: #475569; margin-bottom: 10px;">
                             Send to your manager for review and decision. The manager will update Section 7 and save.
                         </p>
-                        <button class="btn btn-warning" onclick="openEmailModalFromSuccess('manager')" style="width: 100%; padding: 8px;">
-                            <i class="fas fa-envelope"></i> Email to Manager
+                        <button class="btn btn-warning" onclick="openShareViaEmail('manager')" style="width: 100%; padding: 8px;">
+                            <i class="fas fa-envelope"></i> Share via Email
                         </button>
                     </div>
                 </div>
@@ -504,7 +505,7 @@
                     <button class="btn btn-info" onclick="openShareLink()">
                         <i class="fas fa-external-link-alt"></i> Open in New Tab
                     </button>
-                    <button class="btn" onclick="shareLinkViaEmailFromSuccess()">
+                    <button class="btn btn-primary" onclick="shareLinkViaEmailFromSuccess()">
                         <i class="fas fa-envelope"></i> Share via Email
                     </button>
                     <button class="btn btn-github" onclick="openDashboard(); closeSaveSuccessModal()">
@@ -572,8 +573,8 @@
                         <p style="font-size: 13px; color: #475569; margin-bottom: 10px;">
                             Email the decision back to the requester with your decision notes.
                         </p>
-                        <button class="btn btn-email" onclick="openEmailModalFromSuccess('requester')" style="width: 100%; padding: 8px;">
-                            <i class="fas fa-envelope"></i> Email to Requester
+                        <button class="btn btn-warning" onclick="openShareViaEmail('requester')" style="width: 100%; padding: 8px;">
+                            <i class="fas fa-envelope"></i> Share via Email
                         </button>
                     </div>
                 </div>
@@ -602,7 +603,7 @@
                     <button class="btn btn-primary" onclick="generatePDF()" id="generatePdfFromManagerBtn">
                         <i class="fas fa-file-pdf"></i> Generate PDF
                     </button>
-                    <button class="btn" onclick="shareLinkViaEmailFromManagerSuccess()">
+                    <button class="btn btn-success" onclick="shareLinkViaEmailFromManagerSuccess()">
                         <i class="fas fa-envelope"></i> Share via Email
                     </button>
                     <button class="btn" onclick="window.print()">
@@ -617,7 +618,7 @@
                     <i class="fas fa-question-circle"></i> What Happens Next:
                 </h5>
                 <ul style="margin: 0; padding-left: 20px; color: #64748b; font-size: 13px;">
-                    <li><strong>Email to Requester:</strong> Sends your decision with notes to the requester</li>
+                    <li><strong>Share via Email:</strong> Sends your decision with notes to the requester</li>
                     <li><strong>Generate PDF:</strong> Creates a printable version of the complete document</li>
                     <li><strong>Share Link:</strong> Provides a link to the updated document with your decision</li>
                     <li><strong>The requester</strong> will receive the decision and can view it in the document</li>
@@ -728,10 +729,11 @@
             <i class="fab fa-github"></i> Load from Cloud
         </button>
         
-        <!-- Email buttons (hidden by default) -->
-        <button class="btn btn-email" id="emailToRequesterBtn" onclick="openEmailModal('requester')" title="Send email to requester with decision" style="display: none;">
-            <i class="fas fa-envelope"></i> Email to Requester
+        <!-- Single Share via Email button that changes based on role -->
+        <button class="btn btn-email" id="shareViaEmailBtn" onclick="openShareViaEmail()" title="Share document via email">
+            <i class="fas fa-envelope"></i> Share via Email
         </button>
+        
         <button class="btn btn-primary" onclick="generatePDF()" id="generatePdfBtn" title="Please make a decision and add notes first">Generate PDF</button>
         <button class="btn" onclick="window.print()">Print</button>
     </div>
@@ -1036,6 +1038,7 @@
     let currentEmailType = 'manager';
     let isManagerMode = false;
     let currentUserRole = 'requester'; // 'requester' or 'manager'
+    let isDocumentLoadedFromURL = false;
 
     // ================================
     // INITIALIZATION
@@ -1046,9 +1049,6 @@
         
         // Load documents database
         loadDocumentsDatabase();
-        
-        // Load user role
-        loadUserRole();
         
         // Initialize document
         initializeDocument();
@@ -1069,36 +1069,84 @@
             loadDocumentFromURL();
         }, 500);
         
-        // Apply user role
-        applyUserRole();
+        // Update UI based on initial state
+        updateUIForRole();
     });
 
-    function loadUserRole() {
-        const savedRole = localStorage.getItem(USER_ROLE_KEY);
-        if (savedRole) {
-            currentUserRole = savedRole;
+    function updateUIForRole() {
+        const shareViaEmailBtn = document.getElementById('shareViaEmailBtn');
+        const generatePdfBtn = document.getElementById('generatePdfBtn');
+        
+        // Update email button text based on role
+        if (isManagerMode) {
+            shareViaEmailBtn.innerHTML = '<i class="fas fa-envelope"></i> Email to Requester';
+            shareViaEmailBtn.title = 'Email decision to requester';
+        } else {
+            shareViaEmailBtn.innerHTML = '<i class="fas fa-envelope"></i> Email to Manager';
+            shareViaEmailBtn.title = 'Email document to manager for review';
         }
-        // Check URL for role hint
+        
+        // Update PDF button state
+        checkDecisionMade();
+        
+        // Show/hide email button based on document state
+        if (documentSaved) {
+            shareViaEmailBtn.style.display = 'inline-block';
+        } else {
+            shareViaEmailBtn.style.display = 'none';
+        }
+    }
+
+    // ================================
+    // AUTO ROLE DETECTION
+    // ================================
+    function detectUserRole() {
+        // Check URL parameters first
         const urlParams = new URLSearchParams(window.location.search);
         const roleParam = urlParams.get('role');
+        
+        // Check if document is loaded from URL
+        const hash = window.location.hash;
+        const hasDocumentId = hash.includes('doc=');
+        
+        // Check current document state
+        const decisionSelected = document.querySelector('input[name="decision"]:checked');
+        const decisionNotes = document.getElementById("decisionNotes").value.trim();
+        const isDecisionMade = decisionSelected && decisionNotes.length > 0;
+        
+        // Logic for role detection:
+        // 1. If URL has ?role=manager, set as manager
+        // 2. If document loaded from URL AND decision is not made yet, set as manager
+        // 3. If document loaded from URL AND decision is already made, set as requester (viewing response)
+        // 4. Otherwise, default to requester (creating new document)
+        
         if (roleParam === 'manager') {
-            currentUserRole = 'manager';
-            localStorage.setItem(USER_ROLE_KEY, 'manager');
+            return 'manager';
+        } else if (hasDocumentId && !isDecisionMade) {
+            return 'manager';
+        } else if (hasDocumentId && isDecisionMade) {
+            return 'requester';
+        } else {
+            return 'requester';
         }
     }
 
     function applyUserRole() {
+        const detectedRole = detectUserRole();
+        currentUserRole = detectedRole;
+        
         if (currentUserRole === 'manager') {
             enableManagerMode();
         } else {
             enableRequesterMode();
         }
+        
+        localStorage.setItem(USER_ROLE_KEY, currentUserRole);
+        updateUIForRole();
     }
 
     function enableManagerMode() {
         isManagerMode = true;
-        currentUserRole = 'manager';
-        localStorage.setItem(USER_ROLE_KEY, 'manager');
         
         // Enable Section 7 for manager
         const decisionSection = document.getElementById('decisionSection');
@@ -1113,23 +1161,15 @@
         document.getElementById('decisionStatusLabel').textContent = 'Manager Mode';
         document.getElementById('decisionStatusLabel').className = 'status-indicator status-approved';
         
-        // Update toolbar
-        document.getElementById('emailToRequesterBtn').style.display = 'inline-block';
-        
         // Update instructions
         const instructions = document.querySelector('#decisionSection .instructions');
         if (instructions) {
-            instructions.innerHTML = '<p><i class="fas fa-unlock"></i> <strong>Manager Mode:</strong> You can update the decision and notes. After saving, use "Email to Requester" to share the decision.</p>';
+            instructions.innerHTML = '<p><i class="fas fa-unlock"></i> <strong>Manager Mode:</strong> You can update the decision and notes. After saving, use "Share via Email" to send the decision to the requester.</p>';
         }
-        
-        // Check if decision is already made to enable PDF button
-        checkDecisionMade();
     }
 
     function enableRequesterMode() {
         isManagerMode = false;
-        currentUserRole = 'requester';
-        localStorage.setItem(USER_ROLE_KEY, 'requester');
         
         // Disable Section 7 for requester
         const decisionSection = document.getElementById('decisionSection');
@@ -1141,26 +1181,22 @@
         });
         
         // Update status label
-        document.getElementById('decisionStatusLabel').textContent = 'Awaiting Manager';
-        document.getElementById('decisionStatusLabel').className = 'status-indicator status-pending';
+        const decisionSelected = document.querySelector('input[name="decision"]:checked');
+        const decisionNotes = document.getElementById("decisionNotes").value.trim();
         
-        // Update toolbar
-        document.getElementById('emailToRequesterBtn').style.display = 'none';
+        if (decisionSelected && decisionNotes.length > 0) {
+            // Decision already made, show status
+            updateStatusBadge();
+        } else {
+            document.getElementById('decisionStatusLabel').textContent = 'Awaiting Manager';
+            document.getElementById('decisionStatusLabel').className = 'status-indicator status-pending';
+        }
         
         // Update instructions
         const instructions = document.querySelector('#decisionSection .instructions');
         if (instructions) {
             instructions.innerHTML = '<p><i class="fas fa-lock"></i> <strong>Section Locked:</strong> Only the Decision Owner (Manager) can update this section after the document is saved to cloud.</p>';
         }
-    }
-
-    function toggleUserRole() {
-        if (currentUserRole === 'requester') {
-            enableManagerMode();
-        } else {
-            enableRequesterMode();
-        }
-        updateEmailButtonVisibility();
     }
 
     function initializeDocument() {
@@ -1179,9 +1215,6 @@
         initializeScores();
         setupEventListeners();
         updateStatusBadge();
-        
-        // Initialize email button visibility
-        updateEmailButtonVisibility();
     }
 
     function generateDocumentId() {
@@ -1189,30 +1222,6 @@
         const random = Math.floor(Math.random() * 1000);
         documentUniqueId = `DB-${timestamp}-${random}`;
         document.getElementById("docId").textContent = documentUniqueId;
-    }
-
-    // ================================
-    // 📧 EMAIL BUTTON VISIBILITY CONTROL
-    // ================================
-    function updateEmailButtonVisibility() {
-        const emailToRequesterBtn = document.getElementById("emailToRequesterBtn");
-        
-        // Show Email to Requester button only for manager and when decision is made
-        if (isManagerMode && checkSection7Complete()) {
-            emailToRequesterBtn.style.display = 'inline-block';
-        } else {
-            emailToRequesterBtn.style.display = 'none';
-        }
-        
-        // Update PDF button state
-        checkDecisionMade();
-    }
-    
-    function checkSection7Complete() {
-        const decisionSelected = document.querySelector('input[name="decision"]:checked');
-        const decisionNotes = document.getElementById("decisionNotes").value.trim();
-        
-        return decisionSelected && decisionNotes.length > 0;
     }
 
     // ================================
@@ -1272,9 +1281,8 @@
             // Mark document as saved
             documentSaved = true;
             
-            // Update email button visibility
-            section7Filled = checkSection7Complete();
-            updateEmailButtonVisibility();
+            // Update UI
+            updateUIForRole();
 
             // Step 5: Show appropriate success modal based on user role
             setTimeout(() => {
@@ -1295,7 +1303,55 @@
     }
 
     // ================================
-    // 📋 SAVE SUCCESS MODAL FOR REQUESTER
+    // 📧 SHARE VIA EMAIL FUNCTION (UNIFIED)
+    // ================================
+    function openShareViaEmail(forceRecipientType = null) {
+        // Make sure document is saved first
+        if (!documentSaved) {
+            const saveFirst = confirm("Document needs to be saved first. Click OK to save to cloud.");
+            if (saveFirst) {
+                saveToCloudAndShare().then(() => {
+                    // After saving, open email modal
+                    setTimeout(() => {
+                        openShareViaEmail(forceRecipientType);
+                    }, 1000);
+                });
+                return;
+            }
+            return;
+        }
+        
+        // Determine recipient type
+        let recipientType = forceRecipientType;
+        if (!recipientType) {
+            recipientType = isManagerMode ? 'requester' : 'manager';
+        }
+        
+        currentEmailType = recipientType;
+        
+        if (recipientType === 'manager') {
+            setupToManagerEmail();
+        } else {
+            setupToRequesterEmail();
+        }
+
+        const emailModal = document.getElementById("emailModal");
+        emailModal.style.display = "flex";
+        
+        // Update email modal buttons based on type
+        updateEmailModalButtons(recipientType);
+        
+        setTimeout(() => {
+            const preview = document.getElementById("emailTemplatePreview");
+            if (preview) {
+                preview.style.display = "none";
+                setTimeout(() => { preview.style.display = "block"; }, 10);
+            }
+        }, 50);
+    }
+
+    // ================================
+    // 📋 SAVE SUCCESS MODALS
     // ================================
     function showSaveSuccessModal(docId, shareUrl) {
         document.getElementById('successDocId').textContent = docId;
@@ -1307,22 +1363,36 @@
         document.getElementById('saveSuccessModal').style.display = 'none';
     }
 
-    function openEmailModalFromSuccess(recipientType) {
-        currentEmailType = recipientType;
-        setupToManagerEmail();
-        
-        const emailModal = document.getElementById("emailModal");
-        emailModal.style.display = "flex";
-        
-        // Update email modal buttons for manager email
-        updateEmailModalButtons('manager');
-        
-        // Close success modal
-        closeSaveSuccessModal();
+    function showManagerSaveSuccessModal(docId, shareUrl) {
+        document.getElementById('managerSuccessDocId').textContent = docId;
+        document.getElementById('managerSuccessShareLink').value = shareUrl;
+        document.getElementById('managerSaveSuccessModal').style.display = 'flex';
+    }
+
+    function closeManagerSaveSuccessModal() {
+        document.getElementById('managerSaveSuccessModal').style.display = 'none';
     }
 
     function copySuccessShareLink() {
         const input = document.getElementById('successShareLink');
+        input.select();
+        document.execCommand('copy');
+        
+        const btn = input.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+        
+        showAlert('✅ Document link copied to clipboard!', 'success');
+    }
+
+    function copyManagerSuccessShareLink() {
+        const input = document.getElementById('managerSuccessShareLink');
         input.select();
         document.execCommand('copy');
         
@@ -1346,146 +1416,19 @@
 
     function shareLinkViaEmailFromSuccess() {
         const shareUrl = document.getElementById('successShareLink').value;
-        shareLinkViaEmail(shareUrl);
-    }
-
-    // ================================
-    // 📋 MANAGER SAVE SUCCESS MODAL
-    // ================================
-    function showManagerSaveSuccessModal(docId, shareUrl) {
-        document.getElementById('managerSuccessDocId').textContent = docId;
-        document.getElementById('managerSuccessShareLink').value = shareUrl;
-        document.getElementById('managerSaveSuccessModal').style.display = 'flex';
-    }
-
-    function closeManagerSaveSuccessModal() {
-        document.getElementById('managerSaveSuccessModal').style.display = 'none';
-    }
-
-    function openEmailModalFromSuccess(recipientType) {
-        currentEmailType = recipientType;
-        if (recipientType === 'manager') {
-            setupToManagerEmail();
-        } else {
-            setupToRequesterEmail();
-        }
-        
-        const emailModal = document.getElementById("emailModal");
-        emailModal.style.display = "flex";
-        
-        // Update email modal buttons
-        updateEmailModalButtons(recipientType);
-        
-        // Close success modal
-        if (recipientType === 'manager') {
-            closeSaveSuccessModal();
-        } else {
-            closeManagerSaveSuccessModal();
-        }
-    }
-
-    function copyManagerSuccessShareLink() {
-        const input = document.getElementById('managerSuccessShareLink');
-        input.select();
-        document.execCommand('copy');
-        
-        const btn = input.nextElementSibling;
-        const originalText = btn.textContent;
-        btn.textContent = 'Copied!';
-        btn.classList.add('copied');
-        
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.classList.remove('copied');
-        }, 2000);
-        
-        showAlert('✅ Document link copied to clipboard!', 'success');
+        openShareViaEmail('manager');
     }
 
     function shareLinkViaEmailFromManagerSuccess() {
         const shareUrl = document.getElementById('managerSuccessShareLink').value;
-        shareLinkViaEmail(shareUrl);
+        openShareViaEmail('requester');
     }
 
     // ================================
-    // 📧 EMAIL FUNCTIONS (UPDATED)
+    // 📧 EMAIL TEMPLATE FUNCTIONS
     // ================================
-    async function openEmailModal(recipientType) {
-        currentEmailType = recipientType;
-        
-        // Make sure document is saved first
-        if (!documentSaved) {
-            const saveFirst = confirm("Document needs to be saved first. Click OK to save to cloud.");
-            if (saveFirst) {
-                await saveToCloudAndShare();
-                return;
-            }
-        }
-        
-        if (recipientType === 'manager') {
-            setupToManagerEmail();
-        } else {
-            setupToRequesterEmail();
-        }
-
-        const emailModal = document.getElementById("emailModal");
-        emailModal.style.display = "flex";
-        
-        // Update email modal buttons based on type
-        updateEmailModalButtons(recipientType);
-        
-        setTimeout(() => {
-            const preview = document.getElementById("emailTemplatePreview");
-            if (preview) {
-                preview.style.display = "none";
-                setTimeout(() => { preview.style.display = "block"; }, 10);
-            }
-        }, 50);
-    }
-    
-    function updateEmailModalButtons(recipientType) {
-        const actionsContainer = document.getElementById("emailModalActions");
-        
-        if (recipientType === 'manager') {
-            actionsContainer.innerHTML = `
-                <button class="btn btn-success" onclick="copyHTMLToClipboard()">
-                    📋 Copy HTML for Outlook
-                </button>
-                <button class="btn btn-outlook" onclick="shareViaOutlook()">
-                    <i class="fab fa-microsoft"></i> Share via Outlook
-                </button>
-                <button class="btn btn-info" onclick="copyPlainTextToClipboard()">
-                    📋 Copy Plain Text
-                </button>
-            `;
-            
-            document.getElementById("emailInstructions").innerHTML = `
-                <li><strong>Copy HTML for Outlook</strong> - Best for Outlook with full formatting</li>
-                <li><strong>Share via Outlook</strong> - Opens Outlook Web App with email</li>
-                <li><strong>Copy Plain Text</strong> - For simple email clients</li>
-            `;
-        } else {
-            actionsContainer.innerHTML = `
-                <button class="btn btn-success" onclick="copyHTMLToClipboard()">
-                    📋 Copy HTML Email
-                </button>
-                <button class="btn btn-info" onclick="copyPlainTextToClipboard()">
-                    📋 Copy Plain Text
-                </button>
-                <button class="btn btn-primary" onclick="openEmailClient()">
-                    📧 Open Email Client
-                </button>
-            `;
-            
-            document.getElementById("emailInstructions").innerHTML = `
-                <li><strong>Copy HTML Email</strong> - Best for Outlook/Gmail with full formatting</li>
-                <li><strong>Copy Plain Text</strong> - For simple email clients</li>
-                <li><strong>Open Email Client</strong> - Opens your default email app</li>
-            `;
-        }
-    }
-    
     function setupToManagerEmail() {
+        // Use current form data
         const topic = document.getElementById("topic").value || "Decision Brief";
         const requester = document.getElementById("requestedBy").value || "Requester";
         const docId = document.getElementById("docId").textContent;
@@ -1496,7 +1439,7 @@
         const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
         
         // Generate document URL with manager role
-        const shareUrl = generateDocumentUrl(docId) + "?role=manager";
+        const shareUrl = generateDocumentUrl(docId);
         
         const subject = `Decision Brief for Review: ${topic}`;
         document.getElementById("emailSubject").value = subject;
@@ -1522,7 +1465,7 @@ Please click the link above to access the document. You'll be able to:
 3. Add your decision notes
 4. Save the updated document
 
-Once you've made your decision, please use the "Save to Cloud and Share" button, then "Email to Requester" to send your decision back.
+Once you've made your decision, please use the "Save to Cloud and Share" button, then "Share via Email" to send your decision back.
 
 Best regards,
 ${requester}
@@ -1530,7 +1473,7 @@ ${requester}
 ---
 Generated by Decision Brief System on ${today}`;
 
-        // HTML email template with Outlook-friendly formatting
+        // HTML email template
         htmlEmailTemplate = `<!DOCTYPE html>
 <html>
 <head>
@@ -1581,7 +1524,7 @@ ${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Aria
 <li style="margin-bottom: 5px;">Review all sections carefully</li>
 <li style="margin-bottom: 5px;"><strong>Section 7 will be unlocked for you</strong> - Make your decision and add notes</li>
 <li style="margin-bottom: 5px;">Click "Save to Cloud and Share" to save changes</li>
-<li style="margin-bottom: 5px;">Use "Email to Requester" to send your decision back</li>
+<li style="margin-bottom: 5px;">Use "Share via Email" to send your decision back</li>
 </ol>
 </div>
 
@@ -1748,31 +1691,26 @@ ${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Aria
         if (decisionOwnerEmailVal) document.getElementById("fromEmail").value = decisionOwnerEmailVal;
     }
 
-    function shareViaOutlook() {
-        const toEmail = document.getElementById("toEmail").value;
-        if (!toEmail) {
-            alert("Please enter recipient email address.");
-            return;
-        }
+    function updateEmailModalButtons(recipientType) {
+        const actionsContainer = document.getElementById("emailModalActions");
         
-        // Create Outlook Web App link
-        const subject = document.getElementById("emailSubject").value;
-        const body = encodeURIComponent(plainTextTemplate);
+        actionsContainer.innerHTML = `
+            <button class="btn btn-success" onclick="copyHTMLToClipboard()">
+                📋 Copy HTML Email
+            </button>
+            <button class="btn btn-info" onclick="copyPlainTextToClipboard()">
+                📋 Copy Plain Text
+            </button>
+            <button class="btn btn-primary" onclick="openEmailClient()">
+                📧 Open Email Client
+            </button>
+        `;
         
-        // Try to open Outlook Web App
-        const outlookWebLink = `https://outlook.office.com/mail/deeplink/compose?to=${toEmail}&subject=${encodeURIComponent(subject)}&body=${body}`;
-        
-        // Also create regular mailto link as fallback
-        const mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
-        
-        // Try Outlook Web first, fall back to regular mailto
-        const newWindow = window.open(outlookWebLink, '_blank');
-        if (!newWindow || newWindow.closed || typeof newWindow.closed == 'undefined') {
-            // If popup blocked, fall back to mailto
-            window.open(mailtoLink, '_blank');
-        }
-        
-        showAlert('📧 Opening Outlook Web App...\n\nIf it doesn\'t open, your browser may be blocking popups. You can also use "Copy HTML for Outlook" and paste into Outlook desktop.', 'info');
+        document.getElementById("emailInstructions").innerHTML = `
+            <li><strong>Copy HTML Email</strong> - Best for Outlook/Gmail with full formatting</li>
+            <li><strong>Copy Plain Text</strong> - For simple email clients</li>
+            <li><strong>Open Email Client</strong> - Opens your default email app</li>
+        `;
     }
 
     function copyHTMLToClipboard() {
@@ -1780,9 +1718,7 @@ ${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Aria
         const fromEmail = document.getElementById("fromEmail").value || "sender@company.com";
         const subject = document.getElementById("emailSubject").value;
         
-        let emailHTML;
-        if (currentEmailType === 'manager') {
-            emailHTML = `To: ${toEmail}
+        let emailHTML = `To: ${toEmail}
 From: ${fromEmail}
 Subject: ${subject}
 Content-Type: text/html; charset=UTF-8
@@ -1790,22 +1726,9 @@ MIME-Version: 1.0
 
 ${htmlEmailTemplate}`;
             
-            navigator.clipboard.writeText(emailHTML).then(() => {
-                showAlert('✅ HTML email copied to clipboard!\n\nFor Outlook Desktop:\n1. Open new email\n2. Click "Insert" tab\n3. Click "Attach File" → "Attach as Copy"\n4. Paste the HTML content\n\nFor Outlook Web:\n1. Create new email\n2. Right-click in body\n3. Select "Inspect"\n4. Find body element\n5. Paste HTML as innerHTML', 'success');
-            });
-        } else {
-            emailHTML = `To: ${toEmail}
-From: ${fromEmail}
-Subject: ${subject}
-Content-Type: text/html; charset=UTF-8
-MIME-Version: 1.0
-
-${htmlEmailTemplate}`;
-            
-            navigator.clipboard.writeText(emailHTML).then(() => {
-                showAlert('✅ HTML email copied to clipboard!\n\nPaste into your email client (Outlook/Gmail).\n\nFor Outlook: Use "Insert" → "Attach File" → "Attach as Copy"', 'success');
-            });
-        }
+        navigator.clipboard.writeText(emailHTML).then(() => {
+            showAlert('✅ HTML email copied to clipboard!\n\nPaste into your email client (Outlook/Gmail).\n\nFor Outlook: Use "Insert" → "Attach File" → "Attach as Copy"', 'success');
+        });
     }
 
     function copyPlainTextToClipboard() {
@@ -1855,28 +1778,6 @@ ${plainTextTemplate}`;
                 emailModal.style.display = "none";
             }
         });
-    }
-
-    // ================================
-    // 🔗 SHARE LINK FUNCTIONS
-    // ================================
-    function shareLinkViaEmail(shareUrl) {
-        const topic = document.getElementById("topic").value || "Decision Brief";
-        const subject = `Decision Brief: ${topic}`;
-        
-        const emailBody = `Hello,
-
-I'm sharing a Decision Brief with you:
-
-📋 ${topic}
-🔗 View Link: ${shareUrl}
-
-Click the link above to view the Decision Brief in your browser. The form will automatically load with all the data.
-
-Best regards`;
-        
-        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
-        window.open(mailtoLink, '_blank');
     }
 
     // ================================
@@ -2232,6 +2133,9 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
                 documentUniqueId = documentToLoad.id;
                 document.getElementById("docId").textContent = documentToLoad.id;
                 
+                // Update document state
+                documentSaved = true;
+                
                 // Apply user role from loaded document if available
                 if (documentToLoad.userRole) {
                     currentUserRole = documentToLoad.userRole;
@@ -2242,12 +2146,8 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
                         enableRequesterMode();
                     }
                 } else {
-                    // Determine role based on Section 7 content
-                    if (documentToLoad.data.Decision && documentToLoad.data.DecisionNotes) {
-                        enableManagerMode();
-                    } else {
-                        enableRequesterMode();
-                    }
+                    // Auto-detect role based on document state
+                    applyUserRole();
                 }
                 
                 // Update gistId in config if different
@@ -2272,11 +2172,7 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
                 
                 updateStatusBadge();
                 validateAllMandatoryFields();
-                
-                // Update document state
-                documentSaved = true;
-                section7Filled = checkSection7Complete();
-                updateEmailButtonVisibility();
+                updateUIForRole();
             }
             
         } catch (error) {
@@ -2303,6 +2199,20 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
             return hash.split('=')[1];
         }
         return null;
+    }
+    
+    function loadDocumentFromURL() {
+        const hash = window.location.hash;
+        if (hash.startsWith('#doc=')) {
+            const docId = hash.split('=')[1];
+            isDocumentLoadedFromURL = true;
+            
+            // Auto-detect role based on URL
+            applyUserRole();
+            
+            // Show message about loading
+            showAlert(`📋 Document ID detected: ${docId}\n\nClick "Load from Cloud" to load this specific document.`, 'info');
+        }
     }
     
     function showGithubConfigModal() {
@@ -2605,6 +2515,9 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
             documentUniqueId = docId;
             document.getElementById("docId").textContent = docId;
             
+            // Update document state
+            documentSaved = true;
+            
             // Apply user role from document
             if (doc.userRole) {
                 currentUserRole = doc.userRole;
@@ -2614,6 +2527,9 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
                 } else {
                     enableRequesterMode();
                 }
+            } else {
+                // Auto-detect role
+                applyUserRole();
             }
             
             // If document has gistId, update config
@@ -2625,10 +2541,7 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
             
             document.querySelectorAll('.modal').forEach(modal => modal.remove());
             
-            // Update document state
-            documentSaved = true;
-            section7Filled = checkSection7Complete();
-            updateEmailButtonVisibility();
+            updateUIForRole();
             
             showAlert(`✅ Document loaded: ${doc.title || 'Untitled'}`, 'success');
         }
@@ -2865,21 +2778,6 @@ Best regards`;
     }
 
     // ================================
-    // 📄 UPDATED URL LOADING FUNCTION
-    // ================================
-    function loadDocumentFromURL() {
-        const hash = window.location.hash;
-        if (hash.startsWith('#doc=')) {
-            const docId = hash.split('=')[1];
-            documentUniqueId = docId;
-            document.getElementById("docId").textContent = docId;
-            
-            // Show message about loading
-            showAlert(`📋 Document ID detected: ${docId}\n\nClick "Load from Cloud" to load this specific document.`, 'info');
-        }
-    }
-
-    // ================================
     // 🆕 FIRST-TIME HELP MODAL
     // ================================
     function showFirstTimeHelp() {
@@ -3109,31 +3007,22 @@ Best regards`;
             radio.addEventListener("change", function () {
                 updateStatusBadge();
                 checkDecisionMade();
-                
-                // Update Section 7 state and email button visibility
-                section7Filled = checkSection7Complete();
-                updateEmailButtonVisibility();
             });
         });
 
         document.getElementById("decisionNotes").addEventListener("input", function() {
             checkDecisionMade();
-            
-            // Update Section 7 state and email button visibility
-            section7Filled = checkSection7Complete();
-            updateEmailButtonVisibility();
         });
         
         document.getElementById("decisionDate").addEventListener("change", updateStatusBadge);
 
-        // Add listeners to all form fields to update email button visibility
+        // Add listeners to all form fields to update UI
         const mandatoryFields = ["topic", "requestedBy", "decisionOwner", "background", "decisionRequired", "recommendation"];
         mandatoryFields.forEach(fieldId => {
             const field = document.getElementById(fieldId);
             if (!field) return;
             field.addEventListener("input", () => {
                 validateMandatoryField(fieldId);
-                updateEmailButtonVisibility();
             });
             field.addEventListener("blur", () => validateMandatoryField(fieldId));
         });
@@ -3141,7 +3030,6 @@ Best regards`;
         document.querySelectorAll(".step-action, .step-responsible, .step-timeline").forEach(input => {
             input.addEventListener("input", () => {
                 validateNextSteps();
-                updateEmailButtonVisibility();
             });
             input.addEventListener("blur", validateNextSteps);
         });
@@ -3204,6 +3092,12 @@ Best regards`;
         });
         if (!validateNextSteps()) isValid = false;
         return isValid;
+    }
+
+    function checkSection7Complete() {
+        const decisionSelected = document.querySelector('input[name="decision"]:checked');
+        const decisionNotes = document.getElementById("decisionNotes").value.trim();
+        return decisionSelected && decisionNotes.length > 0;
     }
 
     function checkDecisionMade() {
@@ -3275,14 +3169,14 @@ Best regards`;
         document.querySelectorAll(".score-select").forEach(select => { select.value = "0"; });
         document.querySelectorAll(".option-card").forEach(card => calculateScore(card));
         
-        // Reset document state and user role
+        // Reset document state
         documentSaved = false;
-        section7Filled = false;
+        isDocumentLoadedFromURL = false;
         enableRequesterMode();
         
         updateStatusBadge();
         checkDecisionMade();
-        updateEmailButtonVisibility();
+        updateUIForRole();
     }
 
     function collectFormData() {
@@ -3416,8 +3310,7 @@ Best regards`;
         
         // Update document state
         documentSaved = true;
-        section7Filled = checkSection7Complete();
-        updateEmailButtonVisibility();
+        updateUIForRole();
     }
 
     function showAlert(message, type = 'info') {
