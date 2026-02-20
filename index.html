@@ -1451,25 +1451,25 @@
         // Plain text template
         plainTextTemplate = `Dear ${decisionOwner},
 
-I have prepared a Decision Brief that requires your review and decision.
+I have prepared a Decision Brief that requires your review and decision as per details provided below:
 
-Decision Brief Details:
-• Topic: ${topic}
-• Requested by: ${requester}
-• Request Date: ${today}
+ 
 
-${additionalMessage ? additionalMessage + "\n\n" : ""}How to Review:
+1-Mandatory steps to follow upon using the link:
 
-You can access and review the Decision Brief using this link:
+    -Go to Settings and paste your GitHub Personal Access Token in the required field, and (optionally) add the Gist ID.
+
+    -Click Load From Cloud to retrieve the request details.
+
+    -Review all sections carefully and update your decision in Section 7, including any relevant notes.
+
+    -Click Save to Cloud and Share to save the updated document.
+
+    -Finally, select Share via Email to send your completed decision back.
+
+2- Link to the decision brief:
 ${shareUrl}
 
-Please click the link above to access the document. You'll be able to:
-1. Review all sections
-2. Make your decision in Section 7 (now unlocked for you)
-3. Add your decision notes
-4. Save the updated document
-
-Once you've made your decision, please use the "Save to Cloud and Share" button, then "Share via Email" to send your decision back.
 
 Best regards,
 ${requester}
