@@ -12,7 +12,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* CSS remains the same as before, just including the essential parts */
+        /* ... (all existing styles, unchanged) ... */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; padding: 20px; }
         .toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 0; margin-bottom: 20px; }
@@ -936,8 +936,8 @@
     </div>
 </div>
 
-<!-- First Time Help Modal -->
-<div id="firstTimeHelpModal" class="modal">
+<!-- First Time Help Modal (hidden by default – we no longer show it) -->
+<div id="firstTimeHelpModal" class="modal" style="display: none;">
     <div class="modal-content" style="max-width: 600px;">
         <div class="modal-header">
             <div class="modal-title" style="color: #3b82f6;">
@@ -1059,10 +1059,7 @@
         // Setup email modal event listeners
         setupEmailModalListeners();
         
-        // Show first-time help (only once)
-        setTimeout(() => {
-            showFirstTimeHelp();
-        }, 1000);
+        // (Removed call to showFirstTimeHelp() – form appears directly)
         
         // Load document from URL if present
         setTimeout(() => {
@@ -1071,6 +1068,9 @@
         
         // Apply user role based on URL and document state
         applyUserRole();
+        
+        // Ensure the first-time help modal never shows
+        localStorage.setItem('decision_brief_help_seen', 'true');
     });
 
     function updateUIForRole() {
@@ -1357,79 +1357,7 @@
     }
 
     // ================================
-    // 📋 SAVE SUCCESS MODALS
-    // ================================
-    function showSaveSuccessModal(docId, shareUrl) {
-        document.getElementById('successDocId').textContent = docId;
-        document.getElementById('successShareLink').value = shareUrl;
-        document.getElementById('saveSuccessModal').style.display = 'flex';
-    }
-
-    function closeSaveSuccessModal() {
-        document.getElementById('saveSuccessModal').style.display = 'none';
-    }
-
-    function showManagerSaveSuccessModal(docId, shareUrl) {
-        document.getElementById('managerSuccessDocId').textContent = docId;
-        document.getElementById('managerSuccessShareLink').value = shareUrl;
-        document.getElementById('managerSaveSuccessModal').style.display = 'flex';
-    }
-
-    function closeManagerSaveSuccessModal() {
-        document.getElementById('managerSaveSuccessModal').style.display = 'none';
-    }
-
-    function copySuccessShareLink() {
-        const input = document.getElementById('successShareLink');
-        input.select();
-        document.execCommand('copy');
-        
-        const btn = input.nextElementSibling;
-        const originalText = btn.textContent;
-        btn.textContent = 'Copied!';
-        btn.classList.add('copied');
-        
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.classList.remove('copied');
-        }, 2000);
-        
-        showAlert('✅ Document link copied to clipboard!', 'success');
-    }
-
-    function copyManagerSuccessShareLink() {
-        const input = document.getElementById('managerSuccessShareLink');
-        input.select();
-        document.execCommand('copy');
-        
-        const btn = input.nextElementSibling;
-        const originalText = btn.textContent;
-        btn.textContent = 'Copied!';
-        btn.classList.add('copied');
-        
-        setTimeout(() => {
-            btn.textContent = originalText;
-            btn.classList.remove('copied');
-        }, 2000);
-        
-        showAlert('✅ Document link copied to clipboard!', 'success');
-    }
-
-    function openShareLink() {
-        const shareUrl = document.getElementById('successShareLink').value;
-        window.open(shareUrl, '_blank');
-    }
-
-    function shareLinkViaEmailFromSuccess() {
-        openShareViaEmail('manager');
-    }
-
-    function shareLinkViaEmailFromManagerSuccess() {
-        openShareViaEmail('requester');
-    }
-
-    // ================================
-    // 📧 EMAIL TEMPLATE FUNCTIONS
+    // UPDATED EMAIL TEMPLATES
     // ================================
     function setupToManagerEmail() {
         // Use current form data
@@ -1448,36 +1376,20 @@
         const subject = `Decision Brief for Review: ${topic}`;
         document.getElementById("emailSubject").value = subject;
 
-        // Plain text template
-        plainTextTemplate = `Dear ${decisionOwner},
-
-I have prepared a Decision Brief that requires your review and decision as per details provided below:
-
- 
+        // Plain text template - EXACT FORMAT AS REQUESTED
+        plainTextTemplate = `I have prepared a Decision Brief that requires your review and decision as per details provided below:
 
 1-Mandatory steps to follow upon using the link:
-
     -Go to Settings and paste your GitHub Personal Access Token in the required field, and (optionally) add the Gist ID.
-
     -Click Load From Cloud to retrieve the request details.
-
     -Review all sections carefully and update your decision in Section 7, including any relevant notes.
-
     -Click Save to Cloud and Share to save the updated document.
-
     -Finally, select Share via Email to send your completed decision back.
 
 2- Link to the decision brief:
-${shareUrl}
+${shareUrl}`;
 
-
-Best regards,
-${requester}
-
----
-Generated by Decision Brief System on ${today}`;
-
-        // HTML email template
+        // HTML email template - styled to match the plain text but with formatting
         htmlEmailTemplate = `<!DOCTYPE html>
 <html>
 <head>
@@ -1487,55 +1399,39 @@ body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;
 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
 .header { margin-bottom: 20px; }
 .details { margin: 15px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #1e293b; }
-.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; }
+.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; word-break: break-all; }
 .link-box a { color: #1e40af; text-decoration: none; font-weight: normal; }
-.link-box a:hover { text-decoration: underline; }
 .instructions { margin: 15px 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
 .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; }
 </style>
 </head>
 <body>
 <div class="container">
-<div class="header">
-<h2 style="font-family: Calibri, Arial, sans-serif; font-size: 14pt; font-weight: normal; color: #000000; margin: 0 0 10px 0;">Decision Brief - Review Required</h2>
-</div>
-
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">Dear ${decisionOwner},</p>
-
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">I have prepared a Decision Brief that requires your review and decision.</p>
-
-<div class="details">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e293b; margin: 0 0 10px 0;">Document Details</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Topic:</strong> ${topic}</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Requested by:</strong> ${requester}</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Request Date:</strong> ${today}</p>
-</div>
-
-${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Additional Notes:</strong><br>${additionalMessage.replace(/\n/g,"<br>")}</p></div>` : ""}
-
-<div class="link-box">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e40af; margin: 0 0 10px 0;">Access the Decision Brief</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0;">Please use the following link to access and review the document:</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 15px 0; background-color: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">
-<a href="${shareUrl}" style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; text-decoration: none; font-weight: normal;">${shareUrl}</a>
-</p>
-</div>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">I have prepared a Decision Brief that requires your review and decision as per details provided below:</p>
 
 <div class="instructions">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #0ea5e9; margin: 0 0 10px 0;">Review Instructions</h3>
-<ol style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0; padding-left: 20px;">
-<li style="margin-bottom: 5px;">Click the link above to open the Decision Brief</li>
-<li style="margin-bottom: 5px;">Review all sections carefully</li>
-<li style="margin-bottom: 5px;"><strong>Section 7 will be unlocked for you</strong> - Make your decision and add notes</li>
-<li style="margin-bottom: 5px;">Click "Save to Cloud and Share" to save changes</li>
-<li style="margin-bottom: 5px;">Use "Share via Email" to send your decision back</li>
-</ol>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 5px 0;"><strong>1-Mandatory steps to follow upon using the link:</strong></p>
+<ul style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0 10px 20px; padding-left: 0;">
+<li>Go to Settings and paste your GitHub Personal Access Token in the required field, and (optionally) add the Gist ID.</li>
+<li>Click Load From Cloud to retrieve the request details.</li>
+<li>Review all sections carefully and update your decision in Section 7, including any relevant notes.</li>
+<li>Click Save to Cloud and Share to save the updated document.</li>
+<li>Finally, select Share via Email to send your completed decision back.</li>
+</ul>
+</div>
+
+<div class="link-box">
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 5px 0;"><strong>2- Link to the decision brief:</strong></p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; margin: 5px 0; word-break: break-all;">
+<a href="${shareUrl}" style="color: #1e40af; text-decoration: none;">${shareUrl}</a>
+</p>
 </div>
 
 <p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 20px 0 0 0;">Best regards,<br><strong>${requester}</strong></p>
 
 <div class="footer">
 <p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
+</div>
 </div>
 </body>
 </html>`;
@@ -1563,28 +1459,23 @@ ${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Aria
         const additionalMessage = document.getElementById("additionalMessage").value || "";
 
         let decisionText = "Pending";
-        let decisionColor = "#64748b";
         let decisionIcon = "⏳";
         if (decision) {
             switch (decision.value) {
                 case "approved": 
                     decisionText = "Approved"; 
-                    decisionColor = "#10b981";
                     decisionIcon = "✅";
                     break;
                 case "approved-conditions": 
                     decisionText = "Approved with Conditions"; 
-                    decisionColor = "#3b82f6";
                     decisionIcon = "✅";
                     break;
                 case "not-approved": 
                     decisionText = "Not Approved"; 
-                    decisionColor = "#ef4444";
                     decisionIcon = "❌";
                     break;
                 case "requester-promoted": 
                     decisionText = "Requester to Decide"; 
-                    decisionColor = "#8b5cf6";
                     decisionIcon = "👤";
                     break;
             }
@@ -1603,27 +1494,23 @@ ${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Aria
         const subject = `Decision Brief Decision: ${decisionText} - ${topic}`;
         document.getElementById("emailSubject").value = subject;
 
-        // Plain text template
-        plainTextTemplate = `Dear ${requester},
+        // Plain text template – follows same structure as manager email but includes decision
+        plainTextTemplate = `The Decision Brief has been reviewed and a decision has been made.
 
-The Decision Brief has been reviewed and a decision has been made.
+Decision: ${decisionIcon} ${decisionText}
+${decisionNotes ? `Notes: ${decisionNotes}` : ""}
 
-Decision Brief Details:
-• Topic: ${topic}
-• Decision: ${decisionIcon} ${decisionText}
-• Decision Date: ${formattedDate}
-• Decision Owner: ${decisionOwner}
+I have prepared a Decision Brief that requires your review and decision as per details provided below:
 
-${decisionNotes ? `Decision Notes:\n${decisionNotes}\n\n` : ""}${additionalMessage ? `Additional Message:\n${additionalMessage}\n\n` : ""}You can access the finalized Decision Brief using this link:
-${shareUrl}
+1-Mandatory steps to follow upon using the link:
+    -Go to Settings and paste your GitHub Personal Access Token in the required field, and (optionally) add the Gist ID.
+    -Click Load From Cloud to retrieve the request details.
+    -Review all sections carefully – Section 7 now contains the decision.
+    -Click Save to Cloud and Share if you need to make any updates.
+    -Finally, select Share via Email to send any follow-up.
 
-Click the link above to view the completed Decision Brief with all details.
-
-Best regards,
-${decisionOwner}
-
----
-Generated by Decision Brief System on ${today}`;
+2- Link to the decision brief:
+${shareUrl}`;
 
         // HTML email template
         htmlEmailTemplate = `<!DOCTYPE html>
@@ -1633,47 +1520,40 @@ Generated by Decision Brief System on ${today}`;
 <style>
 body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-.header { background-color: ${decisionColor}; padding: 20px; border-radius: 4px; margin-bottom: 20px; }
-.header h2 { color: white; margin: 0; font-family: Calibri, Arial, sans-serif; font-size: 14pt; font-weight: normal; }
-.decision-badge { display: inline-block; padding: 8px 16px; border-radius: 20px; font-family: Calibri, Arial, sans-serif; font-size: 11pt; font-weight: normal; color: white; background: ${decisionColor}; margin: 5px 0; }
+.header { margin-bottom: 20px; }
 .details { margin: 15px 0; padding: 15px; background-color: #f8fafc; border-left: 4px solid #1e293b; }
-.notes { margin: 15px 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
-.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; }
+.link-box { margin: 20px 0; padding: 20px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; word-break: break-all; }
 .link-box a { color: #1e40af; text-decoration: none; font-weight: normal; }
-.link-box a:hover { text-decoration: underline; }
+.instructions { margin: 15px 0; padding: 15px; background-color: #f0f9ff; border-left: 4px solid #0ea5e9; }
 .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; }
 </style>
 </head>
 <body>
 <div class="container">
-<div class="header">
-<h2>${decisionIcon} Decision Brief - Decision Made</h2>
-</div>
-
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">Dear ${requester},</p>
-
 <p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 15px 0;">The Decision Brief has been reviewed and a decision has been made.</p>
 
 <div class="details">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e293b; margin: 0 0 10px 0;">Document Details</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Topic:</strong> ${topic}</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision:</strong> <span class="decision-badge">${decisionIcon} ${decisionText}</span></p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision Date:</strong> ${formattedDate}</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision Owner:</strong> ${decisionOwner}</p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Decision:</strong> ${decisionIcon} ${decisionText}</p>
+${decisionNotes ? `<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Notes:</strong> ${decisionNotes.replace(/\n/g,"<br>")}</p>` : ""}
 </div>
 
-${decisionNotes ? `<div class="notes">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #0ea5e9; margin: 0 0 10px 0;">Decision Notes</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;">${decisionNotes.replace(/\n/g,"<br>")}</p>
-</div>` : ""}
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 20px 0 15px 0;">I have prepared a Decision Brief that requires your review and decision as per details provided below:</p>
 
-${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0;"><strong>Additional Message:</strong><br>${additionalMessage.replace(/\n/g,"<br>")}</p></div>` : ""}
+<div class="instructions">
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 5px 0;"><strong>1-Mandatory steps to follow upon using the link:</strong></p>
+<ul style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 5px 0 10px 20px; padding-left: 0;">
+<li>Go to Settings and paste your GitHub Personal Access Token in the required field, and (optionally) add the Gist ID.</li>
+<li>Click Load From Cloud to retrieve the request details.</li>
+<li>Review all sections carefully – Section 7 now contains the decision.</li>
+<li>Click Save to Cloud and Share if you need to make any updates.</li>
+<li>Finally, select Share via Email to send any follow-up.</li>
+</ul>
+</div>
 
 <div class="link-box">
-<h3 style="font-family: Calibri, Arial, sans-serif; font-size: 12pt; font-weight: normal; color: #1e40af; margin: 0 0 10px 0;">Access the Decision Brief</h3>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 10px 0;">You can access the finalized Decision Brief using this link:</p>
-<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 15px 0; background-color: white; padding: 12px; border-radius: 4px; border: 1px solid #e2e8f0;">
-<a href="${shareUrl}" style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; text-decoration: none; font-weight: normal;">${shareUrl}</a>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; margin: 0 0 5px 0;"><strong>2- Link to the decision brief:</strong></p>
+<p style="font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #1e40af; margin: 5px 0; word-break: break-all;">
+<a href="${shareUrl}" style="color: #1e40af; text-decoration: none;">${shareUrl}</a>
 </p>
 </div>
 
@@ -1681,6 +1561,7 @@ ${additionalMessage ? `<div class="details"><p style="font-family: Calibri, Aria
 
 <div class="footer">
 <p style="font-family: Calibri, Arial, sans-serif; font-size: 9pt; color: #64748b; margin: 5px 0; text-align: center;">Generated by Decision Brief System on ${today}</p>
+</div>
 </div>
 </body>
 </html>`;
@@ -1785,7 +1666,7 @@ ${plainTextTemplate}`;
     }
 
     // ================================
-    // GITHUB FUNCTIONS
+    // GITHUB FUNCTIONS (unchanged)
     // ================================
     function loadGithubConfig() {
         try {
@@ -2186,11 +2067,13 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
         }
     }
     
-    // Helper function to get DocId from URL
+    // ===== FIXED: Properly extract document ID from URL hash =====
     function getDocIdFromURL() {
         const hash = window.location.hash;
         if (hash.startsWith('#doc=')) {
-            return hash.split('=')[1];
+            // Split at '=' and then at '&' to remove any extra parameters like &role
+            const full = hash.split('=')[1];
+            return full.split('&')[0];
         }
         return null;
     }
@@ -2198,7 +2081,7 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
     function loadDocumentFromURL() {
         const hash = window.location.hash;
         if (hash.startsWith('#doc=')) {
-            const docId = hash.split('=')[1];
+            const docId = getDocIdFromURL();
             isDocumentLoadedFromURL = true;
             
             // Auto-detect role based on URL
@@ -2224,7 +2107,7 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
     }
 
     // ================================
-    // 📁 DOCUMENT MANAGEMENT SYSTEM
+    // 📁 DOCUMENT MANAGEMENT SYSTEM (unchanged)
     // ================================
     function loadDocumentsDatabase() {
         try {
@@ -2298,7 +2181,7 @@ ${isNewGist ? '🔗 NEW Gist ID: ' + githubConfig.gistId : '🔗 Gist ID: ' + gi
     }
 
     // ================================
-    // 🔐 PASSWORD-PROTECTED DASHBOARD
+    // 🔐 PASSWORD-PROTECTED DASHBOARD (unchanged)
     // ================================
     function openDashboard() {
         saveDocumentToDatabase();
@@ -2775,24 +2658,7 @@ Best regards`;
     }
 
     // ================================
-    // 🆕 FIRST-TIME HELP MODAL
-    // ================================
-    function showFirstTimeHelp() {
-        const hasSeenHelp = localStorage.getItem('decision_brief_help_seen');
-        if (!hasSeenHelp) {
-            setTimeout(() => {
-                document.getElementById('firstTimeHelpModal').style.display = 'flex';
-                localStorage.setItem('decision_brief_help_seen', 'true');
-            }, 1000);
-        }
-    }
-
-    function closeFirstTimeHelp() {
-        document.getElementById('firstTimeHelpModal').style.display = 'none';
-    }
-
-    // ================================
-    // PDF FUNCTIONS
+    // PDF FUNCTIONS (unchanged)
     // ================================
     function setupPdfModalListeners() {
         const closePdfModalBtn = document.getElementById("closePdfModal");
@@ -2910,7 +2776,7 @@ Best regards`;
     }
 
     // ================================
-    // EXISTING FORM FUNCTIONS
+    // EXISTING FORM FUNCTIONS (unchanged)
     // ================================
     function createOptionsGrid() {
         const optionsGrid = document.getElementById("optionsGrid");
@@ -3370,6 +3236,82 @@ Best regards`;
                 alert.parentNode.removeChild(alert);
             }
         }, 5000);
+    }
+
+    // ================================
+    // SUCCESS MODAL FUNCTIONS
+    // ================================
+    function showSaveSuccessModal(docId, shareUrl) {
+        document.getElementById('successDocId').textContent = docId;
+        document.getElementById('successShareLink').value = shareUrl;
+        document.getElementById('saveSuccessModal').style.display = 'flex';
+    }
+
+    function closeSaveSuccessModal() {
+        document.getElementById('saveSuccessModal').style.display = 'none';
+    }
+
+    function showManagerSaveSuccessModal(docId, shareUrl) {
+        document.getElementById('managerSuccessDocId').textContent = docId;
+        document.getElementById('managerSuccessShareLink').value = shareUrl;
+        document.getElementById('managerSaveSuccessModal').style.display = 'flex';
+    }
+
+    function closeManagerSaveSuccessModal() {
+        document.getElementById('managerSaveSuccessModal').style.display = 'none';
+    }
+
+    function copySuccessShareLink() {
+        const input = document.getElementById('successShareLink');
+        input.select();
+        document.execCommand('copy');
+        
+        const btn = input.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+        
+        showAlert('✅ Document link copied to clipboard!', 'success');
+    }
+
+    function copyManagerSuccessShareLink() {
+        const input = document.getElementById('managerSuccessShareLink');
+        input.select();
+        document.execCommand('copy');
+        
+        const btn = input.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+            btn.textContent = originalText;
+            btn.classList.remove('copied');
+        }, 2000);
+        
+        showAlert('✅ Document link copied to clipboard!', 'success');
+    }
+
+    function openShareLink() {
+        const shareUrl = document.getElementById('successShareLink').value;
+        window.open(shareUrl, '_blank');
+    }
+
+    function shareLinkViaEmailFromSuccess() {
+        openShareViaEmail('manager');
+    }
+
+    function shareLinkViaEmailFromManagerSuccess() {
+        openShareViaEmail('requester');
+    }
+
+    function closeFirstTimeHelp() {
+        document.getElementById('firstTimeHelpModal').style.display = 'none';
     }
 </script>
 </body>
