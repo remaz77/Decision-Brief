@@ -11,6 +11,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        /* All styles unchanged (same as previous) */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; padding: 20px; }
         .toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 0; margin-bottom: 20px; }
@@ -322,7 +323,7 @@
     </div>
 </div>
 
-<!-- Email Modal (modified: only Open Outlook button) -->
+<!-- Email Modal (simplified: only Open Outlook button) -->
 <div id="emailModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
@@ -348,18 +349,16 @@
             </div>
             <div class="email-template">
                 <div class="template-header">
-                    <div class="template-title" id="templateTitle">HTML Email Template:</div>
+                    <div class="template-title" id="templateTitle">HTML Email Template (Calibri 11pt):</div>
                     <button class="btn btn-sm" onclick="useTemplate()">Refresh Template</button>
                 </div>
                 <div class="template-body" id="emailTemplatePreview" style="max-height: 300px; overflow-y: auto; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></div>
             </div>
-            <div class="email-actions" id="emailModalActions">
-                <!-- Only one button will be inserted here -->
-            </div>
+            <div class="email-actions" id="emailModalActions"></div>
             <div class="instructions">
                 <p><strong>How to send:</strong></p>
                 <ul id="emailInstructions">
-                    <li><strong>Open Outlook</strong> - Opens your default email client with the email pre-filled</li>
+                    <li><strong>Open Outlook</strong> - Opens your default email client with a plain text version (font cannot be controlled). For Calibri formatting, copy the HTML above and paste into a new email.</li>
                 </ul>
             </div>
         </div>
@@ -595,29 +594,16 @@
     const USER_ROLE_KEY = 'decision_brief_user_role';
     const TEMPLATE_URL = window.location.href.split('#')[0];
 
-    let githubConfig = {
-        token: '',
-        gistId: '',
-        syncFrequency: 'manual',
-        lastSync: null
-    };
-    
+    let githubConfig = { token: '', gistId: '', syncFrequency: 'manual', lastSync: null };
     let documentsDatabase = [];
     let dashboardPassword = null;
     let syncInterval = null;
-    
-    let currentPdfBlob = null;
-    let currentPdfUrl = null;
-    let documentUniqueId = null;
-    let currentFormData = null;
-    let htmlEmailTemplate = '';
-    let plainTextTemplate = '';
-    
-    let documentSaved = false;
-    let section7Filled = false;
+    let currentPdfBlob = null, currentPdfUrl = null;
+    let documentUniqueId = null, currentFormData = null;
+    let htmlEmailTemplate = '', plainTextTemplate = '';
+    let documentSaved = false, section7Filled = false;
     let currentEmailType = 'manager';
-    let isManagerMode = false;
-    let currentUserRole = 'requester';
+    let isManagerMode = false, currentUserRole = 'requester';
     let isDocumentLoadedFromURL = false;
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -633,8 +619,6 @@
 
     function updateUIForRole() {
         const shareViaEmailBtn = document.getElementById('shareViaEmailBtn');
-        const generatePdfBtn = document.getElementById('generatePdfBtn');
-        
         if (isManagerMode) {
             shareViaEmailBtn.innerHTML = '<i class="fas fa-envelope"></i> Email to Requester';
             shareViaEmailBtn.title = 'Email decision to requester';
@@ -642,14 +626,8 @@
             shareViaEmailBtn.innerHTML = '<i class="fas fa-envelope"></i> Email to Manager';
             shareViaEmailBtn.title = 'Email document to manager for review';
         }
-        
         checkDecisionMade();
-        
-        if (documentSaved) {
-            shareViaEmailBtn.style.display = 'inline-block';
-        } else {
-            shareViaEmailBtn.style.display = 'none';
-        }
+        shareViaEmailBtn.style.display = documentSaved ? 'inline-block' : 'none';
     }
 
     function detectUserRole() {
@@ -657,29 +635,20 @@
         const roleParam = urlParams.get('role');
         if (roleParam === 'manager') return 'manager';
         if (roleParam === 'requester') return 'requester';
-        
         const hash = window.location.hash;
         const hasDocumentId = hash.includes('doc=');
         if (hasDocumentId) {
             const decisionSelected = document.querySelector('input[name="decision"]:checked');
             const decisionNotes = document.getElementById("decisionNotes").value.trim();
-            const isDecisionMade = decisionSelected && decisionNotes.length > 0;
-            return isDecisionMade ? 'requester' : 'manager';
+            return (decisionSelected && decisionNotes.length > 0) ? 'requester' : 'manager';
         }
         return 'requester';
     }
 
     function applyUserRole() {
-        const detectedRole = detectUserRole();
-        currentUserRole = detectedRole;
+        currentUserRole = detectUserRole();
         localStorage.setItem(USER_ROLE_KEY, currentUserRole);
-        
-        if (currentUserRole === 'manager') {
-            enableManagerMode();
-        } else {
-            enableRequesterMode();
-        }
-        
+        if (currentUserRole === 'manager') enableManagerMode(); else enableRequesterMode();
         updateUIForRole();
     }
 
@@ -687,20 +656,18 @@
         isManagerMode = true;
         const decisionSection = document.getElementById('decisionSection');
         decisionSection.classList.remove('section-disabled');
-        decisionSection.querySelectorAll('input, textarea, select').forEach(el => { el.disabled = false; });
+        decisionSection.querySelectorAll('input, textarea, select').forEach(el => el.disabled = false);
         document.getElementById('decisionStatusLabel').textContent = 'Manager Mode';
         document.getElementById('decisionStatusLabel').className = 'status-indicator status-approved';
         const instructions = document.querySelector('#decisionSection .instructions');
-        if (instructions) {
-            instructions.innerHTML = '<p><i class="fas fa-unlock"></i> <strong>Manager Mode:</strong> You can update the decision and notes. After saving, use "Share via Email" to send the decision to the requester.</p>';
-        }
+        if (instructions) instructions.innerHTML = '<p><i class="fas fa-unlock"></i> <strong>Manager Mode:</strong> You can update the decision and notes. After saving, use "Share via Email" to send the decision to the requester.</p>';
     }
 
     function enableRequesterMode() {
         isManagerMode = false;
         const decisionSection = document.getElementById('decisionSection');
         decisionSection.classList.add('section-disabled');
-        decisionSection.querySelectorAll('input, textarea, select').forEach(el => { el.disabled = true; });
+        decisionSection.querySelectorAll('input, textarea, select').forEach(el => el.disabled = true);
         const decisionSelected = document.querySelector('input[name="decision"]:checked');
         const decisionNotes = document.getElementById("decisionNotes").value.trim();
         if (decisionSelected && decisionNotes.length > 0) {
@@ -710,19 +677,15 @@
             document.getElementById('decisionStatusLabel').className = 'status-indicator status-pending';
         }
         const instructions = document.querySelector('#decisionSection .instructions');
-        if (instructions) {
-            instructions.innerHTML = '<p><i class="fas fa-lock"></i> <strong>Section Locked:</strong> Only the Decision Owner (Manager) can update this section after the document is saved to cloud.</p>';
-        }
+        if (instructions) instructions.innerHTML = '<p><i class="fas fa-lock"></i> <strong>Section Locked:</strong> Only the Decision Owner (Manager) can update this section after the document is saved to cloud.</p>';
     }
 
     function initializeDocument() {
-        document.getElementById("generatedDate").textContent = new Date().toLocaleDateString("en-US", {
-            year: "numeric", month: "long", day: "numeric"
-        });
+        document.getElementById("generatedDate").textContent = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
         document.getElementById("requestDate").valueAsDate = new Date();
         document.getElementById("decisionDate").valueAsDate = new Date();
         generateDocumentId();
-        createOptionsGrid(); // updated
+        createOptionsGrid();
         initializeScores();
         setupEventListeners();
         updateStatusBadge();
@@ -773,7 +736,7 @@
     function calculateScore(optionCard) {
         const selects = optionCard.querySelectorAll(".score-select");
         let total = 0;
-        selects.forEach(sel => { total += parseInt(sel.value) || 0; });
+        selects.forEach(sel => total += parseInt(sel.value) || 0);
         const scoreSpan = optionCard.querySelector(".score-value");
         scoreSpan.textContent = total;
         const display = optionCard.querySelector(".score-display");
@@ -811,8 +774,6 @@
         });
         window.addEventListener("click", e => {
             if (e.target === document.getElementById('githubConfigModal')) closeGithubConfig();
-        });
-        window.addEventListener("click", e => {
             if (e.target === document.getElementById('firstTimeHelpModal')) closeFirstTimeHelp();
         });
     }
@@ -874,12 +835,9 @@
         if (isManagerMode && decisionMade) {
             pdfBtn.disabled = false;
             pdfBtn.title = "Generate PDF document";
-        } else if (!isManagerMode) {
-            pdfBtn.disabled = true;
-            pdfBtn.title = "Only manager can generate PDF after making decision";
         } else {
             pdfBtn.disabled = true;
-            pdfBtn.title = "Please make a decision and add notes first";
+            pdfBtn.title = isManagerMode ? "Please make a decision and add notes first" : "Only manager can generate PDF after making decision";
         }
         return decisionMade;
     }
@@ -893,25 +851,11 @@
             return;
         }
         switch (decisionSelected.value) {
-            case "approved":
-                statusBadge.textContent = "Approved";
-                statusBadge.className = "status-indicator status-approved";
-                break;
-            case "approved-conditions":
-                statusBadge.textContent = "Approved with Conditions";
-                statusBadge.className = "status-indicator status-conditional";
-                break;
-            case "not-approved":
-                statusBadge.textContent = "Not Approved";
-                statusBadge.className = "status-indicator status-rejected";
-                break;
-            case "requester-promoted":
-                statusBadge.textContent = "Requester to Decide";
-                statusBadge.className = "status-indicator status-promoted";
-                break;
-            default:
-                statusBadge.textContent = "Draft";
-                statusBadge.className = "status-indicator";
+            case "approved": statusBadge.textContent = "Approved"; statusBadge.className = "status-indicator status-approved"; break;
+            case "approved-conditions": statusBadge.textContent = "Approved with Conditions"; statusBadge.className = "status-indicator status-conditional"; break;
+            case "not-approved": statusBadge.textContent = "Not Approved"; statusBadge.className = "status-indicator status-rejected"; break;
+            case "requester-promoted": statusBadge.textContent = "Requester to Decide"; statusBadge.className = "status-indicator status-promoted"; break;
+            default: statusBadge.textContent = "Draft"; statusBadge.className = "status-indicator";
         }
     }
 
@@ -929,7 +873,7 @@
             const fieldContainer = document.getElementById(fieldId + "Field");
             if (fieldContainer) fieldContainer.classList.remove("mandatory-field");
         });
-        document.querySelectorAll(".score-select").forEach(select => { select.value = "0"; });
+        document.querySelectorAll(".score-select").forEach(select => select.value = "0");
         document.querySelectorAll(".option-card").forEach(card => calculateScore(card));
         documentSaved = false;
         isDocumentLoadedFromURL = false;
@@ -999,37 +943,35 @@
 
     function populateForm(data) {
         if (!data) return;
-        if (data.Topic) document.getElementById("topic").value = data.Topic;
-        if (data.RequestedBy) document.getElementById("requestedBy").value = data.RequestedBy;
-        if (data.DecisionOwner) document.getElementById("decisionOwner").value = data.DecisionOwner;
-        if (data.RequesterEmail) document.getElementById("requesterEmail").value = data.RequesterEmail;
-        if (data.DecisionOwnerEmail) document.getElementById("decisionOwnerEmail").value = data.DecisionOwnerEmail;
-        if (data.RequestDate) document.getElementById("requestDate").value = data.RequestDate;
-        if (data.DecisionDate) document.getElementById("decisionDate").value = data.DecisionDate;
-        if (data.Background) document.getElementById("background").value = data.Background;
-        if (data.DecisionRequired) document.getElementById("decisionRequired").value = data.DecisionRequired;
-        if (data.Recommendation) document.getElementById("recommendation").value = data.Recommendation;
-        if (data.Options && data.Options.length > 0) {
+        document.getElementById("topic").value = data.Topic || "";
+        document.getElementById("requestedBy").value = data.RequestedBy || "";
+        document.getElementById("decisionOwner").value = data.DecisionOwner || "";
+        document.getElementById("requesterEmail").value = data.RequesterEmail || "";
+        document.getElementById("decisionOwnerEmail").value = data.DecisionOwnerEmail || "";
+        document.getElementById("requestDate").value = data.RequestDate || "";
+        document.getElementById("decisionDate").value = data.DecisionDate || "";
+        document.getElementById("background").value = data.Background || "";
+        document.getElementById("decisionRequired").value = data.DecisionRequired || "";
+        document.getElementById("recommendation").value = data.Recommendation || "";
+        if (data.Options && data.Options.length) {
             const optionCards = document.querySelectorAll(".option-card");
             data.Options.forEach((option, idx) => {
                 if (optionCards[idx]) {
-                    if (option.Title) optionCards[idx].querySelector(".option-title").value = option.Title;
-                    if (option.Description) optionCards[idx].querySelector(".option-description").value = option.Description;
-                    if (option.Scores && option.Scores.length > 0) {
-                        const selects = optionCards[idx].querySelectorAll(".score-select");
-                        option.Scores.forEach((scoreObj, sIdx) => {
-                            if (selects[sIdx]) selects[sIdx].value = scoreObj.Score;
-                        });
-                    }
+                    optionCards[idx].querySelector(".option-title").value = option.Title || "";
+                    optionCards[idx].querySelector(".option-description").value = option.Description || "";
+                    const selects = optionCards[idx].querySelectorAll(".score-select");
+                    option.Scores.forEach((scoreObj, sIdx) => {
+                        if (selects[sIdx]) selects[sIdx].value = scoreObj.Score || 0;
+                    });
                     calculateScore(optionCards[idx]);
                 }
             });
         }
-        if (data.Documents && data.Documents.length > 0) {
+        if (data.Documents && data.Documents.length) {
             const docInputs = document.querySelectorAll(".document-input");
             data.Documents.forEach((doc, idx) => { if (docInputs[idx]) docInputs[idx].value = doc; });
         }
-        if (data.NextSteps && data.NextSteps.length > 0) {
+        if (data.NextSteps && data.NextSteps.length) {
             const stepActions = document.querySelectorAll(".step-action");
             const stepResponsibles = document.querySelectorAll(".step-responsible");
             const stepTimelines = document.querySelectorAll(".step-timeline");
@@ -1043,7 +985,7 @@
             const r = document.querySelector(`input[name="decision"][value="${data.Decision}"]`);
             if (r) r.checked = true;
         }
-        if (data.DecisionNotes) document.getElementById("decisionNotes").value = data.DecisionNotes;
+        document.getElementById("decisionNotes").value = data.DecisionNotes || "";
         if (data.DocId) document.getElementById("docId").textContent = data.DocId;
         applyUserRole();
         updateStatusBadge();
@@ -1053,7 +995,7 @@
         updateUIForRole();
     }
 
-    // Email Templates
+    // Email Templates with Calibri 11pt
     function setupToManagerEmail() {
         const topic = document.getElementById("topic").value || "Decision Brief";
         const requester = document.getElementById("requestedBy").value || "Requester";
@@ -1101,16 +1043,15 @@ body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;
 </div></body></html>`;
         document.getElementById("emailModalTitle").textContent = "Email to Manager";
         document.getElementById("toLabel").textContent = "To (Manager Email)";
-        document.getElementById("templateTitle").textContent = "HTML Email Template:";
+        document.getElementById("templateTitle").textContent = "HTML Email Template (Calibri 11pt):";
         document.getElementById("emailTemplatePreview").innerHTML = htmlEmailTemplate;
         if (decisionOwnerEmailVal) document.getElementById("toEmail").value = decisionOwnerEmailVal;
         if (requesterEmailVal) document.getElementById("fromEmail").value = requesterEmailVal;
     }
 
-    // MODIFIED: setupToRequesterEmail with simple format
+    // MODIFIED: setupToRequesterEmail with simple format and Calibri 11pt
     function setupToRequesterEmail() {
         const topic = document.getElementById("topic").value || "Decision Brief";
-        const requester = document.getElementById("requestedBy").value || "Requester";
         const docId = document.getElementById("docId").textContent;
         const decisionOwner = document.getElementById("decisionOwner").value || "Manager";
         const requesterEmailVal = document.getElementById("requesterEmail").value || "";
@@ -1130,7 +1071,6 @@ body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;
         const subject = `Decision Brief Decision: ${decisionText} - ${topic}`;
         document.getElementById("emailSubject").value = subject;
 
-        // Simple plain text version
         plainTextTemplate = `The Decision Brief has been reviewed, and a decision has been made.
 
 Decision: ${decisionIcon} ${decisionText}
@@ -1138,7 +1078,6 @@ ${decisionNotes ? `Notes: ${decisionNotes}` : ""}
 
 ${shareUrl}`;
 
-        // Simple HTML version with Calibri 11pt
         htmlEmailTemplate = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><style>
 body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
@@ -1159,7 +1098,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
 
         document.getElementById("emailModalTitle").textContent = "Email to Requester";
         document.getElementById("toLabel").textContent = "To (Requester Email)";
-        document.getElementById("templateTitle").textContent = "HTML Email Template:";
+        document.getElementById("templateTitle").textContent = "HTML Email Template (Calibri 11pt):";
         document.getElementById("emailTemplatePreview").innerHTML = htmlEmailTemplate;
         if (requesterEmailVal) document.getElementById("toEmail").value = requesterEmailVal;
         if (decisionOwnerEmailVal) document.getElementById("fromEmail").value = decisionOwnerEmailVal;
@@ -1175,9 +1114,6 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
         `;
     }
 
-    function copyHTMLToClipboard() {} // no longer used
-    function copyPlainTextToClipboard() {} // no longer used
-
     function openEmailClient() {
         const toEmail = document.getElementById("toEmail").value;
         const fromEmail = document.getElementById("fromEmail").value || "";
@@ -1190,27 +1126,24 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
     }
 
     function useTemplate() {
-        if (currentEmailType === 'manager') setupToManagerEmail();
-        else setupToRequesterEmail();
+        if (currentEmailType === 'manager') setupToManagerEmail(); else setupToRequesterEmail();
     }
 
     function setupEmailModalListeners() {
         const emailModal = document.getElementById("emailModal");
         const closeEmailModalBtn = document.getElementById("closeEmailModal");
-        closeEmailModalBtn.addEventListener("click", () => { emailModal.style.display = "none"; });
+        closeEmailModalBtn.addEventListener("click", () => emailModal.style.display = "none");
         window.addEventListener("click", e => { if (e.target === emailModal) emailModal.style.display = "none"; });
     }
 
-    // GitHub functions (unchanged, but included for completeness)
+    // GitHub functions (unchanged)
     function loadGithubConfig() {
         try {
             const saved = localStorage.getItem(GITHUB_CONFIG_KEY);
             if (saved) {
                 githubConfig = JSON.parse(saved);
                 updateGithubStatus();
-                if (githubConfig.syncFrequency !== 'manual' && githubConfig.token) {
-                    startAutoSync(parseInt(githubConfig.syncFrequency));
-                }
+                if (githubConfig.syncFrequency !== 'manual' && githubConfig.token) startAutoSync(parseInt(githubConfig.syncFrequency));
             }
         } catch (error) { console.error("Error loading GitHub config:", error); }
     }
@@ -1222,16 +1155,14 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
             githubConfig.syncFrequency = document.getElementById('syncFrequency').value;
             localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
             updateGithubStatus();
-            if (syncInterval) { clearInterval(syncInterval); syncInterval = null; }
-            if (githubConfig.syncFrequency !== 'manual' && githubConfig.token) {
-                startAutoSync(parseInt(githubConfig.syncFrequency));
-            }
+            if (syncInterval) clearInterval(syncInterval);
+            if (githubConfig.syncFrequency !== 'manual' && githubConfig.token) startAutoSync(parseInt(githubConfig.syncFrequency));
             const statusEl = document.getElementById('configStatus');
             statusEl.style.display = 'block';
             statusEl.style.background = '#e8f5e9';
             statusEl.style.color = '#2e7d32';
             statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Configuration saved!';
-            setTimeout(() => { closeGithubConfig(); }, 1500);
+            setTimeout(() => closeGithubConfig(), 1500);
         } catch (error) {
             console.error("Error saving GitHub config:", error);
             const statusEl = document.getElementById('configStatus');
@@ -1260,7 +1191,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
     
     function startAutoSync(minutes) {
         if (syncInterval) clearInterval(syncInterval);
-        syncInterval = setInterval(() => { saveToGithub(true); }, minutes * 60 * 1000);
+        syncInterval = setInterval(() => saveToGithub(true), minutes * 60 * 1000);
     }
     
     async function saveToGithub(silent = false) {
@@ -1292,7 +1223,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
             existingDocuments.push(currentDoc);
             const allData = { app: "Decision Brief", version: "1.2", exportedAt: new Date().toISOString(), documents: existingDocuments, gistFormat: "multi-document" };
             const gistData = { description: `Decision Brief - ${currentDoc.title} - Updated ${new Date().toLocaleDateString()}`, public: false, files: { "decision-brief-data.json": { content: JSON.stringify(allData, null, 2) } } };
-            let response; let isNewGist = false;
+            let response, isNewGist = false;
             if (existingGistId && existingGistId.trim() !== '') {
                 response = await fetch(`https://api.github.com/gists/${existingGistId}`, { method: 'PATCH', headers: { 'Authorization': `Bearer ${githubConfig.token}`, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json' }, body: JSON.stringify(gistData) });
             } else {
@@ -1388,10 +1319,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
     
     function getDocIdFromURL() {
         const hash = window.location.hash;
-        if (hash.startsWith('#doc=')) {
-            const full = hash.split('=')[1];
-            return full.split('&')[0];
-        }
+        if (hash.startsWith('#doc=')) return hash.split('=')[1].split('&')[0];
         return null;
     }
     
@@ -1406,8 +1334,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
     }
     
     function showGithubConfigModal() {
-        const modal = document.getElementById('githubConfigModal');
-        modal.style.display = 'flex';
+        document.getElementById('githubConfigModal').style.display = 'flex';
         document.getElementById('githubToken').value = githubConfig.token || '';
         document.getElementById('gistId').value = githubConfig.gistId || '';
         document.getElementById('syncFrequency').value = githubConfig.syncFrequency || 'manual';
@@ -1418,7 +1345,9 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
         document.getElementById('configStatus').style.display = 'none';
     }
 
-    // Document database functions
+    // ================================
+    // 📁 DOCUMENT MANAGEMENT SYSTEM (FULL DASHBOARD)
+    // ================================
     function loadDocumentsDatabase() {
         try { const saved = localStorage.getItem(DOCUMENTS_DB_KEY); if (saved) documentsDatabase = JSON.parse(saved); } catch (error) { console.error("Error loading documents database:", error); documentsDatabase = []; }
         const savedPassword = localStorage.getItem(DASHBOARD_PASSWORD_KEY);
@@ -1447,25 +1376,277 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
         return docId;
     }
 
-    // Dashboard functions (minimal stubs to avoid errors)
-    function openDashboard() { alert("Dashboard would open here (full implementation present in original)."); }
-    function showDashboard() { openDashboard(); }
-    function loadDocumentFromDashboard(id) { }
-    function shareDocumentFromDashboard(id) { }
-    function deleteDocumentFromDashboard(id) { }
-    function setupDashboardPassword() { }
-    function saveDashboardPassword() { }
-    function exportAllDocuments() { }
-    function clearAllDocuments() { }
-    function toggleUserRole() { }
-    function checkDashboardPassword() { }
-    function resetDashboardPassword() { }
+    function openDashboard() {
+        saveDocumentToDatabase(); // save current before showing dashboard
+        if (!dashboardPassword) { showDashboard(); return; }
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 400px;">
+                <div class="modal-header">
+                    <div class="modal-title"><i class="fas fa-lock"></i> Dashboard Access</div>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Enter Dashboard Password</label>
+                        <input type="password" class="form-input" id="dashboardPasswordInput" placeholder="Enter password">
+                    </div>
+                    <div class="email-actions" style="margin-top: 20px;">
+                        <button class="btn btn-primary" onclick="checkDashboardPassword()" style="width: 100%;"><i class="fas fa-unlock"></i> Unlock Dashboard</button>
+                    </div>
+                    <div class="instructions" style="margin-top: 15px;">
+                        <p><strong>Forgot password?</strong> Clear browser data or <button class="btn btn-sm" onclick="resetDashboardPassword()" style="padding: 2px 8px; font-size: 12px;">Reset Password</button></p>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    }
+
+    function checkDashboardPassword() {
+        const input = document.getElementById('dashboardPasswordInput');
+        const enteredPassword = input.value.trim();
+        if (enteredPassword === dashboardPassword) {
+            document.querySelectorAll('.modal').forEach(modal => modal.remove());
+            showDashboard();
+        } else {
+            showAlert('❌ Incorrect password. Please try again.', 'error');
+            input.value = ''; input.focus();
+        }
+    }
+
+    function resetDashboardPassword() {
+        if (confirm('Reset dashboard password? This will remove password protection.')) {
+            localStorage.removeItem(DASHBOARD_PASSWORD_KEY);
+            dashboardPassword = null;
+            document.querySelectorAll('.modal').forEach(modal => modal.remove());
+            showDashboard();
+        }
+    }
+
+    function showDashboard() {
+        loadDocumentsDatabase();
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 900px; max-height: 90vh;">
+                <div class="modal-header">
+                    <div class="modal-title"><i class="fas fa-tachometer-alt"></i> Documents Dashboard <span style="font-size:12px;color:#666;margin-left:10px;">${documentsDatabase.length} document(s)</span></div>
+                    <button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="setupDashboardPassword()"><i class="fas fa-lock"></i> ${dashboardPassword ? 'Change Password' : 'Set Password'}</button>
+                        <button class="btn btn-info" onclick="exportAllDocuments()"><i class="fas fa-download"></i> Export All</button>
+                        <button class="btn btn-danger" onclick="clearAllDocuments()"><i class="fas fa-trash"></i> Clear All</button>
+                        <button class="btn btn-warning" onclick="toggleUserRole()"><i class="fas fa-user-shield"></i> Switch to ${currentUserRole === 'requester' ? 'Manager' : 'Requester'}</button>
+                    </div>
+                    <div id="documentsListContainer" style="max-height: 400px; overflow-y: auto; border:1px solid #e2e8f0; border-radius:8px; padding:10px;">
+                        ${documentsDatabase.length === 0 ? 
+                            '<div style="text-align:center; padding:40px; color:#64748b;"><i class="fas fa-folder-open fa-2x"></i><p style="margin-top:10px;">No documents saved yet</p></div>' : 
+                            generateDocumentsListHTML()}
+                    </div>
+                    <div class="instructions" style="margin-top:20px;">
+                        <p><strong>Dashboard Features:</strong></p>
+                        <ul><li><strong>Password Protection</strong> - Secure your documents</li><li><strong>Quick Access</strong> - Load any document instantly</li><li><strong>Export All</strong> - Backup all documents as JSON</li><li><strong>Switch Role</strong> - Toggle between requester and manager view</li></ul>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    }
+
+    function generateDocumentsListHTML() {
+        if (documentsDatabase.length === 0) return '';
+        let html = '<table class="dashboard-table"><thead><tr><th>Title</th><th>Requester</th><th>Status</th><th>Role</th><th>Modified</th><th>Actions</th></tr></thead><tbody>';
+        documentsDatabase.forEach((doc, index) => {
+            const date = new Date(doc.lastModified).toLocaleDateString();
+            const statusClass = getStatusClass(doc.status);
+            const roleBadge = doc.userRole === 'manager' ? 
+                '<span style="background:#3b82f6; color:white; padding:2px 6px; border-radius:10px; font-size:10px;">Manager</span>' :
+                '<span style="background:#64748b; color:white; padding:2px 6px; border-radius:10px; font-size:10px;">Requester</span>';
+            html += `<tr>
+                <td><strong>${doc.title || 'Untitled'}</strong><br><small style="color:#64748b; font-family:monospace;">${doc.id}</small></td>
+                <td>${doc.requester}</td>
+                <td><span class="status-indicator ${statusClass}" style="display:inline-block; padding:2px 8px; font-size:11px;">${doc.status}</span></td>
+                <td>${roleBadge}</td>
+                <td style="color:#64748b; font-size:12px;">${date}</td>
+                <td>
+                    <button class="btn btn-sm" onclick="loadDocumentFromDashboard('${doc.id}')" style="padding:4px 8px; font-size:12px; margin:2px;"><i class="fas fa-edit"></i> Load</button>
+                    <button class="btn btn-sm" onclick="shareDocumentFromDashboard('${doc.id}')" style="padding:4px 8px; font-size:12px; margin:2px; background:#3b82f6; color:white;"><i class="fas fa-share"></i> Share</button>
+                    <button class="btn btn-sm" onclick="deleteDocumentFromDashboard('${doc.id}')" style="padding:4px 8px; font-size:12px; margin:2px; background:#ef4444; color:white;"><i class="fas fa-trash"></i></button>
+                </td>
+            </tr>`;
+        });
+        html += '</tbody></table>';
+        return html;
+    }
+
+    function getStatusClass(status) {
+        switch(status.toLowerCase()) {
+            case 'approved': return 'status-approved';
+            case 'approved with conditions': return 'status-conditional';
+            case 'not approved': return 'status-rejected';
+            case 'requester to decide': return 'status-promoted';
+            case 'draft': return 'status-pending';
+            default: return '';
+        }
+    }
+
+    function loadDocumentFromDashboard(docId) {
+        const doc = documentsDatabase.find(d => d.id === docId);
+        if (doc) {
+            populateForm(doc.data);
+            documentUniqueId = docId;
+            document.getElementById("docId").textContent = docId;
+            documentSaved = true;
+            applyUserRole();
+            if (doc.gistId && doc.gistId !== githubConfig.gistId) {
+                githubConfig.gistId = doc.gistId;
+                localStorage.setItem(GITHUB_CONFIG_KEY, JSON.stringify(githubConfig));
+                updateGithubStatus();
+            }
+            document.querySelectorAll('.modal').forEach(modal => modal.remove());
+            updateUIForRole();
+            showAlert(`✅ Document loaded: ${doc.title || 'Untitled'}`, 'success');
+        }
+    }
+
+    function shareDocumentFromDashboard(docId) {
+        const doc = documentsDatabase.find(d => d.id === docId);
+        if (doc) {
+            const shareUrl = generateDocumentUrl(docId);
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:500px;">
+                    <div class="modal-header"><div class="modal-title"><i class="fas fa-share-alt"></i> Share Document</div><button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button></div>
+                    <div class="modal-body">
+                        <p><strong>${doc.title || 'Untitled Document'}</strong></p>
+                        <p style="color:#666; font-size:13px; margin:10px 0;">Document ID: ${docId}<br>Created: ${new Date(doc.timestamp).toLocaleDateString()}</p>
+                        <div class="form-group" style="margin-top:15px;">
+                            <label class="form-label">Shareable Link</label>
+                            <div class="share-link-container"><input type="text" class="share-link-input" id="dashboardShareLink" value="${shareUrl}" readonly><button class="copy-btn" onclick="copyDashboardShareLink()">Copy</button></div>
+                        </div>
+                        <div class="email-actions" style="margin-top:20px;">
+                            <button class="btn btn-primary" onclick="shareDashboardLinkViaEmail('${shareUrl}')"><i class="fas fa-envelope"></i> Share via Email</button>
+                            <button class="btn btn-info" onclick="loadDocumentFromDashboard('${docId}')"><i class="fas fa-edit"></i> Load Document</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        }
+    }
+
+    function copyDashboardShareLink() {
+        const input = document.getElementById('dashboardShareLink');
+        input.select(); document.execCommand('copy');
+        const btn = input.nextElementSibling;
+        const originalText = btn.textContent;
+        btn.textContent = 'Copied!'; btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = originalText; btn.classList.remove('copied'); }, 2000);
+        showAlert('✅ Document link copied!', 'success');
+    }
+
+    function shareDashboardLinkViaEmail(shareUrl) {
+        const doc = documentsDatabase.find(d => d.id === documentUniqueId);
+        const subject = `Decision Brief: ${doc?.title || 'Document'}`;
+        const emailBody = `Hello,\n\nI'm sharing a Decision Brief with you:\n\n📋 ${doc?.title || 'Decision Brief'}\n🔗 View Link: ${shareUrl}\n\nClick the link above to view the Decision Brief in your browser. The form will automatically load with all the data.\n\nBest regards`;
+        const mailtoLink = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(emailBody)}`;
+        window.open(mailtoLink, '_blank');
+    }
+
+    function deleteDocumentFromDashboard(docId) {
+        if (confirm('Are you sure you want to delete this document? This action cannot be undone.')) {
+            documentsDatabase = documentsDatabase.filter(doc => doc.id !== docId);
+            saveDocumentsDatabase();
+            const container = document.getElementById('documentsListContainer');
+            if (container) {
+                container.innerHTML = documentsDatabase.length === 0 ? 
+                    '<div style="text-align:center; padding:40px; color:#64748b;"><i class="fas fa-folder-open fa-2x"></i><p style="margin-top:10px;">No documents saved yet</p></div>' : 
+                    generateDocumentsListHTML();
+            }
+            showAlert('✅ Document deleted!', 'success');
+        }
+    }
+
+    function setupDashboardPassword() {
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'flex';
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width:400px;">
+                <div class="modal-header"><div class="modal-title"><i class="fas fa-lock"></i> ${dashboardPassword ? 'Change Dashboard Password' : 'Set Dashboard Password'}</div><button class="close-btn" onclick="this.parentElement.parentElement.parentElement.remove()">&times;</button></div>
+                <div class="modal-body">
+                    <div class="form-group"><label class="form-label">${dashboardPassword ? 'New Password' : 'Set Password'}</label><input type="password" class="form-input" id="newPasswordInput" placeholder="Enter password"></div>
+                    <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input" id="confirmPasswordInput" placeholder="Confirm password"></div>
+                    ${dashboardPassword ? '<div class="form-group"><label class="form-label">Current Password (Required to change)</label><input type="password" class="form-input" id="currentPasswordInput" placeholder="Enter current password"></div>' : ''}
+                    <div class="email-actions" style="margin-top:20px;"><button class="btn btn-primary" onclick="saveDashboardPassword()" style="width:100%;"><i class="fas fa-save"></i> Save Password</button></div>
+                    <div class="instructions" style="margin-top:15px;"><p><strong>Note:</strong> Password is stored locally in your browser. If you forget it, you can reset it from the password prompt.</p></div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+    }
+
+    function saveDashboardPassword() {
+        const newPassword = document.getElementById('newPasswordInput').value.trim();
+        const confirmPassword = document.getElementById('confirmPasswordInput').value.trim();
+        if (dashboardPassword) {
+            const currentPassword = document.getElementById('currentPasswordInput').value.trim();
+            if (currentPassword !== dashboardPassword) { showAlert('❌ Current password is incorrect.', 'error'); return; }
+        }
+        if (!newPassword) { showAlert('❌ Please enter a password.', 'error'); return; }
+        if (newPassword !== confirmPassword) { showAlert('❌ Passwords do not match.', 'error'); return; }
+        dashboardPassword = newPassword;
+        localStorage.setItem(DASHBOARD_PASSWORD_KEY, dashboardPassword);
+        document.querySelectorAll('.modal').forEach(modal => modal.remove());
+        showAlert(`✅ Dashboard password ${dashboardPassword ? 'changed' : 'set'} successfully!`, 'success');
+    }
+
+    function exportAllDocuments() {
+        const exportData = { app: "Decision Brief Dashboard Export", version: "1.0", exportedAt: new Date().toISOString(), documentCount: documentsDatabase.length, documents: documentsDatabase };
+        const dataStr = JSON.stringify(exportData, null, 2);
+        const dataBlob = new Blob([dataStr], { type: 'application/json' });
+        const dataUrl = URL.createObjectURL(dataBlob);
+        const date = new Date().toISOString().split('T')[0];
+        const filename = `decision_briefs_backup_${date}.json`;
+        const link = document.createElement("a"); link.href = dataUrl; link.download = filename; document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        showAlert(`✅ Exported ${documentsDatabase.length} document(s) to ${filename}`, 'success');
+    }
+
+    function clearAllDocuments() {
+        if (confirm('Are you sure you want to delete ALL documents? This action cannot be undone.')) {
+            documentsDatabase = [];
+            saveDocumentsDatabase();
+            const container = document.getElementById('documentsListContainer');
+            if (container) container.innerHTML = '<div style="text-align:center; padding:40px; color:#64748b;"><i class="fas fa-folder-open fa-2x"></i><p style="margin-top:10px;">No documents saved yet</p></div>';
+            showAlert('✅ All documents cleared!', 'success');
+        }
+    }
+
+    function toggleUserRole() {
+        currentUserRole = currentUserRole === 'requester' ? 'manager' : 'requester';
+        localStorage.setItem(USER_ROLE_KEY, currentUserRole);
+        if (currentUserRole === 'manager') enableManagerMode(); else enableRequesterMode();
+        updateUIForRole();
+        showAlert(`Switched to ${currentUserRole} mode`, 'info');
+    }
 
     // PDF functions
     function setupPdfModalListeners() {
         const closePdfModalBtn = document.getElementById("closePdfModal");
         const downloadPdfBtn = document.getElementById("downloadPdfBtn");
-        closePdfModalBtn.addEventListener("click", () => { document.getElementById("pdfModal").style.display = "none"; });
+        closePdfModalBtn.addEventListener("click", () => document.getElementById("pdfModal").style.display = "none");
         window.addEventListener("click", e => { if (e.target === document.getElementById("pdfModal")) document.getElementById("pdfModal").style.display = "none"; });
         downloadPdfBtn.addEventListener("click", function() {
             if (currentPdfBlob && currentPdfUrl) {
@@ -1498,8 +1679,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
             const pdfHeight = pdf.internal.pageSize.getHeight();
             const imgWidth = pdfWidth;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
+            let heightLeft = imgHeight, position = 0;
             if (imgHeight <= pdfHeight) {
                 pdf.addImage(imgData,"PNG",0,0,imgWidth,imgHeight,"","FAST");
             } else {
@@ -1540,37 +1720,27 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
         document.getElementById('successShareLink').value = shareUrl;
         document.getElementById('saveSuccessModal').style.display = 'flex';
     }
-
     function closeSaveSuccessModal() { document.getElementById('saveSuccessModal').style.display = 'none'; }
-
     function showManagerSaveSuccessModal(docId, shareUrl) {
         document.getElementById('managerSuccessDocId').textContent = docId;
         document.getElementById('managerSuccessShareLink').value = shareUrl;
         document.getElementById('managerSaveSuccessModal').style.display = 'flex';
     }
-
     function closeManagerSaveSuccessModal() { document.getElementById('managerSaveSuccessModal').style.display = 'none'; }
-
     function copySuccessShareLink() {
         const input = document.getElementById('successShareLink'); input.select(); document.execCommand('copy');
         const btn = input.nextElementSibling; const originalText = btn.textContent; btn.textContent = 'Copied!'; btn.classList.add('copied');
         setTimeout(() => { btn.textContent = originalText; btn.classList.remove('copied'); }, 2000);
         showAlert('✅ Document link copied to clipboard!', 'success');
     }
-
     function copyManagerSuccessShareLink() {
         const input = document.getElementById('managerSuccessShareLink'); input.select(); document.execCommand('copy');
         const btn = input.nextElementSibling; const originalText = btn.textContent; btn.textContent = 'Copied!'; btn.classList.add('copied');
         setTimeout(() => { btn.textContent = originalText; btn.classList.remove('copied'); }, 2000);
         showAlert('✅ Document link copied to clipboard!', 'success');
     }
-
-    function openShareLink() { window.open(document.getElementById('successShareLink').value, '_blank'); }
-
     function shareLinkViaEmailFromSuccess() { openShareViaEmail('manager'); }
-
     function shareLinkViaEmailFromManagerSuccess() { openShareViaEmail('requester'); }
-
     function closeFirstTimeHelp() { document.getElementById('firstTimeHelpModal').style.display = 'none'; }
 
     // Save to Cloud and Share
@@ -1594,7 +1764,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
             if (!githubConfig.token || githubConfig.token.trim() === '') {
                 saveBtn.innerHTML = originalText; saveBtn.disabled = false;
                 showAlert('🔧 First-Time Setup Required!\n\n1. We\'ll set up FREE cloud storage (GitHub Gists)\n2. All data stays private to your account\n3. Get a shareable link to collaborate\n\nClick OK to continue setup.', 'info');
-                setTimeout(() => { showGithubConfigModal(); }, 500);
+                setTimeout(() => showGithubConfigModal(), 500);
                 return;
             }
             showAlert('💾 Saving to cloud storage...', 'info');
@@ -1620,17 +1790,16 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
     function openShareViaEmail(forceRecipientType = null) {
         if (!documentSaved) {
             const saveFirst = confirm("Document needs to be saved first. Click OK to save to cloud.");
-            if (saveFirst) { saveToCloudAndShare().then(() => { setTimeout(() => { openShareViaEmail(forceRecipientType); }, 1000); }); }
+            if (saveFirst) { saveToCloudAndShare().then(() => setTimeout(() => openShareViaEmail(forceRecipientType), 1000)); }
             return;
         }
         let recipientType = forceRecipientType;
         if (!recipientType) recipientType = isManagerMode ? 'requester' : 'manager';
         currentEmailType = recipientType;
         if (recipientType === 'manager') setupToManagerEmail(); else setupToRequesterEmail();
-        const emailModal = document.getElementById("emailModal");
-        emailModal.style.display = "flex";
+        document.getElementById("emailModal").style.display = "flex";
         updateEmailModalButtons(recipientType);
-        setTimeout(() => { const preview = document.getElementById("emailTemplatePreview"); if (preview) { preview.style.display = "none"; setTimeout(() => { preview.style.display = "block"; }, 10); } }, 50);
+        setTimeout(() => { const preview = document.getElementById("emailTemplatePreview"); if (preview) { preview.style.display = "none"; setTimeout(() => preview.style.display = "block", 10); } }, 50);
     }
 </script>
 </body>
