@@ -736,7 +736,6 @@
     // MODIFIED: createOptionsGrid with new criteria labels, placeholder "Topic", no default values
     function createOptionsGrid() {
         const optionsGrid = document.getElementById("optionsGrid");
-        // Updated criteria labels
         const criteria = [
             { name: "Cost Saving", key: "Cost" },
             { name: "Time Efficiency", key: "Time" },
@@ -1054,7 +1053,7 @@
         updateUIForRole();
     }
 
-    // Email Templates (unchanged except modal buttons)
+    // Email Templates
     function setupToManagerEmail() {
         const topic = document.getElementById("topic").value || "Decision Brief";
         const requester = document.getElementById("requestedBy").value || "Requester";
@@ -1108,6 +1107,7 @@ body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;
         if (requesterEmailVal) document.getElementById("fromEmail").value = requesterEmailVal;
     }
 
+    // MODIFIED: setupToRequesterEmail with simple format
     function setupToRequesterEmail() {
         const topic = document.getElementById("topic").value || "Decision Brief";
         const requester = document.getElementById("requestedBy").value || "Requester";
@@ -1129,50 +1129,34 @@ body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;
         const shareUrl = generateDocumentUrl(docId);
         const subject = `Decision Brief Decision: ${decisionText} - ${topic}`;
         document.getElementById("emailSubject").value = subject;
-        plainTextTemplate = `The Decision Brief has been reviewed and a decision has been made.
+
+        // Simple plain text version
+        plainTextTemplate = `The Decision Brief has been reviewed, and a decision has been made.
 
 Decision: ${decisionIcon} ${decisionText}
 ${decisionNotes ? `Notes: ${decisionNotes}` : ""}
 
-I have prepared a Decision Brief that requires your review and decision as per details provided below:
-
-1-Mandatory steps to follow upon using the link:
-    -Go to Settings and paste your GitHub Personal Access Token in the required field, and (optionally) add the Gist ID.
-    -Click Load From Cloud to retrieve the request details.
-    -Review all sections carefully – Section 7 now contains the decision.
-    -Click Save to Cloud and Share if you need to make any updates.
-    -Finally, select Share via Email to send any follow-up.
-
-2- Link to the decision brief:
 ${shareUrl}`;
+
+        // Simple HTML version with Calibri 11pt
         htmlEmailTemplate = `<!DOCTYPE html>
 <html><head><meta charset="UTF-8"><style>
 body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
 .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-.bold-first { font-weight: bold; margin-bottom: 15px; }
-.indent-block { margin-left: 20px; margin-top: 5px; margin-bottom: 15px; }
-.link-box { margin: 20px 0 20px 20px; padding: 15px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; word-break: break-all; }
+.decision-line { margin-bottom: 5px; }
+.link-box { margin-top: 15px; padding: 10px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; word-break: break-all; }
 .link-box a { color: #1e40af; text-decoration: none; }
-.decision-detail { margin: 15px 0 15px 20px; padding: 10px; background-color: #f8fafc; border-left: 4px solid #1e293b; }
 .footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; text-align: center; }
 </style></head>
 <body><div class="container">
-<p class="bold-first">The Decision Brief has been reviewed and a decision has been made.</p>
-<div class="decision-detail"><p><strong>Decision:</strong> ${decisionIcon} ${decisionText}</p>${decisionNotes ? `<p><strong>Notes:</strong> ${decisionNotes.replace(/\n/g,"<br>")}</p>` : ""}</div>
-<p>I have prepared a Decision Brief that requires your review and decision as per details provided below:</p>
-<div><strong>1-Mandatory steps to follow upon using the link:</strong></div>
-<div class="indent-block"><ul style="margin: 5px 0 10px 0;">
-<li>Go to Settings and paste your GitHub Personal Access Token in the required field, and (optionally) add the Gist ID.</li>
-<li>Click Load From Cloud to retrieve the request details.</li>
-<li>Review all sections carefully – Section 7 now contains the decision.</li>
-<li>Click Save to Cloud and Share if you need to make any updates.</li>
-<li>Finally, select Share via Email to send any follow-up.</li>
-</ul></div>
-<div><strong>2- Link to the decision brief:</strong></div>
+<p style="font-weight: normal;">The Decision Brief has been reviewed, and a decision has been made.</p>
+<p class="decision-line"><strong>Decision:</strong> ${decisionIcon} ${decisionText}</p>
+${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNotes.replace(/\n/g,"<br>")}</p>` : ""}
 <div class="link-box"><a href="${shareUrl}">${shareUrl}</a></div>
 <p style="margin:20px 0 0 0;">Best regards,<br><strong>${decisionOwner}</strong></p>
 <div class="footer"><p>Generated by Decision Brief System on ${new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})}</p></div>
 </div></body></html>`;
+
         document.getElementById("emailModalTitle").textContent = "Email to Requester";
         document.getElementById("toLabel").textContent = "To (Requester Email)";
         document.getElementById("templateTitle").textContent = "HTML Email Template:";
@@ -1189,10 +1173,9 @@ body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;
                 <i class="fas fa-envelope"></i> Open Outlook
             </button>
         `;
-        // instructions already set in HTML, but we keep them static
     }
 
-    function copyHTMLToClipboard() {} // no longer used, but keep to avoid errors
+    function copyHTMLToClipboard() {} // no longer used
     function copyPlainTextToClipboard() {} // no longer used
 
     function openEmailClient() {
@@ -1218,7 +1201,7 @@ body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;
         window.addEventListener("click", e => { if (e.target === emailModal) emailModal.style.display = "none"; });
     }
 
-    // GitHub functions (unchanged)
+    // GitHub functions (unchanged, but included for completeness)
     function loadGithubConfig() {
         try {
             const saved = localStorage.getItem(GITHUB_CONFIG_KEY);
