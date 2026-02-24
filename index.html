@@ -11,7 +11,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        /* All styles unchanged (same as previous) */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Inter', sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.5; padding: 20px; }
         .toolbar { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 16px 0; margin-bottom: 20px; }
@@ -79,11 +78,16 @@
         .mandatory-field input:focus, .mandatory-field textarea:focus, .mandatory-field select:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(239,68,68,0.1) !important; }
         .mandatory-warning { display: none; color: #ef4444; font-size: 12px; margin-top: 4px; font-weight: 500; }
         .mandatory-field .mandatory-warning { display: block; }
-        .next-steps-mandatory .section-title::after { content: " *"; color: #ef4444; font-size: 18px; }
-        .next-steps-mandatory .steps-table input { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
-        .next-steps-mandatory .steps-table input:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(239,68,68,0.1) !important; }
-        .next-steps-warning { display: none; color: #ef4444; font-size: 12px; margin-top: 10px; font-weight: 500; }
-        .next-steps-mandatory .next-steps-warning { display: block; }
+        /* Next steps first row required */
+        .next-steps-first-row-mandatory .steps-table tbody tr:first-child input { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        .next-steps-first-row-mandatory .steps-table tbody tr:first-child input:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(239,68,68,0.1) !important; }
+        .next-steps-first-row-warning { display: none; color: #ef4444; font-size: 12px; margin-top: 10px; font-weight: 500; }
+        .next-steps-first-row-mandatory .next-steps-first-row-warning { display: block; }
+        /* Options mandatory styling */
+        .option-mandatory .option-title { border-color: #ef4444 !important; background-color: #fef2f2 !important; }
+        .option-mandatory .option-title:focus { border-color: #dc2626 !important; box-shadow: 0 0 0 2px rgba(239,68,68,0.1) !important; }
+        .option-warning { display: none; color: #ef4444; font-size: 11px; margin-top: 2px; }
+        .option-mandatory .option-warning { display: block; }
         .page { max-width: 1100px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.08); padding: 30px; }
         .page-title { text-align: center; font-size: 32px; font-weight: 800; color: #1e293b; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #1e293b; letter-spacing: -0.5px; }
         .metadata { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; padding: 20px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0; }
@@ -104,7 +108,7 @@
         .option-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-shrink: 0; }
         .option-name { font-size: 14px; font-weight: 700; color: #1e293b; }
         .score-display { background: #1e293b; color: white; padding: 4px 12px; border-radius: 16px; font-size: 12px; font-weight: 700; min-width: 70px; text-align: center; flex-shrink: 0; }
-        .option-input { margin-bottom: 8px; flex-shrink: 0; }
+        .option-input { margin-bottom: 8px; flex-shrink: 0; position: relative; }
         .option-input input { width: 100%; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 13px; background: white; transition: all 0.2s ease; height: 34px; }
         .option-input input:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
         .criteria-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; flex: 1; min-height: 120px; }
@@ -140,7 +144,7 @@
         .decision-option label { font-size: 13px; font-weight: 500; color: #475569; cursor: pointer; }
         .decision-option input[type="radio"]:checked + label { color: #1e293b; font-weight: 600; }
         .decision-notes { min-height: 100px; }
-        .decision-notes textarea { height: 100%; min-height: 80px; width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 13px; line-height: 1.5; resize: vertical; background: white; transition: all 0.2s ease; }
+        .decision-notes textarea { min-height: 50px; height: 70px; width: 100%; padding: 8px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-family: inherit; font-size: 13px; line-height: 1.4; resize: vertical; background: white; transition: all 0.2s ease; }
         .decision-notes textarea:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 2px rgba(59,130,246,0.1); }
         .footer { margin-top: 20px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center; }
         .status-indicator { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 16px; font-size: 11px; font-weight: 600; margin-left: 10px; background: #e2e8f0; color: #475569; }
@@ -257,7 +261,7 @@
     </div>
 </div>
 
-<!-- Save Success Modal (simplified) -->
+<!-- Save Success Modal -->
 <div id="saveSuccessModal" class="modal">
     <div class="modal-content" style="max-width: 500px;">
         <div class="modal-header">
@@ -290,7 +294,7 @@
     </div>
 </div>
 
-<!-- Manager Save Success Modal (simplified) -->
+<!-- Manager Save Success Modal -->
 <div id="managerSaveSuccessModal" class="modal">
     <div class="modal-content" style="max-width: 500px;">
         <div class="modal-header">
@@ -323,11 +327,11 @@
     </div>
 </div>
 
-<!-- Email Modal (simplified: only Open Outlook button) -->
+<!-- Email Modal (simplified) -->
 <div id="emailModal" class="modal">
     <div class="modal-content">
         <div class="modal-header">
-            <div class="modal-title" id="emailModalTitle">Create Email for Decision Brief</div>
+            <div class="modal-title" id="emailModalTitle">Create Email</div>
             <button class="close-btn" id="closeEmailModal">&times;</button>
         </div>
         <div class="modal-body">
@@ -336,30 +340,17 @@
                 <input type="email" class="form-input" id="toEmail" placeholder="email@company.com">
             </div>
             <div class="form-group">
-                <label class="form-label">Your Email (Optional)</label>
-                <input type="email" class="form-input" id="fromEmail" placeholder="your.email@company.com">
-            </div>
-            <div class="form-group">
                 <label class="form-label">Subject</label>
-                <input type="text" class="form-input" id="emailSubject" placeholder="Decision Brief">
+                <input type="text" class="form-input" id="emailSubject" placeholder="Subject">
             </div>
             <div class="form-group">
                 <label class="form-label">Additional Message (Optional)</label>
-                <textarea class="form-input form-textarea" id="additionalMessage" rows="3" placeholder="Add any additional comments or instructions..."></textarea>
+                <textarea class="form-input form-textarea" id="additionalMessage" rows="3" placeholder="Add any additional comments..."></textarea>
             </div>
-            <div class="email-template">
-                <div class="template-header">
-                    <div class="template-title" id="templateTitle">HTML Email Template (Calibri 11pt):</div>
-                    <button class="btn btn-sm" onclick="useTemplate()">Refresh Template</button>
-                </div>
-                <div class="template-body" id="emailTemplatePreview" style="max-height: 300px; overflow-y: auto; background: white; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></div>
-            </div>
-            <div class="email-actions" id="emailModalActions"></div>
-            <div class="instructions">
-                <p><strong>How to send:</strong></p>
-                <ul id="emailInstructions">
-                    <li><strong>Open Outlook</strong> - Opens your default email client with a plain text version (font cannot be controlled). For Calibri formatting, copy the HTML above and paste into a new email.</li>
-                </ul>
+            <div class="email-actions" id="emailModalActions">
+                <button class="btn btn-primary" onclick="openEmailClient()" style="width: 100%; padding: 12px;">
+                    <i class="fas fa-envelope"></i> Send to Microsoft Outlook
+                </button>
             </div>
         </div>
     </div>
@@ -390,7 +381,7 @@
     </div>
 </div>
 
-<!-- Toolbar (Save button moved to bottom) -->
+<!-- Toolbar -->
 <div class="toolbar">
     <div class="toolbar-left">
         <button class="btn" onclick="resetForm()">Reset Form</button>
@@ -462,11 +453,11 @@
         </div>
     </div>
 
-    <!-- SECTION 3 (modified: criteria labels, placeholder "Topic", no default values) -->
+    <!-- SECTION 3 (with mandatory/optional labels and warnings) -->
     <div class="section">
         <div class="section-title">
             <span class="section-number">3</span> Options Considered
-            <span class="scoring-note">5=best, 4,3=average, 1,2=worst</span>
+            <span class="scoring-note">1 – 5 (Lowest to Highest)</span>
         </div>
         <div class="options-grid" id="optionsGrid"></div>
     </div>
@@ -492,21 +483,21 @@
         </div>
     </div>
 
-    <!-- SECTION 6: Next Steps -->
+    <!-- SECTION 6: Next Steps (first row required) -->
     <div class="section" id="nextStepsSection">
         <div class="section-title"><span class="section-number">6</span> Next Steps (if approved)</div>
         <table class="steps-table">
             <thead><tr><th>Action</th><th>Responsible</th><th>Timeline</th></tr></thead>
             <tbody id="stepsTableBody">
-                <tr><td><input type="text" class="step-action" placeholder="Describe specific action"></td><td><input type="text" class="step-responsible" placeholder="Name or role"></td><td><input type="text" class="step-timeline" placeholder="Date or timeframe"></td></tr>
+                <tr class="first-step-row"><td><input type="text" class="step-action" placeholder="Describe specific action"></td><td><input type="text" class="step-responsible" placeholder="Name or role"></td><td><input type="text" class="step-timeline" placeholder="Date or timeframe"></td></tr>
                 <tr><td><input type="text" class="step-action" placeholder="Describe specific action"></td><td><input type="text" class="step-responsible" placeholder="Name or role"></td><td><input type="text" class="step-timeline" placeholder="Date or timeframe"></td></tr>
                 <tr><td><input type="text" class="step-action" placeholder="Describe specific action"></td><td><input type="text" class="step-responsible" placeholder="Name or role"></td><td><input type="text" class="step-timeline" placeholder="Date or timeframe"></td></tr>
             </tbody>
         </table>
-        <div class="next-steps-warning">* At least one next step is required</div>
+        <div class="next-steps-first-row-warning">* First next step row is required (at least one field)</div>
     </div>
 
-    <!-- SECTION 7: Decision -->
+    <!-- SECTION 7: Decision (minimized text box) -->
     <div class="decision-section section-disabled" id="decisionSection">
         <div class="decision-header">
             <div class="decision-title"><span class="section-number">7</span> Decision <span class="status-indicator status-pending" id="decisionStatusLabel">Awaiting Manager</span></div>
@@ -586,7 +577,7 @@
 
 <script>
     // ================================
-    // 🔗 GITHUB GIST CONFIGURATION
+    // GITHUB GIST CONFIGURATION (full)
     // ================================
     const GITHUB_CONFIG_KEY = 'decision_brief_github_config';
     const DOCUMENTS_DB_KEY = 'decision_brief_documents';
@@ -696,7 +687,7 @@
         document.getElementById("docId").textContent = documentUniqueId;
     }
 
-    // MODIFIED: createOptionsGrid with new criteria labels, placeholder "Topic", no default values
+    // createOptionsGrid with mandatory warnings for A and B
     function createOptionsGrid() {
         const optionsGrid = document.getElementById("optionsGrid");
         const criteria = [
@@ -706,9 +697,8 @@
             { name: "People", key: "People" },
             { name: "Compliance", key: "Compliance" }
         ];
-        const optionPlaceholders = [ "", "", "" ]; // no default values
         optionsGrid.innerHTML = '';
-        optionPlaceholders.forEach((placeholder, idx) => {
+        for (let idx = 0; idx < 3; idx++) {
             const card = document.createElement("div");
             card.className = "option-card";
             card.dataset.optionIndex = idx;
@@ -716,13 +706,23 @@
             criteria.forEach(crit => {
                 criteriaHTML += `<tr><td class="criteria-label">${crit.name}</td><td class="criteria-score"><select class="score-select"><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></td></tr>`;
             });
+            const optionLetter = String.fromCharCode(65+idx);
+            let optionLabel = `Option ${optionLetter}`;
+            let warningHtml = '';
+            if (idx === 2) { // Option C
+                optionLabel += ' (optional)';
+            } else {
+                optionLabel += ' *';
+                warningHtml = '<div class="option-warning">* Topic required</div>';
+            }
             card.innerHTML = `
                 <div class="option-header">
-                    <div class="option-name">Option ${String.fromCharCode(65+idx)}</div>
+                    <div class="option-name">${optionLabel}</div>
                     <div class="score-display">Score: <span class="score-value">0</span></div>
                 </div>
                 <div class="option-input">
                     <input type="text" class="option-title" data-field="title" value="" placeholder="Topic">
+                    ${warningHtml}
                 </div>
                 <div class="option-input">
                     <input type="text" class="option-description" data-field="description" value="" placeholder="Brief description">
@@ -730,7 +730,7 @@
                 <table class="criteria-table"><tbody>${criteriaHTML}</tbody></table>
             `;
             optionsGrid.appendChild(card);
-        });
+        }
     }
 
     function calculateScore(optionCard) {
@@ -768,9 +768,19 @@
             field.addEventListener("input", () => validateMandatoryField(fieldId));
             field.addEventListener("blur", () => validateMandatoryField(fieldId));
         });
-        document.querySelectorAll(".step-action, .step-responsible, .step-timeline").forEach(input => {
-            input.addEventListener("input", validateNextSteps);
-            input.addEventListener("blur", validateNextSteps);
+        // Options A and B validation
+        document.querySelectorAll(".option-card").forEach((card, idx) => {
+            if (idx < 2) { // only A and B
+                const titleInput = card.querySelector(".option-title");
+                titleInput.addEventListener("input", () => validateOptionTitle(card, idx));
+                titleInput.addEventListener("blur", () => validateOptionTitle(card, idx));
+            }
+        });
+        // Next steps first row validation
+        const firstRowInputs = document.querySelectorAll(".first-step-row input");
+        firstRowInputs.forEach(input => {
+            input.addEventListener("input", validateFirstStepRow);
+            input.addEventListener("blur", validateFirstStepRow);
         });
         window.addEventListener("click", e => {
             if (e.target === document.getElementById('githubConfigModal')) closeGithubConfig();
@@ -786,20 +796,27 @@
         else fieldContainer.classList.remove("mandatory-field");
     }
 
-    function validateNextSteps() {
-        const stepActions = document.querySelectorAll(".step-action");
-        const stepResponsibles = document.querySelectorAll(".step-responsible");
-        const stepTimelines = document.querySelectorAll(".step-timeline");
-        const nextStepsSection = document.getElementById("nextStepsSection");
-        let hasAtLeastOneStep = false;
-        for (let i = 0; i < stepActions.length; i++) {
-            if (stepActions[i].value.trim() || stepResponsibles[i].value.trim() || stepTimelines[i].value.trim()) {
-                hasAtLeastOneStep = true; break;
-            }
+    function validateOptionTitle(card, idx) {
+        const titleInput = card.querySelector(".option-title");
+        if (!titleInput.value.trim()) {
+            card.classList.add("option-mandatory");
+        } else {
+            card.classList.remove("option-mandatory");
         }
-        if (!hasAtLeastOneStep) nextStepsSection.classList.add("next-steps-mandatory");
-        else nextStepsSection.classList.remove("next-steps-mandatory");
-        return hasAtLeastOneStep;
+    }
+
+    function validateFirstStepRow() {
+        const firstRow = document.querySelector(".first-step-row");
+        const inputs = firstRow.querySelectorAll("input");
+        let hasValue = false;
+        inputs.forEach(inp => { if (inp.value.trim()) hasValue = true; });
+        const section = document.getElementById("nextStepsSection");
+        if (!hasValue) {
+            section.classList.add("next-steps-first-row-mandatory");
+        } else {
+            section.classList.remove("next-steps-first-row-mandatory");
+        }
+        return hasValue;
     }
 
     function validateAllMandatoryFields() {
@@ -817,7 +834,21 @@
                 }
             }
         });
-        if (!validateNextSteps()) isValid = false;
+        // Options A and B titles
+        const optionCards = document.querySelectorAll(".option-card");
+        optionCards.forEach((card, idx) => {
+            if (idx < 2) {
+                const title = card.querySelector(".option-title").value.trim();
+                if (!title) {
+                    card.classList.add("option-mandatory");
+                    isValid = false;
+                } else {
+                    card.classList.remove("option-mandatory");
+                }
+            }
+        });
+        // Next steps first row
+        if (!validateFirstStepRow()) isValid = false;
         return isValid;
     }
 
@@ -867,12 +898,13 @@
         document.getElementById("decisionDate").valueAsDate = new Date();
         documentUniqueId = null;
         generateDocumentId();
-        document.getElementById("nextStepsSection").classList.remove("next-steps-mandatory");
+        document.getElementById("nextStepsSection").classList.remove("next-steps-first-row-mandatory");
         const mandatoryFields = ["topic", "requestedBy", "decisionOwner", "background", "decisionRequired", "recommendation"];
         mandatoryFields.forEach(fieldId => {
             const fieldContainer = document.getElementById(fieldId + "Field");
             if (fieldContainer) fieldContainer.classList.remove("mandatory-field");
         });
+        document.querySelectorAll(".option-card").forEach(card => card.classList.remove("option-mandatory"));
         document.querySelectorAll(".score-select").forEach(select => select.value = "0");
         document.querySelectorAll(".option-card").forEach(card => calculateScore(card));
         documentSaved = false;
@@ -964,6 +996,7 @@
                         if (selects[sIdx]) selects[sIdx].value = scoreObj.Score || 0;
                     });
                     calculateScore(optionCards[idx]);
+                    if (idx < 2) validateOptionTitle(optionCards[idx], idx);
                 }
             });
         }
@@ -995,67 +1028,33 @@
         updateUIForRole();
     }
 
-    // Email Templates with Calibri 11pt
+    // Email setup functions (simplified)
     function setupToManagerEmail() {
         const topic = document.getElementById("topic").value || "Decision Brief";
-        const requester = document.getElementById("requestedBy").value || "Requester";
+        const managerName = document.getElementById("decisionOwner").value || "Manager";
         const docId = document.getElementById("docId").textContent;
-        const requesterEmailVal = document.getElementById("requesterEmail").value || "";
         const decisionOwnerEmailVal = document.getElementById("decisionOwnerEmail").value || "";
         const shareUrl = generateDocumentUrl(docId) + "&role=manager";
         const subject = `Decision Brief for Review: ${topic}`;
         document.getElementById("emailSubject").value = subject;
-        plainTextTemplate = `I have prepared a Decision Brief that requires your review and decision as per details provided below:
 
-1-Mandatory steps to follow upon using the link:
-    -Go to Settings and paste your GitHub Personal Access Token in the required field, and (optionally) add the Gist ID.
-    -Click Load From Cloud to retrieve the request details.
-    -Review all sections carefully and update your decision in Section 7, including any relevant notes.
-    -Click Save to Cloud and Share to save the updated document.
-    -Finally, select Share via Email to send your completed decision back.
+        plainTextTemplate = `dear ${managerName},\n\n` +
+            `I have prepared a Decision Brief that requires your review and decision as per details provided in the link:\n` +
+            `${shareUrl}\n\n` +
+            `For first time users of the tool, kindly contact @Remaz Mohamed Hassabelrasoul Abdallah to set it up for you.\n\n` +
+            `Thank you.`;
 
-2- Link to the decision brief:
-${shareUrl}`;
-        htmlEmailTemplate = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>
-body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
-.container { max-width: 600px; margin: 0 auto; padding: 20px; }
-.bold-first { font-weight: bold; margin-bottom: 15px; }
-.indent-block { margin-left: 20px; margin-top: 5px; margin-bottom: 15px; }
-.link-box { margin: 20px 0 20px 20px; padding: 15px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; word-break: break-all; }
-.link-box a { color: #1e40af; text-decoration: none; }
-.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; text-align: center; }
-</style></head>
-<body><div class="container">
-<p class="bold-first">I have prepared a Decision Brief that requires your review and decision as per details provided below:</p>
-<div><strong>1-Mandatory steps to follow upon using the link:</strong></div>
-<div class="indent-block"><ul style="margin: 5px 0 10px 0;">
-<li>Go to Settings and paste your GitHub Personal Access Token in the required field, and (optionally) add the Gist ID.</li>
-<li>Click Load From Cloud to retrieve the request details.</li>
-<li>Review all sections carefully and update your decision in Section 7, including any relevant notes.</li>
-<li>Click Save to Cloud and Share to save the updated document.</li>
-<li>Finally, select Share via Email to send your completed decision back.</li>
-</ul></div>
-<div><strong>2- Link to the decision brief:</strong></div>
-<div class="link-box"><a href="${shareUrl}">${shareUrl}</a></div>
-<p style="margin:20px 0 0 0;">Best regards,<br><strong>${requester}</strong></p>
-<div class="footer"><p>Generated by Decision Brief System on ${new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})}</p></div>
-</div></body></html>`;
         document.getElementById("emailModalTitle").textContent = "Email to Manager";
         document.getElementById("toLabel").textContent = "To (Manager Email)";
-        document.getElementById("templateTitle").textContent = "HTML Email Template (Calibri 11pt):";
-        document.getElementById("emailTemplatePreview").innerHTML = htmlEmailTemplate;
         if (decisionOwnerEmailVal) document.getElementById("toEmail").value = decisionOwnerEmailVal;
-        if (requesterEmailVal) document.getElementById("fromEmail").value = requesterEmailVal;
     }
 
-    // MODIFIED: setupToRequesterEmail with simple format and Calibri 11pt
     function setupToRequesterEmail() {
         const topic = document.getElementById("topic").value || "Decision Brief";
+        const requesterName = document.getElementById("requestedBy").value || "Requester";
         const docId = document.getElementById("docId").textContent;
-        const decisionOwner = document.getElementById("decisionOwner").value || "Manager";
         const requesterEmailVal = document.getElementById("requesterEmail").value || "";
-        const decisionOwnerEmailVal = document.getElementById("decisionOwnerEmail").value || "";
+        const decisionOwner = document.getElementById("decisionOwner").value || "Manager";
         const decision = document.querySelector('input[name="decision"]:checked');
         const decisionNotes = document.getElementById("decisionNotes").value || "";
         let decisionText = "Pending", decisionIcon = "⏳";
@@ -1071,62 +1070,31 @@ body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000;
         const subject = `Decision Brief Decision: ${decisionText} - ${topic}`;
         document.getElementById("emailSubject").value = subject;
 
-        plainTextTemplate = `The Decision Brief has been reviewed, and a decision has been made.
+        let body = `dear ${requesterName},\n\n` +
+            `The Decision Brief has been reviewed, and a decision has been made.\n\n` +
+            `Decision: ${decisionIcon} ${decisionText}\n`;
+        if (decisionNotes) body += `Notes: ${decisionNotes}\n\n`;
+        body += `${shareUrl}\n\n` +
+            `Best regards,\n${decisionOwner}`;
 
-Decision: ${decisionIcon} ${decisionText}
-${decisionNotes ? `Notes: ${decisionNotes}` : ""}
-
-${shareUrl}`;
-
-        htmlEmailTemplate = `<!DOCTYPE html>
-<html><head><meta charset="UTF-8"><style>
-body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; color: #000000; line-height: 1.15; margin: 0; padding: 0; }
-.container { max-width: 600px; margin: 0 auto; padding: 20px; }
-.decision-line { margin-bottom: 5px; }
-.link-box { margin-top: 15px; padding: 10px; background-color: #eff6ff; border: 1px solid #3b82f6; border-radius: 4px; word-break: break-all; }
-.link-box a { color: #1e40af; text-decoration: none; }
-.footer { margin-top: 30px; padding-top: 15px; border-top: 1px solid #e2e8f0; font-size: 9pt; color: #64748b; text-align: center; }
-</style></head>
-<body><div class="container">
-<p style="font-weight: normal;">The Decision Brief has been reviewed, and a decision has been made.</p>
-<p class="decision-line"><strong>Decision:</strong> ${decisionIcon} ${decisionText}</p>
-${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNotes.replace(/\n/g,"<br>")}</p>` : ""}
-<div class="link-box"><a href="${shareUrl}">${shareUrl}</a></div>
-<p style="margin:20px 0 0 0;">Best regards,<br><strong>${decisionOwner}</strong></p>
-<div class="footer"><p>Generated by Decision Brief System on ${new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})}</p></div>
-</div></body></html>`;
+        plainTextTemplate = body;
 
         document.getElementById("emailModalTitle").textContent = "Email to Requester";
         document.getElementById("toLabel").textContent = "To (Requester Email)";
-        document.getElementById("templateTitle").textContent = "HTML Email Template (Calibri 11pt):";
-        document.getElementById("emailTemplatePreview").innerHTML = htmlEmailTemplate;
         if (requesterEmailVal) document.getElementById("toEmail").value = requesterEmailVal;
-        if (decisionOwnerEmailVal) document.getElementById("fromEmail").value = decisionOwnerEmailVal;
-    }
-
-    // MODIFIED: updateEmailModalButtons – only one button "Open Outlook"
-    function updateEmailModalButtons(recipientType) {
-        const actionsContainer = document.getElementById("emailModalActions");
-        actionsContainer.innerHTML = `
-            <button class="btn btn-primary" onclick="openEmailClient()" style="width: 100%; padding: 12px;">
-                <i class="fas fa-envelope"></i> Open Outlook
-            </button>
-        `;
     }
 
     function openEmailClient() {
         const toEmail = document.getElementById("toEmail").value;
-        const fromEmail = document.getElementById("fromEmail").value || "";
         const subject = document.getElementById("emailSubject").value;
+        const additionalMsg = document.getElementById("additionalMessage").value.trim();
         if (!toEmail) { alert("Please enter recipient email address."); return; }
-        let mailtoLink = `mailto:${toEmail}`;
-        if (fromEmail) mailtoLink += `?cc=${fromEmail}`;
-        mailtoLink += `${fromEmail ? "&" : "?"}subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(plainTextTemplate)}`;
+        let finalBody = plainTextTemplate;
+        if (additionalMsg) {
+            finalBody += "\n\n" + additionalMsg;
+        }
+        const mailtoLink = `mailto:${toEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(finalBody)}`;
         window.open(mailtoLink, "_blank");
-    }
-
-    function useTemplate() {
-        if (currentEmailType === 'manager') setupToManagerEmail(); else setupToRequesterEmail();
     }
 
     function setupEmailModalListeners() {
@@ -1136,7 +1104,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
         window.addEventListener("click", e => { if (e.target === emailModal) emailModal.style.display = "none"; });
     }
 
-    // GitHub functions (unchanged)
+    // GitHub functions (unchanged, full)
     function loadGithubConfig() {
         try {
             const saved = localStorage.getItem(GITHUB_CONFIG_KEY);
@@ -1345,9 +1313,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
         document.getElementById('configStatus').style.display = 'none';
     }
 
-    // ================================
-    // 📁 DOCUMENT MANAGEMENT SYSTEM (FULL DASHBOARD)
-    // ================================
+    // Document Management System (full)
     function loadDocumentsDatabase() {
         try { const saved = localStorage.getItem(DOCUMENTS_DB_KEY); if (saved) documentsDatabase = JSON.parse(saved); } catch (error) { console.error("Error loading documents database:", error); documentsDatabase = []; }
         const savedPassword = localStorage.getItem(DASHBOARD_PASSWORD_KEY);
@@ -1377,7 +1343,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
     }
 
     function openDashboard() {
-        saveDocumentToDatabase(); // save current before showing dashboard
+        saveDocumentToDatabase();
         if (!dashboardPassword) { showDashboard(); return; }
         const modal = document.createElement('div');
         modal.className = 'modal';
@@ -1747,7 +1713,7 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
     async function saveToCloudAndShare() {
         if (!validateAllMandatoryFields()) {
             showAlert('❌ Please fill in all required fields (marked with *) before saving.', 'error');
-            const firstMissing = document.querySelector('.mandatory-field, .next-steps-mandatory');
+            const firstMissing = document.querySelector('.mandatory-field, .option-mandatory, .next-steps-first-row-mandatory');
             if (firstMissing) firstMissing.scrollIntoView({ behavior: 'smooth', block: 'center' });
             return;
         }
@@ -1798,9 +1764,8 @@ ${decisionNotes ? `<p class="decision-line"><strong>Notes:</strong> ${decisionNo
         currentEmailType = recipientType;
         if (recipientType === 'manager') setupToManagerEmail(); else setupToRequesterEmail();
         document.getElementById("emailModal").style.display = "flex";
-        updateEmailModalButtons(recipientType);
-        setTimeout(() => { const preview = document.getElementById("emailTemplatePreview"); if (preview) { preview.style.display = "none"; setTimeout(() => preview.style.display = "block", 10); } }, 50);
     }
 </script>
 </body>
 </html>
+```
